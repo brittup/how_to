@@ -4,7 +4,7 @@ isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
 isi license list
 
 
-isi zone zones create --name zone1 --path /ifs/zone1/cdh --create-path
+isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
 
 isi zone zones list --verbose
 
@@ -18,6 +18,15 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0: --ranges=192.168.1.40 - 192.168.1.48  -- access-zone=cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns zone=isilonsczone.vlab.local    --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
 
 isi network pools list --verbose
+isi network pools view id=groupnet0:subnet0:hadoop-pool-cdh
+
+SETUP windows DNS
+
+TEST SCZOne
+ping isilonsczone-cdh.vlab.local
+
+isi hdfs settings modify –-zone=zone1-cdh –-root-directory=/ifs/zone1/cdh/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
