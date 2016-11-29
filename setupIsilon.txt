@@ -1,3 +1,4 @@
+####SETUP ISILON
 isi license list
 isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
 isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
@@ -21,12 +22,112 @@ isi network pools list --verbose
 isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
 
 isi network pools list --verbose
-isi network pools view id=groupnet0:subnet0:hadoop-pool-cdh
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
 
-SETUP windows DNS
+####SETUP windows DNS
 
-TEST SCZOne
+#connect to domain controller
+#admin tools DNS
+#vlab.local
+#add A record   ssip-isilon  192.168.1.100
+
+#new delegation
+#	isilonsczone-cdh
+#Add
+#	ssip-isilon.vlab.local
+#Resolve, comes back as 192.168.1.100
+
+
+
+#TEST SCZone
 ping isilonsczone-cdh.vlab.local
 
-isi hdfs settings modify –-zone=zone1-cdh –-root-directory=/ifs/zone1/cdh/hadoop-root
+#should resolve to 192.168.1.40-48
+
+
+
+
+
+####HDFS Settings:
+isi hdfs settings view --zone=zone1-cdh
+isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+
+
+touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
+
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+
+
+mkdir -p /ifs/zone1/cdh/scripts
+
+https://github.com/Isilon/isilon_hadoop_tools
+
+#clone or download, as a zip, go find the download, unzip
+#winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/cdh/scripts
+
+cd /ifs/zone1/cdh/scripts
+chmod u+x *
+
+bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
+
+bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
+
+ls -al /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
+
+
+#on Isilon
+cat zone1-cdh.passwd
+cat zone1-cdh.group
+
+#go to HDFS01
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-cdh.group
+esc :wq
+
+
+
+#go to HDFS02
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-cdh.group
+esc :wq
+
+
+
+
+#go to HDFS03
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-cdh.group
+esc :wq
+
+
+****************************************************************************
+
