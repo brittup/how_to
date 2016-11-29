@@ -1,0 +1,18 @@
+isi license list
+isi license activate -- key ISILO-HJXC0-H15JU-YTZTW-OKZLT
+isi license activate -- key ISILO-HVOC0-PHOJU-YPATW-W4FKT
+isi license list
+
+
+isi zone zones create --name zone1 --path /ifs/zone1/cdh --create-path
+
+isi zone zone view -v
+
+
+mkdir -p /ifs/zone1/cdh/hadoop-root
+
+
+
+isi network pools create --id=groupnet0:subnet0: --ranges=192.168.1.40 - 192.168.1.48  -- access-zone=cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns zone=isilonsczone.vlab.local    --description=hadoop
+
+isi network pools list –v
