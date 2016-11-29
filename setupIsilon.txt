@@ -61,6 +61,7 @@ isi auth settings acls modify --group-owner-inheritance=parent
 
 
 
+####HDFS Users & Group setup
 mkdir -p /ifs/zone1/cdh/scripts
 
 https://github.com/Isilon/isilon_hadoop_tools
@@ -130,4 +131,35 @@ esc :wq
 
 
 ****************************************************************************
+##Cloudera Install
+
+##Linux HOST setup:
+SELinux
+	vi /etc/selinux/config 
+	SELINUX=disabled
+
+IPtables
+chkconfig iptables off
+chkconfig ip6tables off
+
+wget http://archive.cloudera.com/cm5/installer/5.8.2.3/
+
+Copy to CM host
+chmod u+x  cloudera-manager-installer.bin
+
+
+./cloudera-manager-installer.bin --skip_repo_package=1
+
+
+
+service cloudera-scm-server status  
+service cloudera-scm-server-db status
+
+service cloudera-scm-server  restart
+service cloudera-scm-server-db restart
+
+Or a reboot
+
+
+
 
