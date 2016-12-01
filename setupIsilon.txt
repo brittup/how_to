@@ -1,4 +1,6 @@
-####SETUP ISILON
+####SETUP ISILON view and validate process
+
+
 isi license list
 isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
 isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
@@ -6,7 +8,6 @@ isi license list
 
 
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
-
 isi zone zones list --verbose
 
 
@@ -21,21 +22,28 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 isi network pools list --verbose
 isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
 
+
 isi network pools list --verbose
 isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
 
-####SETUP windows DNS
 
-#connect to domain controller
+
+
+
+###################################################################################################
+####SETUP windows DNS for SmartConnect Zone
+
+#connect to domain controller DC
 #admin tools DNS
-#vlab.local
-#add A record   ssip-isilon  192.168.1.100
+#select vlab.local
+add A record   ssip-isilon  192.168.1.100
 
 #new delegation
-#	isilonsczone-cdh
+	isilonsczone-cdh
 #Add
-#	ssip-isilon.vlab.local
+	ssip-isilon.vlab.local
 #Resolve, comes back as 192.168.1.100
+#complete
 
 
 
@@ -44,7 +52,7 @@ ping isilonsczone-cdh.vlab.local
 
 #should resolve to 192.168.1.40-48
 
-
+###################################################################################################
 
 
 
@@ -78,6 +86,7 @@ bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
 
 ls -al /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh/hadoop-root/user
+
 
 
 
@@ -130,6 +139,12 @@ vi /etc/group
 esc :wq
 
 
+
+
+
+
+
+
 ****************************************************************************
 ##Cloudera Install
 
@@ -142,13 +157,18 @@ IPtables
 chkconfig iptables off
 chkconfig ip6tables off
 
-wget http://archive.cloudera.com/cm5/installer/5.8.2.3/
 
-Copy to CM host
+##from windows go download the installer
+http://archive.cloudera.com/cm5/installer/5.8.2.3/
+
+
+
+##Copy to CM host using winscp
 chmod u+x  cloudera-manager-installer.bin
 
 
 ./cloudera-manager-installer.bin --skip_repo_package=1
+
 
 
 
@@ -162,4 +182,29 @@ Or a reboot
 
 
 
+See lab install doc for specifics with cloudera repos --- >  you have to change the repo locations in CM
 
+
+
+
+
+
+
+
+
+
+just the isilon commands in one block:
+#################################################################################
+
+
+isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
+isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
+isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
+mkdir -p /ifs/zone1/cdh/hadoop-root
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
+isi hdfs settings view --zone=zone1-cdh
+isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
+isi auth settings acls modify --group-owner-inheritance=parent
