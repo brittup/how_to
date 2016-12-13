@@ -20,7 +20,7 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --scsubnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
 
 
 isi network pools list --verbose
@@ -212,6 +212,14 @@ isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 isi auth settings acls modify --group-owner-inheritance=parent
+mkdir -p /ifs/zone1/cdh/scripts
+isi license list
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
+
+
 
 #################################################################################
 #################################################################################
