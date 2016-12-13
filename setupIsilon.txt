@@ -1,4 +1,5 @@
 ####SETUP ISILON view and validate process
+(see bottom of file for just commands)
 
 
 isi license list
@@ -56,7 +57,7 @@ ping isilonsczone-cdh.vlab.local
 
 
 
-####HDFS Settings:
+####Isilon HDFS Settings:
 isi hdfs settings view --zone=zone1-cdh
 isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
@@ -210,6 +211,13 @@ HDFS03.vlab.local
 Page 17 of Support Isilon Hadoop Learning Guide, remove all the repos and add
 
 http://192.168.1.20/cdh5.8.2/
+
+
+##
+Password123!
+
+
+Deploy!
 
 
 
