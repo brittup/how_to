@@ -195,11 +195,15 @@ Or a reboot
 See lab install doc for specifics with cloudera repos --- >  you have to change the repo locations in CM
 
 
+##Goto to Cloudera Manager
+http://192.168.1.40:7180
 
+admin/admin
 
-
-
-
+##Host to deploy
+HDFS01.vlab.local
+HDFS02.vlab.local
+HDFS03.vlab.local
 
 
 
