@@ -220,7 +220,7 @@ isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 isi auth settings acls modify --group-owner-inheritance=parent
 mkdir -p /ifs/zone1/cdh/scripts
-cd -p /ifs/zone1/cdh/scripts
+cd /ifs/zone1/cdh/scripts
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
 chmod u+x *
