@@ -20,7 +20,7 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=hadoop
 
 
 isi network pools list --verbose
@@ -50,7 +50,7 @@ add A record   ssip-isilon  192.168.1.100
 #TEST SCZone
 ping isilonsczone-cdh.vlab.local
 
-#should resolve to 192.168.1.40-48
+#should resolve to 192.168.1.60-68
 
 ###################################################################################################
 
@@ -161,6 +161,7 @@ SELinux
 #IPtables off
 chkconfig iptables off
 chkconfig ip6tables off
+chkconfig
 
 
 ##from windows go download the installer or wget with internet access; cloudera-manager-installer.bin
@@ -170,10 +171,8 @@ http://archive.cloudera.com/cm5/installer/5.8.2.3/
 
 cd /tmp
 wget http://archive.cloudera.com/cm5/installer/5.8.2.3/cloudera-manager-installer.bin
-
-
 chmod u+x  cloudera-manager-installer.bin
-
+ls -al
 
 ./cloudera-manager-installer.bin --skip_repo_package=1
 
@@ -214,7 +213,7 @@ isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
 mkdir -p /ifs/zone1/cdh/hadoop-root
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.40-192.168.1.48  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=cdh_hadoop_access_zone
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.vlab.local    --description=cdh_hadoop_access_zone
 isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
