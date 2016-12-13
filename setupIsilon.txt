@@ -164,7 +164,8 @@ chkconfig ip6tables off
 chkconfig
 
 
-##from windows go download the installer or wget with internet access; cloudera-manager-installer.bin
+
+##From windows go download the installer or wget with internet access; cloudera-manager-installer.bin
 http://archive.cloudera.com/cm5/installer/5.8.2.3/
 ##Copy to CM host using winscp
 
@@ -174,11 +175,13 @@ wget http://archive.cloudera.com/cm5/installer/5.8.2.3/cloudera-manager-installe
 chmod u+x  cloudera-manager-installer.bin
 ls -al
 
+
+##install cloudera manager
 ./cloudera-manager-installer.bin --skip_repo_package=1
 
 
 
-
+##cloudera manager service check
 service cloudera-scm-server status  
 service cloudera-scm-server-db status
 
@@ -188,7 +191,7 @@ service cloudera-scm-server-db restart
 Or a reboot
 
 
-
+##now see the lab guide for local repo setup and configuration
 See lab install doc for specifics with cloudera repos --- >  you have to change the repo locations in CM
 
 
