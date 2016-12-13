@@ -77,6 +77,10 @@ https://github.com/Isilon/isilon_hadoop_tools
 #clone or download, as a zip, go find the download, unzip
 #winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/cdh/scripts
 
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+
+
 cd /ifs/zone1/cdh/scripts
 chmod u+x *
 
@@ -90,7 +94,7 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
 
-#on Isilon
+####on Isilon
 cat zone1-cdh.passwd
 cat zone1-cdh.group
 
@@ -213,6 +217,15 @@ isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 isi auth settings acls modify --group-owner-inheritance=parent
 mkdir -p /ifs/zone1/cdh/scripts
+cd -p /ifs/zone1/cdh/scripts
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+chmod u+x *
+bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
+bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
+ls -al /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
 isi license list
 isi zone zones list --verbose
 isi network subnets list --verbose
