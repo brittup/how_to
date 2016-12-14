@@ -166,6 +166,7 @@ SELinux
 #IPtables off
 chkconfig iptables off
 chkconfig ip6tables off
+chkconfig ntpdate on
 chkconfig
 
 
