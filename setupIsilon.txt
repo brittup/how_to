@@ -213,11 +213,29 @@ Page 17 of Support Isilon Hadoop Learning Guide, remove all the repos and add
 http://192.168.1.20/cdh5.8.2/
 
 
-##
+##Host paswords
 Password123!
 
 
-Deploy!
+
+##Deploy!  --- >
+
+#Host Inspection
+echo never > /sys/kernel/nm/transparent_huepage/defrag
+usermod -a -G sqoop sqoop2
+
+cat /proc/sys/vm/swappiness
+	sysctl vm.swappiness=10
+cat /proc/sys/vm/swappiness
+	vi /etc/sysctl.config   (Add vm.swappiness=10)
+
+
+#No hdfs service, add Isilon
+	
+	
+	
+default_fs_name      hdfs://isilonsczone-cdh.vlab.local:8020
+webhdfs_url      hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 
 
