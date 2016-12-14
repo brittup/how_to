@@ -153,6 +153,10 @@ esc :wq
 ****************************************************************************
 ##Cloudera Install
 
+##Change Hostname to lower case & update DNS
+
+vi /etc/sysconfig/network
+
 ##Linux HOST setup:
 SELinux
 	vi /etc/selinux/config 
@@ -218,7 +222,7 @@ Password123!
 
 
 
-##Deploy!  --- >
+##Deploy!  --- > no hdfs, no sqoop BUT add isilon
 
 #Host Inspection
 echo never > /sys/kernel/nm/transparent_huepage/defrag
@@ -234,8 +238,18 @@ cat /proc/sys/vm/swappiness
 	
 	
 	
-default_fs_name      hdfs://isilonsczone-cdh.vlab.local:8020
-webhdfs_url      hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
+default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
+webhdfs_url      		hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
+
+
+Test:
+hdfs dfs -ls /
+hadoop jar hadoop-mapreduce-examples.jar pi 10 10
+
+
+
+
+
 
 
 
