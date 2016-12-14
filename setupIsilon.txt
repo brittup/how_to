@@ -169,6 +169,11 @@ chkconfig ip6tables off
 chkconfig ntpdate on
 chkconfig
 
+yum install ntp
+chkconfig ntpd on
+service ntpd start
+ntpq -p
+
 
 
 ##From windows go download the installer or wget with internet access; cloudera-manager-installer.bin
