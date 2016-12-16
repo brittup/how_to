@@ -172,6 +172,7 @@ chkconfig
 yum install ntp
 chkconfig ntpd on
 service ntpd start
+
 ntpq -p
 
 
@@ -250,7 +251,15 @@ webhdfs_url      		hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 Test:
 hdfs dfs -ls /
-hadoop jar hadoop-mapreduce-examples.jar pi 10 10
+hdfs dfs -mkdir /user/hdfs/TEST
+
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar pi 10 100
+
+
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teragen 100000 /user/hdfs/teragenOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+
 
 
 
