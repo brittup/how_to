@@ -173,7 +173,7 @@ yum install ntp
 chkconfig ntpd on
 service ntpd start
 
-ntpq -p
+ntpq -np
 
 
 
