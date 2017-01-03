@@ -175,10 +175,16 @@ service ntpd start
 
 ntpq -np
 
+#Cloudera Host inspector fixes
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+usermod -a -G sqoop sqoop2
+vi /etc/sysctl.config   
+	(Add vm.swappiness=10)
+cat /proc/sys/vm/swappiness
 
 
-##From windows go download the installer or wget with internet access; cloudera-manager-installer.bin
-http://archive.cloudera.com/cm5/installer/5.8.2.3/
+##if no internet access then from windows host go download the installer or wget with internet access; cloudera-manager-installer.bin
+##http://archive.cloudera.com/cm5/installer/5.8.2.3/
 ##Copy to CM host using winscp
 
 
@@ -187,11 +193,20 @@ wget http://archive.cloudera.com/cm5/installer/5.8.2.3/cloudera-manager-installe
 chmod u+x  cloudera-manager-installer.bin
 ls -al
 
+##reboot all hosts
+reboot 
+
+
+##All DNS is setup?
+
 
 ##install cloudera manager
+cd /tmp
 ./cloudera-manager-installer.bin --skip_repo_package=1
 
+http://192.168.1.40:7180
 
+admin/admin
 
 ##cloudera manager service check
 service cloudera-scm-server status  
@@ -200,11 +215,12 @@ service cloudera-scm-server-db status
 service cloudera-scm-server  restart
 service cloudera-scm-server-db restart
 
-Or a reboot
+Or a reboot can sometimes fix this.
 
 
 ##now see the lab guide for local repo setup and configuration
 See lab install doc for specifics with cloudera repos --- >  you have to change the repo locations in CM
+
 
 
 ##Goto to Cloudera Manager
@@ -213,26 +229,29 @@ http://192.168.1.40:7180
 admin/admin
 
 ##Host to deploy
-HDFS01.vlab.local
-HDFS02.vlab.local
-HDFS03.vlab.local
+hdfs01.vlab.local
+hdfs02.vlab.local
+hdfs03.vlab.local
+
 
 
 ##Make repo changes for Cloudera CDH install
-Page 17 of Support Isilon Hadoop Learning Guide, remove all the repos and add
+##Page 17 of Support Isilon Hadoop Learning Guide, remove all the Remote Parcel repo URL and add this local one
 
 http://192.168.1.20/cdh5.8.2/
 
+
+##Select the version of CDH to install
 
 ##Host paswords
 Password123!
 
 
 
-##Deploy!  --- > no hdfs, no sqoop BUT add isilon
 
-#Host Inspection
-echo never > /sys/kernel/nm/transparent_huepage/defrag
+
+#Host Inspection, if these fail here are cmds to fix them:
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
 usermod -a -G sqoop sqoop2
 
 cat /proc/sys/vm/swappiness
@@ -241,7 +260,12 @@ cat /proc/sys/vm/swappiness
 	vi /etc/sysctl.config   (Add vm.swappiness=10)
 
 
-#No hdfs service, add Isilon
+	
+	
+##Deploy Custom Services!  --- > NO hdfs, NO sqoop BUT add Isilon
+##spread service around the hosts
+	
+	
 	
 	
 	
@@ -249,7 +273,12 @@ default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
 webhdfs_url      		hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 
-Test:
+Continue!
+
+
+
+
+##Test:
 hdfs dfs -ls /
 hdfs dfs -mkdir /user/hdfs/TEST
 

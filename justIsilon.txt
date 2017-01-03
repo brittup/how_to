@@ -1,0 +1,30 @@
+isi zone zones create --name=zone1-hadoop --path=/ifs/zone1/hadoop --create-path
+mkdir -p /ifs/zone1/hadoop/hadoop-root
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+isi network pools create --id=groupnet0:subnet0:hadoop-pool --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hadoop  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hadoop.vlab.local    --description=hadoop_access_zone
+isi hdfs settings modify --zone=zone1-hadoop --root-directory=/ifs/zone1/hadoop/hadoop-root
+##run only if HDP install
+isi hdfs settings modify --zone=zone1-hadoop --ambari-namenode=isilonsczone-hadoop.vlab.local
+isi hdfs settings modify --zone=zone1-hadoop --ambari-server=<fdqn of ambari server>
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hadoop
+touch /ifs/zone1/hadoop/hadoop-root/THIS_IS_ISILON_zone1-hadoop.txt
+isi auth settings acls modify --group-owner-inheritance=parent
+mkdir -p /ifs/zone1/hadoop/scripts
+cd /ifs/zone1/hadoop/scripts
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+chmod u+x *
+##edit distribution to be created cdh or hwx
+bash isilon_create_users.sh --dist <cdh | hwx> --startuid 501 --startgid 501  --zone zone1-hadoop
+bash isilon_create_directories.sh --dist <cdh | hwx> --zone zone1-hadoop  --fixperm
+
+
+
+isi license list
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool
+isi hdfs settings view --zone=zone1-hadoop
+ls -al /ifs/zone1/hadoop/hadoop-root
+ls -al /ifs/zone1/hadoop/hadoop-root/user
