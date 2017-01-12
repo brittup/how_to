@@ -256,12 +256,25 @@ All host + isilon are now green
 continue
 
 
+Select service to deploy
+Move namenode to isilon hosts
+Move snamenode to isilon hosts
+
+move all other roles around to balance
+
+on roles, master & slaves
+
+datanode - ISILON host only
+add other roles, client and master to other nodes, nothing else on isilon
 
 
+on HDFS configuration, customize:
+dfs.namenode.http-address  change port from 50070 --> 8082
 
-	
-default_fs_name      	hdfs://isilonsczone-hwx.vlab.local:8020
-webhdfs_url      		hdfs://isilonsczone-hwx.vlab.local:8082/webhdfs/v1
+add all passwords in
+continue and deploy --- >
+
+
 
 
 

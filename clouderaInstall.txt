@@ -272,7 +272,7 @@ cat /proc/sys/vm/swappiness
 	
 	
 default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
-webhdfs_url      		hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
+webhdfs_url      		http://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 
 Continue --->
