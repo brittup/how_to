@@ -179,6 +179,7 @@ ntpq -np
 
 #Ambari Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 
 
@@ -220,6 +221,15 @@ ssh-copy-id root@hdfs03.vlab.local
 ssh root@hdfs03.vlab.local
 ssh root@hdfs03.vlab.local
 
+Name cluster
+Select stack
+unselect all repos not needed
+Modify redhat6 repos to use local repo:
+
+
+http://192.168.1.20/hdp/HDP/centos6/2.x/updates/2.3.6.0
+http://192.168.1.20/hdp/HDP-UTILS-1.1.0.20/repos/centos6
+
 
 ##Host to deploy
 hdfs01.vlab.local
@@ -237,18 +247,16 @@ Register and confirm
 
 
 All hosts green
-Back
-
-
-Manual
-Add the isilon Sczonehost name in to list
+BACK <---
+Select Perform Manual
+Add the isilon Sczonehost name in to list; isilonsczone-hdp.vlab.local
 Register
 
 All host + isilon are now green
 continue
 
 
-Modify Repos
+
 
 
 	
