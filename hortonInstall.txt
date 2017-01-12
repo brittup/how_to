@@ -1,0 +1,317 @@
+####SETUP ISILON view and validate process
+(see bottom of file for just commands)
+
+
+isi license list
+isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
+isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
+isi license list
+
+
+isi zone zones create --name=zone1-hdp --path=/ifs/zone1/hdp --create-path
+isi zone zones list --verbose
+
+
+mkdir -p /ifs/zone1/hdp/hadoop-root
+ls -al /ifs/zone1/hdp
+
+
+
+isi network subnets list --verbose
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+
+
+isi network pools list --verbose
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hwx --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hdp  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp.vlab.local    --description=hadoop
+
+
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-hdp
+
+
+
+
+
+###################################################################################################
+####SETUP windows DNS for SmartConnect Zone
+
+#connect to domain controller DC
+#admin tools DNS
+#select vlab.local
+add A record   ssip-isilon  192.168.1.100
+
+#new delegation
+	isilonsczone-hdp
+#Add
+	ssip-isilon.vlab.local
+#Resolve, comes back as 192.168.1.100
+#complete
+
+
+
+#TEST SCZone
+ping isilonsczone-hdp.vlab.local
+
+#should resolve to 192.168.1.60-68
+
+###################################################################################################
+
+
+
+####Isilon HDFS Settings:
+isi hdfs settings view --zone=zone1-hdp
+isi hdfs settings modify --zone=zone1-hdp --root-directory=/ifs/zone1/hdp/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hdp
+isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
+isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-server=hdfs01.vlab.local
+
+touch /ifs/zone1/hwx/hadoop-root/THIS_IS_ISILON_zone1-hdp.txt
+
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+
+
+####HDFS Users & Group setup
+mkdir -p /ifs/zone1/hdp/scripts
+
+https://github.com/Isilon/isilon_hadoop_tools
+
+#clone or download, as a zip, go find the download, unzip
+#winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/hwx/scripts
+
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+
+
+cd /ifs/zone1/hdp/scripts
+chmod u+x *
+
+bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp
+
+bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
+
+ls -al /ifs/zone1/hwx/hadoop-root
+ls -al /ifs/zone1/hwx/hadoop-root/user
+
+
+
+
+####on Isilon
+cat zone1-hwx.passwd
+cat zone1-hwx.group
+
+#go to HDFS01
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-hwx.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-hwx.group
+esc :wq
+
+
+
+#go to HDFS02
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-hwx.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-hwx.group
+esc :wq
+
+
+
+
+#go to HDFS03
+vi /etc/passwd
+#G
+#o
+#cut and paste content from zone1-hwx.passwd
+esc :wq
+
+vi /etc/group
+#G
+#o
+#cut and paste content from zone1-hwx.group
+esc :wq
+
+
+
+
+
+
+
+
+****************************************************************************
+##Ambari & HDP Install
+
+##Change Hostname to lower case & update DNS
+
+vi /etc/sysconfig/network
+
+##Linux HOST setup:
+SELinux
+	vi /etc/selinux/config 
+	SELINUX=disabled
+
+	
+#IPtables off
+chkconfig iptables off
+chkconfig ip6tables off
+chkconfig ntpdate on
+chkconfig
+
+yum install ntp
+
+chkconfig ntpd on
+service ntpd start
+ntpq -np
+
+#Ambari Host inspector fixes
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+
+
+##install Ambari
+
+yum install ambari-server
+
+
+ambari-server setup
+
+
+
+Custom users: n
+JDK option: 1
+Accept license : Y
+
+Database n
+
+
+
+ambari-server status
+ambari-server start
+
+
+http://ambari-server:8080   admin/admin
+
+
+On ambari host
+
+ssh-keygen
+
+ssh-copy-id root@hdfs01.vlab.local
+
+ssh-copy-id root@hdfs02.vlab.local
+
+ssh-copy-id root@hdfs03.vlab.local
+
+##test keyless ssh
+ssh root@hdfs03.vlab.local
+ssh root@hdfs03.vlab.local
+
+
+##Host to deploy
+hdfs01.vlab.local
+hdfs02.vlab.local
+hdfs03.vlab.local
+
+##on Ambari server, NO isilon yet
+cat /root/.ssh/id_rsa   
+
+Copy into a txt file on desktop
+
+
+Select ssh key file
+Register and confirm
+
+
+All hosts green
+Back
+
+
+Manual
+Add the isilon Sczonehost name in to list
+Register
+
+All host + isilon are now green
+continue
+
+
+Modify Repos
+
+
+	
+default_fs_name      	hdfs://isilonsczone-hwx.vlab.local:8020
+webhdfs_url      		hdfs://isilonsczone-hwx.vlab.local:8082/webhdfs/v1
+
+
+
+
+##Test:
+hadoop fs -ls /
+hadoop fs -mkdir /user/hdfs/TEST
+
+yarn jar  pi 10 100
+
+
+yarn jar  teragen 100000 /user/hdfs/teragenOUT
+yarn jar  terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
+yarn jar  teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+
+
+
+
+
+
+Just the isilon commands in one block:
+#################################################################################
+#################################################################################
+
+
+isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
+isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
+
+
+
+isi zone zones create --name=zone1-hwx --path=/ifs/zone1/hwx --create-path
+mkdir -p /ifs/zone1/hwx/hadoop-root
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hwx --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hwx  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hwx.vlab.local    --description=hwx_hadoop_access_zone
+isi hdfs settings modify --zone=zone1-hwx --root-directory=/ifs/zone1/hwx/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hwx
+touch /ifs/zone1/hwx/hadoop-root/THIS_IS_ISILON_zone1-hwx.txt
+isi auth settings acls modify --group-owner-inheritance=parent
+mkdir -p /ifs/zone1/hwx/scripts
+cd /ifs/zone1/hwx/scripts
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+chmod u+x *
+bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hwx
+bash isilon_create_directories.sh --dist hwx --zone zone1-hwx  --fixperm
+
+
+
+
+isi license list
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-hwx
+isi hdfs settings view --zone=zone1-hwx
+ls -al /ifs/zone1/hwx/hadoop-root
+ls -al /ifs/zone1/hwx/hadoop-root/user
+
+
+#################################################################################
+#################################################################################

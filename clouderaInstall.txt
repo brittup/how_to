@@ -16,6 +16,7 @@ mkdir -p /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh
 
 
+
 isi network subnets list --verbose
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
@@ -170,9 +171,10 @@ chkconfig ntpdate on
 chkconfig
 
 yum install ntp
+
+
 chkconfig ntpd on
 service ntpd start
-
 ntpq -np
 
 #Cloudera Host inspector fixes
@@ -273,14 +275,14 @@ default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
 webhdfs_url      		hdfs://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 
-Continue!
+Continue --->
 
 
 
 
 ##Test:
-hdfs dfs -ls /
-hdfs dfs -mkdir /user/hdfs/TEST
+hadoop fs -ls /
+hadoop fs -mkdir /user/hdfs/TEST
 
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar pi 10 100
 
