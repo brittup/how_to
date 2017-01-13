@@ -1,26 +1,51 @@
 ##upgrade isilon
 
-wget https://download.emc.com/downloads/DL79685_OneFS-8.0.1.0-Installation-File.gz?source=OLS
+wget ftp://ftp.emc.com/outgoing/support/rr/8.0.1.0
+
+reboot
+set ODP version
 
 
 
 
 ##update ambari
 
-ambari-server stop
+##On all hosts
+wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+yum clean all
+
+
+##On all hosts
 ambari-agent stop
 
-wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+##Ambari Server host
+ambari-server stop
 
-yum clean all
 yum info ambari-server
-
 yum upgrade ambari-server
 
+
+##On all hosts
 yum upgrade ambari-agent
 
-ambari-server upgrade
+
 
 ambari-server upgrade
+y
 
+
+
+##On all hosts
 ambari-agent start
+
+##Ambari Server host
+ambari-server start
+ambari-server status
+
+
+
+##Logon
+http://ambari-server:8080   admin/admin
+
+
+Update stack --- >
