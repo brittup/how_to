@@ -267,7 +267,7 @@ on roles, master & slaves
 datanode - ISILON host only
 add other roles, client and master to other nodes, nothing else on isilon
 
-
+##Customize Services
 on HDFS configuration, customize:
 dfs.namenode.http-address  change port from 50070 --> 8082
 

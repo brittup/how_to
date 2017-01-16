@@ -49,3 +49,17 @@ http://ambari-server:8080   admin/admin
 
 
 Update stack --- >
+
+
+
+
+
+##############
+cleanup
+python /usr/lib/python2.6/site-packages/ambari_agent/HostCleanup.py --silent --skip=users
+ambari-server  stop
+ambari-server reset
+ambari-server setup
+ambari-server start
+
+

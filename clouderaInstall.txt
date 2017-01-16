@@ -74,16 +74,15 @@ isi auth settings acls modify --group-owner-inheritance=parent
 ####HDFS Users & Group setup
 mkdir -p /ifs/zone1/cdh/scripts
 
-https://github.com/Isilon/isilon_hadoop_tools
 
 #clone or download, as a zip, go find the download, unzip
 #winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/cdh/scripts
+#https://github.com/Isilon/isilon_hadoop_tools
 
+cd /ifs/zone1/cdh/scripts
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
 
-
-cd /ifs/zone1/cdh/scripts
 chmod u+x *
 
 bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
@@ -164,7 +163,7 @@ SELinux
 	SELINUX=disabled
 
 	
-#IPtables off
+##IPtables off
 chkconfig iptables off
 chkconfig ip6tables off
 chkconfig ntpdate on
@@ -179,11 +178,20 @@ ntpq -np
 
 #Cloudera Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
-usermod -a -G sqoop sqoop2
-vi /etc/sysctl.config   
-	(Add vm.swappiness=10)
-cat /proc/sys/vm/swappiness
 
+usermod -a -G sqoop sqoop2
+
+cat /proc/sys/vm/swappiness
+vi /etc/sysctl.conf 
+	(Add at the end) G, O - esc:wq
+	
+	vm.swappiness=10
+	
+
+##reboot all hosts
+reboot 
+
+cat /proc/sys/vm/swappiness
 
 ##if no internet access then from windows host go download the installer or wget with internet access; cloudera-manager-installer.bin
 ##http://archive.cloudera.com/cm5/installer/5.8.2.3/
@@ -195,16 +203,17 @@ wget http://archive.cloudera.com/cm5/installer/5.8.2.3/cloudera-manager-installe
 chmod u+x  cloudera-manager-installer.bin
 ls -al
 
-##reboot all hosts
-reboot 
+
 
 
 ##All DNS is setup?
+##All Isilon setup?
 
 
 ##install cloudera manager
 cd /tmp
 ./cloudera-manager-installer.bin --skip_repo_package=1
+
 
 http://192.168.1.40:7180
 
@@ -248,27 +257,12 @@ http://192.168.1.20/cdh5.8.2/
 ##Host paswords
 Password123!
 
+Install to hosts!
 
 
-
-
-#Host Inspection, if these fail here are cmds to fix them:
-echo never > /sys/kernel/mm/transparent_hugepage/defrag
-usermod -a -G sqoop sqoop2
-
-cat /proc/sys/vm/swappiness
-	sysctl vm.swappiness=10
-cat /proc/sys/vm/swappiness
-	vi /etc/sysctl.config   (Add vm.swappiness=10)
-
-
-	
-	
+##Configure	
 ##Deploy Custom Services!  --- > NO hdfs, NO sqoop BUT add Isilon
 ##spread service around the hosts
-	
-	
-	
 	
 	
 default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
