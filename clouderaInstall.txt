@@ -265,8 +265,8 @@ Install to hosts!
 ##spread service around the hosts
 	
 	
-default_fs_name      	hdfs://isilonsczone-cdh.vlab.local:8020
-webhdfs_url      		http://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
+default_fs_name		hdfs://isilonsczone-cdh.vlab.local:8020
+webhdfs_url			http://isilonsczone-cdh.vlab.local:8082/webhdfs/v1
 
 
 Continue --->
