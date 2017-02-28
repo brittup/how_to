@@ -62,8 +62,8 @@ ping isilonsczone-hdp.vlab.local
 isi hdfs settings view --zone=zone1-hdp
 isi hdfs settings modify --zone=zone1-hdp --root-directory=/ifs/zone1/hdp/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hdp
-isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
-isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-server=hdfs01.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.vlab.local
 
 touch /ifs/zone1/hdp/hadoop-root/THIS_IS_ISILON_zone1-hdp.txt
 
@@ -283,11 +283,13 @@ Just the isilon commands in one block:
 #################################################################################
 
 
+
+
 isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
 isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
 
 
-
+#License before running
 isi zone zones create --name=zone1-hdp --path=/ifs/zone1/hdp --create-path
 mkdir -p /ifs/zone1/hdp/hadoop-root
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
@@ -303,8 +305,11 @@ wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_
 chmod u+x *
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp
 bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
-isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
-isi hdfs settings modify --zone=zone1-hadoop-hdp --ambari-server=hdfs01.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
+
+
+#Create SCZone before running
+isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.vlab.local
 
 
 
