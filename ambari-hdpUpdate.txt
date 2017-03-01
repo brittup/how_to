@@ -45,13 +45,20 @@ http://ambari-server:8080   admin/admin
 
 
 Update stack --- >
-
+admin
+stack & versions
+version
+manage version
+register the version you want
+set ODP version to HDP stack to be deployed on isilon zone
+install
 
 
 
 
 ##############
 cleanup
+ambari-agent stop
 python /usr/lib/python2.6/site-packages/ambari_agent/HostCleanup.py --silent --skip=users
 ambari-server  stop
 ambari-server reset

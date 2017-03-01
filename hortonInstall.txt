@@ -179,6 +179,10 @@ echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
 reboot all hosts
 
 ##install Ambari on hdfs01
+##install higher version initially
+wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+yum clean all
+
 
 yum install ambari-server
 ambari-server setup
@@ -256,9 +260,15 @@ on roles, master & slaves
 datanode - ISILON host only!!
 add other roles, client and master to other nodes, nothing else on isilon
 
+
 ##Customize Services
 on HDFS configuration, customize:
 dfs.namenode.http-address  change port from 50070 --> 8082
+dfs.namenode.https-address change port from 50470 --> 8080
+##dfs.client-write-packet-size to 131072
+yarn.scheduler.capacity.node-locality-delay  to  0  
+
+
 
 add all passwords in
 continue and deploy --- >
@@ -266,14 +276,18 @@ continue and deploy --- >
 
 ##Test:
 hadoop fs -ls /
-hadoop fs -mkdir /user/hdfs/TEST
-
-yarn jar  pi 10 100
+hadoop fs -mkdir /user/hdfs/TEST50070
 
 
-yarn jar  teragen 100000 /user/hdfs/teragenOUT
-yarn jar  terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
-yarn jar  teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+or just run the service check!!!!!
+
+cd /usr/hdp/2.3.6.0-3796/hadoop-mapreduce  (the version number may differ)
+
+yarn jar hadoop-mapreduce-examples-2.7.1.2.3.6.0-3796.jar pi 10 100
+
+yarn jar hadoop-mapreduce-examples-2.7.1.2.3.6.0-3796.jar teragen 100000 /user/hdfs/teragenOUT
+yarn jar hadoop-mapreduce-examples-2.7.1.2.3.6.0-3796.jar  terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
+yarn jar hadoop-mapreduce-examples-2.7.1.2.3.6.0-3796.jar  teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
 
 
 
@@ -290,6 +304,8 @@ isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
 
 
 #License before running
+
+
 isi zone zones create --name=zone1-hdp --path=/ifs/zone1/hdp --create-path
 mkdir -p /ifs/zone1/hdp/hadoop-root
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
@@ -306,6 +322,8 @@ chmod u+x *
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp
 bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
 isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
+
+
 
 
 #Create SCZone before running

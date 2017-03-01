@@ -178,6 +178,9 @@ ntpq -np
 
 #Cloudera Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
 
 usermod -a -G sqoop sqoop2
 
