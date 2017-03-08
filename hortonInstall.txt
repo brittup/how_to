@@ -160,6 +160,7 @@ SELinux
 
 	
 #IPtables off
+yum -y install ntp
 
 chkconfig iptables off
 chkconfig ip6tables off
@@ -196,6 +197,7 @@ wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1
 yum clean all
 
 
+yum -y install ambari-server 
 ambari-server setup
 
 Custom users: n
