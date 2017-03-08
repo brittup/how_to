@@ -169,7 +169,7 @@ chkconfig ip6tables off
 chkconfig ntpdate on
 chkconfig
 
-yum install ntp
+yum -y install ntp
 
 
 chkconfig ntpd on
@@ -182,11 +182,21 @@ echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
 echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
 
+vi /etc/rc.local
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never > /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+
+
 usermod -a -G sqoop sqoop2
 
 cat /proc/sys/vm/swappiness
 vi /etc/sysctl.conf 
-	(Add at the end) G, O - esc:wq
+	(Add at the end) G, o - esc:wq
 	
 	vm.swappiness=10
 	
@@ -280,6 +290,7 @@ Continue --->
 ##Test:
 hadoop fs -ls /
 hadoop fs -mkdir /user/hdfs/TEST
+hadoop fs -ls /user/hdfs/
 
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar pi 10 100
 

@@ -160,7 +160,6 @@ SELinux
 
 	
 #IPtables off
-yum install ntp
 
 chkconfig iptables off
 chkconfig ip6tables off
@@ -176,6 +175,19 @@ echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
 echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
 
+#add
+
+vi /etc/rc.local
+
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never > /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+
+
 reboot all hosts
 
 ##install Ambari on hdfs01
@@ -184,7 +196,6 @@ wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1
 yum clean all
 
 
-yum install ambari-server
 ambari-server setup
 
 Custom users: n
