@@ -2,7 +2,7 @@
 
 cd /ifs/data
 wget ftp://ftp.emc.com/outgoing/support/rr/8.0.1.0/OneFS_v8.0.1.0_Install.tar.gz
-isi upgrade cluster start --simultaneous /ifs/data/OneFS_v8.0.1.0_Install.tar.gz
+isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.0_Install.tar.gz
 
 
 isi upgrade view
