@@ -80,11 +80,10 @@ https://github.com/Isilon/isilon_hadoop_tools
 #clone or download, as a zip, go find the download, unzip
 #winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/hdp/scripts
 
+cd /ifs/zone1/hdp/scripts
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
 
-
-cd /ifs/zone1/hdp/scripts
 chmod u+x *
 
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp

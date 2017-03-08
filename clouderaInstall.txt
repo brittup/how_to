@@ -82,6 +82,8 @@ mkdir -p /ifs/zone1/cdh/scripts
 cd /ifs/zone1/cdh/scripts
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+wget https://raw.githubusercontent.com/brittup/misc/master/userScripts/createusers.sh --no-check-certificate
+wget https://raw.githubusercontent.com/brittup/misc/master/userScripts/creategroups.sh --no-check-certificate
 
 chmod u+x *
 
