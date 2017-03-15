@@ -148,13 +148,10 @@ esc :wq
 
 ##on all hosts add the folowing home
 
-
-
 mkdir /home/httpfs
 mkdir /home/apache
 mkdir /home/kafka
 mkdir /home/kms
-mkdir /home/kudu
 mkdir /home/llama
 mkdir /home/oozie
 mkdir /home/solr
@@ -162,7 +159,6 @@ mkdir /home/spark
 mkdir /home/sqoop
 mkdir /home/zookeeper
 mkdir /home/anonymous
-
 mkdir /home/accumulo
 mkdir /home/flume
 mkdir /home/hdfs
@@ -213,6 +209,7 @@ chown storm:storm /home/storm
 chown falcon:falcon /home/falcon
 chown tracer:tracer /home/tracer
 chown tez:tez /home/tez
+chown solr:solr /home/solr
 chown hcat:hcat /home/hcat
 chown ambari-qa:ambari-qa /home/ambari-qa
 chown hue:hue /home/hue
@@ -227,7 +224,7 @@ chown logsearch:logsearch /home/logsearch
 chown infra-solr:infra-solr /home/infra-solr
 chown activity_analyzer:activity_analyzer /home/activity_analyzer
 chown knox:knox /home/knox
-chown ambari-server:ambari-server home/ambari-server
+chown ambari-server:ambari-server /home/ambari-server
 chown admin:admin /home/admin
 chown activity_explorer:activity_explorer /home/activity_explorer
 
@@ -278,6 +275,7 @@ chmod 700 /home/knox
 chmod 700 /home/ambari-server
 chmod 700 /home/admin
 chmod 700 /home/activity_explorer
+chmod 700 /home/solr
 
 
 ****************************************************************************
