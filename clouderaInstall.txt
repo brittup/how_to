@@ -144,8 +144,93 @@ vi /etc/group
 esc :wq
 
 
+##on all hosts add the folowing home
+
+mkdir /home/hdfs
+mkdir /home/mapred
+mkdir /home/yarn
+mkdir /home/HTTP
+mkdir /home/hbase
+mkdir /home/hive
+mkdir /home/impala
+mkdir /home/hue
+mkdir /home/cloudera-scm
+mkdir /home/accumulo
+mkdir /home/flume
+mkdir /home/httpfs
+mkdir /home/apache
+mkdir /home/kafka
+mkdir /home/kms
+mkdir /home/keytrustee
+mkdir /home/kudu
+mkdir /home/llama
+mkdir /home/oozie
+mkdir /home/solr
+mkdir /home/spark
+mkdir /home/sentry
+mkdir /home/sqoop
+mkdir /home/sqoop2
+mkdir /home/zookeeper
+mkdir /home/anonymous
+mkdir /home/cmjobuser
 
 
+chown hdfs:hdfs /home/hdfs
+chown mapred:mapred /home/mapred
+chown yarn:yarn /home/yarn
+chown HTTP:HTTP /home/HTTP
+chown hbase:hbase /home/hbase
+chown hive:hive /home/hive
+chown impala:impala /home/impala
+chown hue:hue /home/hue
+chown cloudera-scm:cloudera-scm /home/cloudera-scm
+chown accumulo:accumulo /home/accumulo
+chown flume:flume /home/flume
+chown httpfs:httpfs /home/httpfs
+chown apache:apache /home/apache
+chown kafka:kafka /home/kafka
+chown kms:kms /home/kms
+chown keytrustee:keytrustee /home/keytrustee
+chown kudu:kudu /home/kudu
+chown llama:llama /home/llama
+chown oozie:oozie /home/oozie
+chown solr:solr /home/solr
+chown spark:spark /home/spark
+chown sentry:sentry /home/sentry
+chown sqoop:sqoop /home/sqoop
+chown sqoop2:sqoop2 /home/sqoop2
+chown zookeeper:zookeeper /home/zookeeper
+chown anonymous:anonymous /home/anonymous
+chown cmjobuser:cmjobuser /home/cmjobuser
+
+
+chmod 700 /home/hdfs
+chmod 700 /home/mapred
+chmod 700 /home/yarn
+chmod 700 /home/HTTP
+chmod 700 /home/hbase
+chmod 700 /home/hive
+chmod 700 /home/impala
+chmod 700 /home/hue
+chmod 700 /home/cloudera-scm
+chmod 700 /home/accumulo
+chmod 700 /home/flume
+chmod 700 /home/httpfs
+chmod 700 /home/apache
+chmod 700 /home/kafka
+chmod 700 /home/kms
+chmod 700 /home/keytrustee
+chmod 700 /home/kudu
+chmod 700 /home/llama
+chmod 700 /home/oozie
+chmod 700 /home/solr
+chmod 700 /home/spark
+chmod 700 /home/sentry
+chmod 700 /home/sqoop
+chmod 700 /home/sqoop2
+chmod 700 /home/zookeeper
+chmod 700 /home/anonymous
+chmod 700 /home/cmjobuser
 
 
 
