@@ -195,6 +195,7 @@ chown yarn:yarn /home/yarn
 chown HTTP:HTTP /home/HTTP
 chown hbase:hbase /home/hbase
 chown hive:hive /home/hive
+chown kms:kms /home/kms
 chown accumulo:accumulo /home/accumulo
 chown flume:flume /home/flume
 chown httpfs:httpfs /home/httpfs
@@ -202,6 +203,7 @@ chown apache:apache /home/apache
 chown kafka:kafka /home/kafka
 chown oozie:oozie /home/oozie
 chown spark:spark /home/spark
+chown llama:llama /home/llama
 chown sqoop:sqoop /home/sqoop
 chown zookeeper:zookeeper /home/zookeeper
 chown anonymous:anonymous /home/anonymous
@@ -236,6 +238,7 @@ chmod 700 /home/yarn
 chmod 700 /home/HTTP
 chmod 700 /home/hbase
 chmod 700 /home/hive
+chmod 700 /home/kms
 chmod 700 /home/accumulo
 chmod 700 /home/flume
 chmod 700 /home/httpfs
@@ -259,6 +262,7 @@ chmod 700 /home/falcon
 chmod 700 /home/tracer
 chmod 700 /home/tez
 chmod 700 /home/hcat
+chmod 700 /home/llama
 chmod 700 /home/ambari-qa
 chmod 700 /home/hue
 chmod 700 /home/hadoopqa
