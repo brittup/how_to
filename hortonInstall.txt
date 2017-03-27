@@ -475,10 +475,12 @@ isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vla
 
 
 
-#Create SCZone before running
+##Need to have created the SCZone before running
 isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.vlab.local
 
 
+##IF AD, chnage domain name to your domain
+isi zone zones modify --user-mapping-rules="hdfs=>root, vlab\hdfs=>root, vlab\* &= *[], vlab\* += *[group], vlab\* += *[groups]" --zone=zone1-hdp
 
 
 

@@ -419,6 +419,10 @@ bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zon
 bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
 
 
+##IF AD, chnage domain name to your domain
+isi zone zones modify --user-mapping-rules="hdfs=>root, foo\hdfs=>root, foo\* &= *[], foo\* += *[group], foo\* += *[groups]" --zone=zone1-cdh
+
+
 
 
 isi license list
