@@ -395,11 +395,16 @@ yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2
 Just the isilon commands in one block:
 #################################################################################
 #################################################################################
+#8.0.1
+#wget ftp://ftp.emc.com/outgoing/support/rr/OneFS/8.0.1.0/OneFS_v8.0.1.0_Install.tar.gz
+#isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.0_Install.tar.gz
+
+wget ftp://ftp.emc.com/outgoing/support/rr/OneFS/8.0.1.1/OneFS_v8.0.1.1_Install.tar.gz
+isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.1_Install.tar.gz
 
 
 isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
 isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
-
 
 
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path

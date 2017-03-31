@@ -324,7 +324,6 @@ if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
 fi
 
 
-
 reboot all hosts
 
 ##install Ambari on hdfs01
@@ -492,7 +491,8 @@ isi network pools view --id=groupnet0:subnet0:hadoop-pool-hdp
 isi hdfs settings view --zone=zone1-hdp
 ls -al /ifs/zone1/hdp/hadoop-root
 ls -al /ifs/zone1/hdp/hadoop-root/user
-
+cat /ifs/zone1/cdh/scripts/zone1-hdp.passwd
+cat /ifs/zone1/cdh/scripts/zone1-hdp.group
 
 #################################################################################
 #################################################################################

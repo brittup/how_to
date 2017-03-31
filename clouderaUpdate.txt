@@ -1,8 +1,11 @@
 ##upgrade isilon
 
 cd /ifs/data
-wget ftp://ftp.emc.com/outgoing/support/rr/OneFS/8.0.1.0/OneFS_v8.0.1.0_Install.tar.gz
-isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.0_Install.tar.gz
+#wget ftp://ftp.emc.com/outgoing/support/rr/OneFS/8.0.1.0/OneFS_v8.0.1.0_Install.tar.gz
+#isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.0_Install.tar.gz
+
+wget ftp://ftp.emc.com/outgoing/support/rr/OneFS/8.0.1.1/OneFS_v8.0.1.1_Install.tar.gz
+isi upgrade cluster start --simultaneous --skip-optional /ifs/data/OneFS_v8.0.1.1_Install.tar.gz
 
 
 isi upgrade view
@@ -22,8 +25,6 @@ http://archive.cloudera.com/cm5/installer/5.8.4.3/cloudera-manager-installer.bin
 
 chmod u+x cloudera-manager-installer.bin
 ./cloudera-manager-installer.bin
-
-
 
 
 service cloudera-scm-server status  
