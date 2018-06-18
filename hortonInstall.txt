@@ -90,6 +90,11 @@ bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zon
 
 bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
 
+
+cat zone1-hdp.passwd
+cat zone1-hdp.group
+
+
 ls -al /ifs/zone1/hdp/hadoop-root
 ls -al /ifs/zone1/hdp/hadoop-root/user
 
@@ -179,7 +184,7 @@ mkdir /home/mahout
 mkdir /home/ranger
 mkdir /home/atlas
 mkdir /home/ams
-mkdir /home/zepplin
+mkdir /home/zeppelin
 mkdir /home/livy
 mkdir /home/logsearch
 mkdir /home/infra-solr
@@ -220,7 +225,7 @@ chown mahout:mahout /home/mahout
 chown ranger:ranger /home/ranger
 chown atlas:atlas /home/atlas
 chown ams:ams /home/ams
-chown zepplin:zepplin /home/zepplin
+chown zeppelin:zeppelin /home/zeppelin
 chown livy:livy /home/livy
 chown logsearch:logsearch /home/logsearch
 chown infra-solr:infra-solr /home/infra-solr
@@ -270,7 +275,7 @@ chmod 700 /home/mahout
 chmod 700 /home/ranger
 chmod 700 /home/atlas
 chmod 700 /home/ams
-chmod 700 /home/zepplin
+chmod 700 /home/zeppelin
 chmod 700 /home/livy
 chmod 700 /home/logsearch
 chmod 700 /home/infra-solr
@@ -329,6 +334,10 @@ reboot all hosts
 ##install Ambari on hdfs01
 ##install higher version initially
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+
+8.1.1.1
+wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.6.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
+
 yum clean all
 
 
