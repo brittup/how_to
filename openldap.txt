@@ -64,3 +64,53 @@ ou: Users
 
 ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
+
+
+vi bob.ldif
+
+dn: cn=Bob Jones,ou=Users,dc=vlab,dc=local
+cn: Bob Jones
+sn: Jones
+objectClass: inetOrgPerson
+userPassword: password
+uid: 10000
+
+ldapadd -f bob.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+vi engineering.ldif
+
+dn: cn=Engineering,ou=Users,dc=vlab,dc=local
+cn: Engineering
+objectClass: groupOfNames
+member: cn=Bob Jones,ou=Users,dc=vlab,dc=local
+
+ldapadd -f engineering.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+
+
+
+
+
+
+vi jack.ldif
+
+dn: cn=Jack Smith,ou=Users,dc=vlab,dc=local
+cn: Jack Smith
+sn: Smith
+objectClass: inetOrgPerson
+userPassword: password
+uid: 10001
+
+ldapadd -f jack.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+vi addUserToGroup.ldif
+
+dn: cn=Engineering,ou=Users,dc=vlab,dc=local
+changetype: modify
+add: member
+member: cn=Al Smith,ou=Users,dc=vlab,dc=local
+
+ldapadd -f addUserToGroup.ldif -D cn=Manager,dc=vlab,dc=local -w password
