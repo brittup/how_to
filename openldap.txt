@@ -111,6 +111,6 @@ vi addUserToGroup.ldif
 dn: cn=Engineering,ou=Users,dc=vlab,dc=local
 changetype: modify
 add: member
-member: cn=Al Smith,ou=Users,dc=vlab,dc=local
+member: cn=Jack Smith,ou=Users,dc=vlab,dc=local
 
 ldapadd -f addUserToGroup.ldif -D cn=Manager,dc=vlab,dc=local -w password
