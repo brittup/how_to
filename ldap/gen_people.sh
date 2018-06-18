@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OUTPUT=users.ldif
+OUTPUT=users_add.ldif
 
 echo "# Test environment People ou" > $OUTPUT
 echo "" >> $OUTPUT

@@ -10,7 +10,7 @@
 # testgroup6 is empty
 #
 
-OUTPUT=groups.ldif
+OUTPUT=groups_add.ldif
 
 echo "# Test environment Groups ou" > $OUTPUT
 echo "" >> $OUTPUT
