@@ -1,0 +1,66 @@
+yum install openldap openldap-clients openldap-servers
+
+[root]# slappasswd
+New password : password
+Re-enter new password : password
+{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS
+
+
+
+cd /etc/openldap/slapd.d/cn\=config
+ls -al
+vi olcDatabase\=\{2\}bdb.ldif
+olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS
+olcAccess: {0}to attrs=userPassword by self write by dn.base="cn=Manager,dc=vlab,dc=local" write by anonymous auth by * none
+olcAccess: {1}to * by dn.base="cn=Manager,dc=vlab,dc=local" write by self write by * read
+
+
+vi olcDatabase\=\{1\}monitor.ldif
+olcAccess: {0}to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=exter
+ nal,cn=auth" read  by dn.base="cn=manager,dc=vlab,dc=local" read  by * n
+ one
+
+
+
+chkconfig iptables off
+chkconfig ip6tables off
+chkconfig
+service iptables  status
+
+
+cd /tmp
+vi vlab.ldif
+
+dn: dc=vlab,dc=local
+objectClass: dcObject
+objectClass: organization
+dc: vlab
+o : vlab
+
+
+
+ldapadd -f vlab.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+https://www.ldapadministrator.com/download.htm
+
+
+ldapsearch -x -LLL -b dc=acme,dc=com
+
+
+
+
+192.168.1.20
+cn=Manager,dc=vlab,dc=local
+
+
+
+vi users.ldif
+
+dn: ou=Users,dc=vlab,dc=local
+objectClass: organizationalUnit
+ou: Users
+
+
+ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
