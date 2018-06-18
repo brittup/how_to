@@ -57,12 +57,27 @@ cn=Manager,dc=vlab,dc=local
 
 vi users.ldif
 
-dn: ou=Users,dc=vlab,dc=local
+dn: ou=users,dc=vlab,dc=local
 objectClass: organizationalUnit
-ou: Users
-
+ou: users
 
 ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+
+vi groups.ldif
+
+dn: ou=groups,dc=vlab,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+
+
+
+
 
 
 
