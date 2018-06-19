@@ -41,13 +41,13 @@ echo "" >> $OUTPUT
 for i in {1..10}; do
   j=$(printf "%02d" $i)
   cat <<EOF
-dn: uid=mixeduser${i},ou=users,dc=vlab,dc=local
+dn: uid=MixedUser${i},ou=users,dc=vlab,dc=local
 cn: Mixed-Case Test User ${i}
 gecos: Mixed-Case Test User ${i},,,
 gidnumber: 1001
-homedirectory: /ifs/home/mixeduser${i}
+homedirectory: /ifs/home/MixedUser${i}
 loginshell: /bin/bash
-mail: mixeduser${i}@vlab.local
+mail: MixedUser${i}@vlab.local
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
@@ -55,7 +55,7 @@ shadowlastchange: 12477
 shadowmax: 99999
 shadowwarning: 7
 sn: User
-uid: mixeduser${i}
+uid: MixedUser${i}
 uidnumber: 30${j}
 userpassword: {crypt}$1$iorFDDPCfdadfd7yyXjLg7StvxBGJ1D5ON.
 
