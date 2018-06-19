@@ -31,7 +31,7 @@ for i in {1..20} ; do
   echo "memberuid: testuser${i}"
 done
 for i in {1..10} ; do
-  echo "memberuid: mixeduser${i}"
+  echo "memberuid: MixedUser${i}"
 done
 for i in {1..10} ; do
   echo "memberuid: ldapuser${i}"
@@ -72,7 +72,7 @@ objectclass: posixGroup
 userpassword: {crypt}x
 EOF
 for i in {1..10} ; do
-  echo "memberuid: mixeduser${i}"
+  echo "memberuid: MixedUser${i}"
 done
 echo ''
 } >> $OUTPUT
@@ -112,9 +112,9 @@ memberuid: testuser1
 memberuid: testuser4
 memberuid: testuser8
 memberuid: testuser15
-memberuid: mixeduser1
-memberuid: mixeduser4
-memberuid: mixeduser8
+memberuid: MixedUser1
+memberuid: MixedUser4
+memberuid: MixedUser8
 memberuid: ldapuser1
 memberuid: ldapuser4
 memberuid: ldapuser8
