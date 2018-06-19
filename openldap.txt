@@ -77,10 +77,7 @@ ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
 
 
-
-
-
-
+*********************************************************************************************
 vi bob.ldif
 
 dn: cn=Bob Jones,ou=Users,dc=vlab,dc=local
@@ -101,11 +98,6 @@ objectClass: groupOfNames
 member: cn=Bob Jones,ou=Users,dc=vlab,dc=local
 
 ldapadd -f engineering.ldif -D cn=Manager,dc=vlab,dc=local -w password
-
-
-
-
-
 
 
 

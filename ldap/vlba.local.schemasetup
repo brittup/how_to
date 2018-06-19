@@ -1,0 +1,61 @@
+cd /tmp
+vi vlab.ldif
+
+dn: dc=vlab,dc=local
+objectClass: dcObject
+objectClass: organization
+dc: vlab
+o : vlab
+
+
+
+ldapadd -f vlab.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+https://www.ldapadministrator.com/download.htm
+
+
+ldapsearch -x -LLL -b dc=vlabdc=local
+
+
+
+Browser
+192.168.1.20
+cn=Manager,dc=vlab,dc=local
+
+
+
+vi users.ldif
+
+dn: ou=Users,dc=vlab,dc=local
+objectClass: organizationalUnit
+ou: Users
+
+
+ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+
+vi groups.ldif
+
+dn: ou=groups,dc=vlab,dc=local
+objectClass: organizationalUnit
+ou:groups
+
+
+ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
+
+
+
+
+
+wget https://github.com/brittup/misc/blob/master/ldap/gen.sh
+wget https://github.com/brittup/misc/blob/master/ldap/gen_groups.sh
+wget https://github.com/brittup/misc/blob/master/ldap/gen_users.sh
+
+
+chmod 777 gen*
+./gen.sh
+
+#ldapadd -f users_add.ldif -D cn=Manager,dc=vlab,dc=local -w password
+#ldapadd -f groups_add.ldif -D cn=Manager,dc=vlab,dc=local -w password
