@@ -11,22 +11,36 @@ cd /etc/openldap/slapd.d/cn\=config
 ls -al
 vi olcDatabase\=\{2\}bdb.ldif
 olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS
+
+olcSuffix: dc=vlab,dc=local
+
+olcRootDN: cn=Manager,dc=vlab,dc=local
+
+
+vi olcDatabase\=\{1\}monitor.ldif
+olcAccess: {0}to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read  by dn.base="cn=Manager,dc=vlab,dc=local" read  by * none
+
+
+vi olcDatabase\=\{2\}bdb.ldif
 olcAccess: {0}to attrs=userPassword by self write by dn.base="cn=Manager,dc=vlab,dc=local" write by anonymous auth by * none
 olcAccess: {1}to * by dn.base="cn=Manager,dc=vlab,dc=local" write by self write by * read
 
 
-vi olcDatabase\=\{1\}monitor.ldif
-olcAccess: {0}to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=exter
- nal,cn=auth" read  by dn.base="cn=manager,dc=vlab,dc=local" read  by * n
- one
 
 
 
 chkconfig iptables off
 chkconfig ip6tables off
+chkconfig slapd on
 chkconfig
 service iptables  status
+service slapd start
 
+
+
+
+
+###create Root
 
 cd /tmp
 vi vlab.ldif
@@ -42,19 +56,19 @@ o : vlab
 ldapadd -f vlab.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
 
+###get LDAP browser
 https://www.ldapadministrator.com/download.htm
 
-
-ldapsearch -x -LLL -b dc=acme,dc=com
-
-
-
-
+###browser setup
 192.168.1.20
 cn=Manager,dc=vlab,dc=local
 
+###test ldap search
+ldapsearch -x -LLL -b dc=vlab,dc=local
 
 
+
+###create user OU
 vi users.ldif
 
 dn: ou=users,dc=vlab,dc=local
@@ -64,7 +78,7 @@ ou: users
 ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
 
-
+###create groups OU
 vi groups.ldif
 
 dn: ou=groups,dc=vlab,dc=local

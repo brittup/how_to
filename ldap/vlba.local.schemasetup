@@ -1,3 +1,6 @@
+
+###create Root
+
 cd /tmp
 vi vlab.ldif
 
@@ -11,31 +14,29 @@ o : vlab
 
 ldapadd -f vlab.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
-
+###get LDAP browser
 https://www.ldapadministrator.com/download.htm
 
 
-ldapsearch -x -LLL -b dc=vlabdc=local
-
-
-
-Browser
+###browser setup
 192.168.1.20
 cn=Manager,dc=vlab,dc=local
 
+###test ldap search
+ldapsearch -x -LLL -b dc=vlab,dc=local
 
 
+###create user OU
 vi users.ldif
 
 dn: ou=Users,dc=vlab,dc=local
 objectClass: organizationalUnit
 ou: Users
 
-
 ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
 
-
+###create groups OU
 vi groups.ldif
 
 dn: ou=groups,dc=vlab,dc=local
@@ -47,7 +48,7 @@ ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
 
 
 
-
+###get user & group create scripts
 
 wget https://github.com/brittup/misc/blob/master/ldap/gen.sh
 wget https://github.com/brittup/misc/blob/master/ldap/gen_groups.sh
