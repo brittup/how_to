@@ -28,7 +28,7 @@ vi /var/kerberos/krb5kdc/kdc.conf
 
  
  
-###Modify krb5.cong   - Realm = VLABKDC.LOCAL, DNS = vlab.local
+###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = vlab.local
 vi /etc/krb5.conf
 
 
@@ -47,8 +47,8 @@ vi /etc/krb5.conf
 
 [realms]
  VLABKDC.LOCAL = {
-  kdc = X.X.X.X
-  admin_server = X.X.X.X
+  kdc = KDC.vlab.local
+  admin_server = KDC.vlab.local
   default_domain = vlab.local
  }
 
@@ -63,9 +63,10 @@ chkconfig iptables off
 chkconfig ip6tables off
 chkconfig krb5kdc  on
 chkconfig kadmin on
+chkconfig
 
 
-
+###create the db, this can take awhile
 
 kdb5_util create -s -r VLABKDC.LOCAL
 Password123!
