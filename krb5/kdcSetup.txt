@@ -34,7 +34,7 @@ vi /etc/krb5.conf
  forwardable = true
 
 [realms]
- VLAB.LOCAL = {
+ VLABKDC.LOCAL = {
   kdc = X.X.X.X
   admin_server = X.X.X.X
   default_domain = vlab.local
