@@ -4,16 +4,19 @@ yum -y install krb5-server krb5-libs krb5-workstation openldap-clients
 On All Compute hosts
 yum -y install krb5-workstation krb5-libs openldap-clients
 
+
+###Modify REALM 
 ###Modify kadmin file if additional principals need admin access - add spn's etc..
+
 vi /var/kerberos/krb5kdc/kadm5.acl
-*/admin@VLAB.LOCAL     *
-isilon/admin@VLAB.LOCAL       *
+*/admin@VLABKDC.LOCAL     *
+isilon/admin@VLABKDC.LOCAL       *
 
 ###review kdc.conf 
 vi /var/kerberos/krb5kdc/kdc.conf
 
 
-###Modify krb5.cong   - Realm = VLAB.LOCAL, DNS = vlab.local
+###Modify krb5.cong   - Realm = VLABKDC.LOCAL, DNS = vlab.local
 vi /etc/krb5.conf
 
 
@@ -23,7 +26,7 @@ vi /etc/krb5.conf
  admin_server = FILE:/var/log/kadmind.log
 
 [libdefaults]
- default_realm = VLAB.LOCAL
+ default_realm = VLABKDC.LOCAL
  dns_lookup_realm = false
  dns_lookup_kdc = false
  ticket_lifetime = 24h
@@ -32,14 +35,14 @@ vi /etc/krb5.conf
 
 [realms]
  VLAB.LOCAL = {
-  kdc = <XXXX>
-  admin_server = VLAB.LOCAL
+  kdc = X.X.X.X
+  admin_server = X.X.X.X
   default_domain = vlab.local
  }
 
 [domain_realm]
-  .vlab.local = VLAB.LOCAL
-  vlab.local = VLAB.LOCAL
+  .vlab.local = VLABKDC.LOCAL
+  vlab.local = VLABKDC.LOCAL
 
 ###setup services
 chkconfig iptables off
@@ -50,7 +53,7 @@ chkconfig kadmin on
 
 
 
-kdb5_util create -s -r VLAB.LOCAL
+kdb5_util create -s -r VLABKDC.LOCAL
 Password123!
 
 
