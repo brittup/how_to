@@ -12,10 +12,22 @@ vi /var/kerberos/krb5kdc/kadm5.acl
 */admin@VLABKDC.LOCAL     *
 isilon/admin@VLABKDC.LOCAL       *
 
-###review kdc.conf 
+
+###review and modify kdc.conf 
 vi /var/kerberos/krb5kdc/kdc.conf
 
 
+[realms]
+ VLABKDC.LOCAL = {
+  #master_key_type = aes256-cts
+  acl_file = /var/kerberos/krb5kdc/kadm5.acl
+  dict_file = /usr/share/dict/words
+  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab
+  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal
+ }
+
+ 
+ 
 ###Modify krb5.cong   - Realm = VLABKDC.LOCAL, DNS = vlab.local
 vi /etc/krb5.conf
 
@@ -44,6 +56,8 @@ vi /etc/krb5.conf
   .vlab.local = VLABKDC.LOCAL
   vlab.local = VLABKDC.LOCAL
 
+  
+  
 ###setup services
 chkconfig iptables off
 chkconfig ip6tables off
