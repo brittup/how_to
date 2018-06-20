@@ -87,6 +87,11 @@ addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 
 listprincs 
 
+
+useradd -u 50000 -d /home/kduser1 -m kdcuser1
+su kdcuser1
+
+
 ###Test KDC
 kinit kdcuser1@VLABKDC.LOCAL
 
