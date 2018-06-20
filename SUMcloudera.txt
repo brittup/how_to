@@ -1,0 +1,24 @@
+
+
+mkdir /home/cloudera-scm
+chmod 700 /home/cloudera-scm
+chown -R cloudera-scm:cloudera-scm /home/cloudera-scm
+
+
+visudo
+cloudera-scm ALL=(ALL) NOPASSWD: ALL
+Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
+
+check the #Defaults requiretty is commented out.
+
+
+reboot
+
+https://www.cloudera.com/documentation/enterprise/5-8-x/topics/install_singleuser_reqts.html#concept_pcz_kng_2v
+
+---
+install host
+
+apply host template
+
+chnage all /var/logs to /home/cloudera-scm
