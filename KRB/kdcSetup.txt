@@ -1,0 +1,82 @@
+###On KDC Host
+yum -y install krb5-server krb5-libs krb5-workstation openldap-clients
+
+On All Compute hosts
+yum -y install krb5-workstation krb5-libs openldap-clients
+
+###Modify kadmin file if additional principals need admin access - add spn's etc..
+vi /var/kerberos/krb5kdc/kadm5.acl
+*/admin@VLAB.LOCAL     *
+isilon/admin@VLAB.LOCAL       *
+
+###review kdc.conf 
+vi /var/kerberos/krb5kdc/kdc.conf
+
+
+###Modify krb5.cong   - Realm = VLAB.LOCAL, DNS = vlab.local
+vi /etc/krb5.conf
+
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = VLAB.LOCAL
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ VLAB.LOCAL = {
+  kdc = <XXXX>
+  admin_server = VLAB.LOCAL
+  default_domain = vlab.local
+ }
+
+[domain_realm]
+  .vlab.local = VLAB.LOCAL
+  vlab.local = VLAB.LOCAL
+
+###setup services
+chkconfig iptables off
+chkconfig ip6tables off
+chkconfig krb5kdc  on
+chkconfig kadmin on
+
+
+
+
+kdb5_util create -s -r VLAB.LOCAL
+Password123!
+
+
+service krb5kdc status
+service kadmin status
+service krb5kdc start
+service kadmin start
+service krb5kdc status
+service kadmin status
+
+
+Add isilon & test user
+kadmin.local
+addprinc -pw Password123! isilon/admin@VLAB.LOCAL
+addprinc -pw Password123! kdcuser1@VLAB.LOCAL
+Password123!
+
+listprincs 
+
+
+kinit kdcuser1@VLAB.LOCAL
+
+
+
+
+
+
+
+
