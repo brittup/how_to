@@ -1,0 +1,116 @@
+A Kerberos user: hdpuser3 tries to run a hive query, no proxy user exists. You will see the following errors and log entries.
+
+ 
+
+[hdpuser3@hdp4 ~]$ kinit
+
+Password for hdpuser3@FOO.COM:
+
+[hdpuser3@hdp4 ~]$ klist
+
+Ticket cache: FILE:/tmp/krb5cc_49003
+
+Default principal: hdpuser3@FOO.COM
+
+Valid starting     Expires            Service principal
+
+05/02/16 14:53:51  05/03/16 00:52:08  krbtgt/FOO.COM@FOO.COM
+
+        renew until 05/09/16 14:53:51
+
+ 
+[hdpuser3@hdp4 ~]$ hive
+
+WARNING: Use "yarn jar" to launch YARN applications.
+
+ 
+
+Logging initialized using configuration in file:/etc/hive/2.3.4.0-3485/0/hive-log4j.properties
+
+hive> SHOW TABLES;
+
+FAILED: SemanticException MetaException(message:org.apache.hadoop.ipc.RemoteException(java.lang.SecurityException): 
+User hive/hdp6.foo.com cannot impersonate User hdpuser3@FOO.COM Reason: Proxyuser "hive" Members do not intersect)
+
+hive>
+
+ 
+
+Isilon log:
+
+2016-04-25T17:23:17-04:00 <30.6> rip1-1 hdfs[93963]: [hdfs] RPC V9  user: hdpuser3@FOO.COM exception: java.lang.SecurityException cause: 
+User hive/hdp6.foo.com cannot impersonate User hdpuser3@FOO.COM Reason: Proxyuser "hive" Members do not intersect
+
+ 
+
+
+Adding a Proxy User; hive and adding hdpuser3 to that proxy user will resolve this issue.
+
+ 
+isilon01-1# isi hdfs proxyusers create --proxyuser --zone=zone1-cdh --
+--add-gid            -- Specifies the GID of the group to add to the proxyuser.
+--add-group          -- Specifies the name of the group to add to the proxyuser.
+--add-sid            -- Specifies SID of the persona to add to the proxyuser.
+--add-uid            -- Specifies UID of the user to add to the proxyuser.
+--add-user           -- Specifies name of the user to add to the proxyuser.
+--add-wellknown      -- Specifies well-known persona to add to the proxyuser. E.g. Everyone.
+--help           -h  -- Display help for this command.
+--proxyuser          -- Specifies proxyuser name.
+--verbose        -v  -- Display more detailed information.
+--zone               -- Access zone.
+
+isilon01-1# isi hdfs proxyusers modify --proxyuser --zone=zone1-cdh --
+--add-gid               -- Specifies the GID of the group to add to the proxyuser.
+--add-group             -- Specifies the name of the group to add to the proxyuser.
+--add-sid               -- Specifies SID of the persona to add to the proxyuser.
+--add-uid               -- Specifies UID of the user to add to the proxyuser.
+--add-user              -- Specifies name of the user to add to the proxyuser.
+--add-wellknown         -- Specifies well-known persona to add to the proxyuser. E.g. Everyone.
+--help              -h  -- Display help for this command.
+--proxyuser             -- Specifies proxyuser name.
+--remove-gid            -- Specifies GID of the group to remove from the proxyuser.
+--remove-group          -- Specifies the name of the group to remove from the proxyuser
+--remove-sid            -- Specifies SID of the persona to remove from the proxyuser.
+--remove-uid            -- Specifies UID of the user to remove from the proxyuser.
+--remove-user           -- Specifies name of the user to remove from the proxyuser.
+--remove-wellknown      -- Specifies well-known persona to remove from the proxyuser.
+--verbose           -v  -- Display more detailed information.
+--zone                  -- Access zone.
+
+
+ 
+isi hdfs proxyusers create --proxyuser hive  --zone=zonename
+
+isi hdfs proxyusers modify --proxyuser hive --add-user username --zone=zonename
+isi hdfs proxyusers modify --proxyuser hive --add-group groupname --zone=zonename
+
+isi hdfs proxyusers members list hive --zone DDLDev-HDFS
+
+
+
+
+rip1-1# isi hdfs proxyusers members list --zone=horton2 hive
+
+Type  Name
+
+----------------------
+
+user  hdpuser3
+
+----------------------
+
+Total: 1
+
+ 
+
+ 
+
+hive> SHOW TABLES;
+
+OK
+
+passwords
+
+Time taken: 1.612 seconds, Fetched: 1 row(s)
+
+hive>
