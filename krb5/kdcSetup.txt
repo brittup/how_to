@@ -82,14 +82,14 @@ service kadmin status
 
 Add isilon & test user
 kadmin.local
-addprinc -pw Password123! isilon/admin@VLAB.LOCAL
-addprinc -pw Password123! kdcuser1@VLAB.LOCAL
+addprinc -pw Password123! isilon/admin@VLABKDC.LOCAL
+addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 Password123!
 
 listprincs 
 
 
-kinit kdcuser1@VLAB.LOCAL
+kinit kdcuser1@VLABKDC.LOCAL
 
 
 
