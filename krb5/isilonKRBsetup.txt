@@ -1,0 +1,20 @@
+###Kerberize Isilon
+
+isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=KDC.vlab.local --admin-server=KDC.vlab.local --default-domain=vlab.local 
+isi auth krb5 realm list -v
+
+
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=vlab.local
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.vlab.local
+isi auth krb5 domain list
+
+isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 list
+
+isi auth status
+isi zones zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
+isi zones zones list -v
+
+isi auth krb5 spn list
+isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 spn list
