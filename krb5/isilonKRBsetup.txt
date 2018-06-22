@@ -18,3 +18,8 @@ isi zones zones list -v
 isi auth krb5 spn list
 isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
 isi auth krb5 spn list
+
+
+
+isilon/admin@VLABKDC.LOCAL
+Password123!
