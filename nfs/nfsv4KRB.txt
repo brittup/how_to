@@ -3,6 +3,12 @@
 -isilon.vlab.local
 test ssip & sc
 
+-fix reverse dns
+test with nslookup on name/IP
+
+-fix spn
+isilon/admin@VLABKDC.LOCAL
+Password123!
 
 
 ###setup client for nfsv4
@@ -68,4 +74,66 @@ ls -le 	on isilon
 
 
 
+
+###Kerberos
+###on KDC
+kadmin.local
+listprincs
+apprinc -randkey nfs/KDC.vlab.local
+apprinc -randkey host/KDC.vlab.local
+
+ktadd -k /root/nfs-krb5.keytab nfs/KDC.vlab.local
+ktadd -k /root/host-krb5.keytab host/KDC.vlab.local
+
+
+ktutil
+ktutil:  list
+
+ktutil:  rkt /root/nfs-krb5.keytab
+ktutil:  rkt /root/host-krb5.keytab
+ktutil:  list
+
+ktutil:  wkt /etc/krb5.keytab
+ktutil:  exit
+
+ktutil
+ktutil: rkt /etc/krb5.keytab
+ktutil:  list
+
+
+
+
+######On Host
+vi /etc/sysconfig/nfs
+
+SECURE_NFS="yes"
+
+
+service nfs restart
+service rpcidmapd restart
+service rpcgssd restart
+service rpcbind restart
+
+
+modprobe rpcsec_gss_krb5
+
+
+klist -k
+klist -e
+
+rpc.gssd -f -v
+
+mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+mountstats
+
+cd /mnt/nfsv4
+
+
+
+
+su - kdcuser1
+klist
+kinit
+klist
+cd /mnt/nfsv4
 
