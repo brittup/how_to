@@ -1,33 +1,90 @@
+###setup KDC for REALM
+--> see kdcSetup doc
+
 
 ###Setup smartconnect for isilon
 -isilon.vlab.local
 test ssip & sc
 
--fix reverse dns
-test with nslookup on name/IP
 
--fix spn
+###Kerberize Isilon
+
+isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=KDC.vlab.local --admin-server=KDC.vlab.local --default-domain=vlab.local 
+isi auth krb5 realm list -v
+
+
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=vlab.local
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.vlab.local
+isi auth krb5 domain list
+
+isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 list
+
+isi auth status
+isi zones zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
+isi zones zones list -v
+
+isi auth krb5 spn list
+isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 spn list
+
+###
+-add to zone
+
+
+###create SPN's
 isilon/admin@VLABKDC.LOCAL
 Password123!
 
 
-###setup client for nfsv4
+-fix reverse dns
+test with nslookup on name/IP
+
+-fix spns if needed
+isilon/admin@VLABKDC.LOCAL
+Password123!
+
+
+
+
+###setup client for nfsv4 & kerberize
 
 yum install rpcbind nfs-utils nfs4-acl-tools -y
 
-vim /etc/idmapd.conf
+vi /etc/idmapd.conf
 [General]
 Domain = vlab.local
 
 
-###CentOS 6
-service rpcbind start; chkconfig rpcbind on
-service rpcidmapd start; chkconfig rpcidmapd on
-chkconfig netfs on
 
-show mount -e isilon.vlab.local
+###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = vlab.local
+vi /etc/krb5.conf
 
-mkdir /mnt/nfsv4
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = VLABKDC.LOCAL
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ VLABKDC.LOCAL = {
+  kdc = KDC.vlab.local
+  admin_server = KDC.vlab.local
+  default_domain = vlab.local
+ }
+
+[domain_realm]
+  .vlab.local = VLABKDC.LOCAL
+  vlab.local = VLABKDC.LOCAL
+
 
 
 
@@ -50,7 +107,14 @@ isi nfs exports list -view
 
 
 
-###On Client
+###On Client - test nfs mount
+service rpcbind start; chkconfig rpcbind on
+service rpcidmapd start; chkconfig rpcidmapd on
+chkconfig netfs on
+
+show mount -e isilon.vlab.local
+
+mkdir /mnt/nfsv4
 mount -t nfs4 isilon.vlab.local:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
@@ -75,7 +139,7 @@ ls -le 	on isilon
 
 
 
-###Kerberos
+###Kerberos setup for client nfs
 ###on KDC
 kadmin.local
 listprincs
@@ -121,8 +185,13 @@ modprobe rpcsec_gss_krb5
 klist -k
 klist -e
 
-rpc.gssd -f -v
+rpc.gssd -f -vvv
 
+
+###setup isilon export for kerberos access only
+
+
+###secure mount to isilon
 mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
 mountstats
 
