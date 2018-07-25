@@ -44,6 +44,8 @@ test with nslookup on name/IP
 isilon/admin@VLABKDC.LOCAL
 Password123!
 
+###
+check x permissions on the mount
 
 
 
@@ -54,6 +56,10 @@ yum install rpcbind nfs-utils nfs4-acl-tools -y
 vi /etc/idmapd.conf
 [General]
 Domain = vlab.local
+
+
+sttic mappings??
+
 
 
 
@@ -181,9 +187,9 @@ service rpcbind restart
 
 modprobe rpcsec_gss_krb5
 
+klist 
 
-klist -k
-klist -e
+klist -ke /etc/krb5.keytab
 
 rpc.gssd -f -vvv
 
@@ -193,6 +199,7 @@ rpc.gssd -f -vvv
 
 ###secure mount to isilon
 mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+
 mountstats
 
 cd /mnt/nfsv4
