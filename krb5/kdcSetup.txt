@@ -16,6 +16,10 @@ isilon/admin@VLABKDC.LOCAL       *
 ###review and modify kdc.conf 
 vi /var/kerberos/krb5kdc/kdc.conf
 
+[kdcdefaults]
+ kdc_ports = 88
+ kdc_tcp_ports = 88
+
 
 [realms]
  VLABKDC.LOCAL = {
@@ -28,7 +32,13 @@ vi /var/kerberos/krb5kdc/kdc.conf
 
  
  
-###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = vlab.local
+###Modify krb5.conf  
+
+set KDC and Admin Server to the KDC hosts
+set domain_realms to the dns realm
+example:  Realm = VLABKDC.LOCAL, DNS = vlab.local
+
+
 vi /etc/krb5.conf
 
 
@@ -66,6 +76,15 @@ chkconfig kadmin on
 chkconfig
 
 
+systemctl disable firewalld
+systemctl status firewalld
+systemctl enable krb5kdc.service
+systemctl status krb5kdc.service
+systemctl enable kadmin.service
+systemctl status kadmin.service
+
+
+
 ###create the db, this can take awhile
 
 kdb5_util create -s -r VLABKDC.LOCAL
@@ -80,16 +99,26 @@ service krb5kdc status
 service kadmin status
 
 
+systemctl status krb5kdc.service
+systemctl status kadmin.service
+systemctl start krb5kdc.service
+systemctl start kadmin.service
+systemctl status krb5kdc.service
+systemctl status kadmin.service
+
+
 Add isilon & test user
 kadmin.local
 addprinc -pw Password123! isilon/admin@VLABKDC.LOCAL
 addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 
 listprincs 
+exit
+
 
 
 useradd -u 50000 -d /home/kduser1 -m kdcuser1
-su kdcuser1
+su - kdcuser1
 
 
 ###Test KDC
