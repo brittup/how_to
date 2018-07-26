@@ -12,14 +12,16 @@ isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
 isi auth krb5 list
 
 isi auth status
-isi zones zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
-isi zones zones list -v
+isi zone zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
+isi zone zones list -v
 
-isi auth krb5 spn list
+isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
+isi auth krb5 spn check --provider-name=VLABKDC.LOCAL
+
 isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
-isi auth krb5 spn list
+isi auth krb5 spn list --provider-name=VLABKDC.LOCAL --verbose
 
 
-
+KDC admin princ & password
 isilon/admin@VLABKDC.LOCAL
 Password123!

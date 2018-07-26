@@ -1,0 +1,326 @@
+###Setup and configure Kerberos nfsv4 to Isilon
+
+###setup KDC for REALM
+--> see kdcSetup doc for KDC server build   
+--> see nfsv4_Setup doc for non-krb nfsv4 
+
+
+###On Isilon
+###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
+-isilon.vlab.local
+test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
+
+
+###Kerberize Isilon
+
+isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=KDC.vlab.local --admin-server=KDC.vlab.local --default-domain=vlab.local 
+isi auth krb5 realm list -v
+
+
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=vlab.local
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.vlab.local
+isi auth krb5 domain list
+
+isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 list
+
+
+###add to auth providers
+isi auth status
+isi zone zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
+isi zone zones list -v
+
+
+###add SPN's
+isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
+isi auth krb5 spn check --provider-name=VLABKDC.LOCAL
+
+isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+isi auth krb5 spn list --provider-name=VLABKDC.LOCAL --verbose
+
+###kdc admin principal & password
+isilon/admin@VLABKDC.LOCAL
+Password123!
+
+
+###validate and fix
+-fix reverse dns
+test with nslookup on name/IP
+
+-fix spns if needed
+isilon/admin@VLABKDC.LOCAL
+Password123!
+
+###
+check permissions on the mount
+
+
+
+#########################################
+Setup export for krb authentication
+
+isi nfs exports list --zone=System
+isi nfs exports view --zone=System  --id=1
+
+isi nfs exports modify --security-flavors=unix,krb5 --zone=System  --id=1
+
+
+#########################################
+###setup client for nfsv4 & kerberize
+
+yum install rpcbind nfs-utils nfs4-acl-tools -y
+
+vi /etc/idmapd.conf
+[General]
+Domain = vlab.local
+
+###need to add id mapping content here --->
+static mappings
+sssd id & ldap/ad integration etc..
+
+
+
+###Setup kerberos on client if not done
+
+yum -y install krb5-workstation krb5-libs openldap-clients
+
+###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = vlab.local
+vi /etc/krb5.conf
+
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = VLABKDC.LOCAL
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ VLABKDC.LOCAL = {
+  kdc = KDC.vlab.local
+  admin_server = KDC.vlab.local
+  default_domain = vlab.local
+ }
+
+[domain_realm]
+  .vlab.local = VLABKDC.LOCAL
+  vlab.local = VLABKDC.LOCAL
+
+  
+  
+###Test Kerberos for user principal created during kdc setup
+kinit kdcuser1@VLABKDC.LOCAL
+Password123!
+
+klist -e
+
+
+
+###On Isilon review nfsv4 settings if not done and test with non-krb sys based nfsv4 
+isi nfs settings global view
+isi nfs settings global modify --nfsv4-enabled=true
+
+isi nfs settings zone view
+isi nfs settings zone modify --nfsv4-domain=vlab.local
+
+
+isi nfs exports delete --id=1
+mkdir /ifs/mp
+mkdir /ifs/mp/nfsv4
+chmod -R 777 /ifs/mp/nfsv4
+isi nfs exports create --path=/ifs/mm/nfsv4 --map-root=root
+isi nfs exports list -view
+
+
+
+###On Client - test nfs mount
+service rpcbind start; chkconfig rpcbind on
+service rpcidmapd start; chkconfig rpcidmapd on
+chkconfig netfs on
+
+show mount -e isilon.vlab.local
+
+mkdir /mnt/nfsv4
+mount -t nfs4 -o sec=sys isilon.vlab.local:/ifs/mp/nfsv4 /mnt/nfsv4
+mountstats
+
+cd /mnt/nfsv4
+touch 1.txt
+ls -al
+
+nfs4_getfacl 1.txt
+
+###test non-root user
+su - kdcuser1
+touch 2.txt
+ls -al
+nfs4_getfacl
+
+ls -al  on isilon
+ls -le 	on isilon
+
+
+
+
+###Kerberized nfs setup
+###
+###on KDC
+kadmin.local
+listprincs
+
+###add SPNs
+apprinc -randkey nfs/KDC.vlab.local
+apprinc -randkey host/KDC.vlab.local
+listprincs
+
+
+###create keytab for SPNs
+ktadd -k /root/nfs-krb5.keytab nfs/KDC.vlab.local
+ktadd -k /root/host-krb5.keytab host/KDC.vlab.local
+exit
+
+###review keytab
+ls -al /root
+
+
+##copy keytabs to nfs host-krb5, something like...
+scp /root/*.keytab root@10.224.36.46:/root/
+
+
+###import the keytabs
+ktutil
+ktutil:  list
+
+ktutil:  rkt /root/nfs-krb5.keytab
+ktutil:  rkt /root/host-krb5.keytab
+ktutil:  list
+ktutil:  wkt /etc/krb5.keytab
+ktutil:  exit
+
+ktutil
+ktutil: rkt /etc/krb5.keytab
+ktutil: list
+exit
+
+
+
+######On Host centos7
+###secure mount to isilon centos7
+rpc.gssd -f -vvv
+mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+
+
+root@rduvnode258421:~ # klist -e
+Ticket cache: KEYRING:persistent:0:0
+Default principal: nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+
+Valid starting       Expires              Service principal
+01/01/1970 00:00:00  01/01/1970 00:00:00  Encrypted/Credentials/v1@X-GSSPROXY:
+
+
+mount
+mountstats
+
+cd /mnt/nfsv4
+touch test1.txt
+
+
+###switch user context
+su - kdcuser1
+klist
+kinit
+klist
+cd /mnt/nfsv4
+
+
+
+set only to krb
+isi nfs exports modify --security-flavors=krb5  --zone=zone1-cdh  --id=1
+
+
+
+
+
+
+
+
+
+
+
+###################################
+###mount info
+root@rduvnode258421:~ # mountstats
+Stats for cdh6-isilon.west.isilon.com:/ifs/zone1/cdh/hadoop-root/mp/nfsv4 mounted on /mnt/nfsv4:
+  NFS mount options: rw,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=krb5,clientaddr=10.224.37.178,local_lock=none
+  NFS server capabilities: caps=0x7fdf,wtmult=512,dtsize=32768,bsize=0,namlen=255
+  NFSv4 capability flags: bm0=0xfcffbf7f,bm1=0xf9be3e,bm2=0x0,acl=0x7,pnfs=notconfigured
+  NFS security flavor: 6  pseudoflavor: 390003
+
+NFS byte counts:
+  applications read 0 bytes via read(2)
+  applications wrote 0 bytes via write(2)
+  applications read 0 bytes via O_DIRECT read(2)
+  applications wrote 0 bytes via O_DIRECT write(2)
+  client read 0 bytes via NFS READ
+  client wrote 0 bytes via NFS WRITE
+
+RPC statistics:
+  39 RPC requests sent, 39 RPC replies received (0 XIDs not found)
+  average backlog queue length: 0
+
+SERVER_CAPS:
+        2 ops (5%)
+        avg bytes sent per op: 184      avg bytes received per op: 120
+        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
+FSINFO:
+        1 ops (2%)
+        avg bytes sent per op: 188      avg bytes received per op: 136
+        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
+GETATTR:
+        1 ops (2%)
+        avg bytes sent per op: 188      avg bytes received per op: 260
+        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
+PATHCONF:
+        1 ops (2%)
+        avg bytes sent per op: 184      avg bytes received per op: 100
+        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
+
+
+###secure mount to isilon, centos 6
+vi /etc/sysconfig/nfs
+
+SECURE_NFS="yes"
+
+service nfs restart
+service rpcidmapd restart
+service rpcgssd restart
+service rpcbind restart
+
+
+modprobe rpcsec_gss_krb5
+
+klist -e
+
+klist -ke /etc/krb5.keytab
+
+rpc.gssd -f -vvv
+rpc.gssd -f -vvv
+mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+mount
+mountstats
+
+cd /mnt/nfsv4
+
+
+su - kdcuser1
+klist
+kinit
+klist
+cd /mnt/nfsv4
+
