@@ -116,7 +116,7 @@ listprincs
 exit
 
 
-
+###add user if needed
 useradd -u 50000 -d /home/kduser1 -m kdcuser1
 su - kdcuser1
 
