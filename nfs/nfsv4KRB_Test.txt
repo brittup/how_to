@@ -1,0 +1,161 @@
+###Test and Validate Kerberos nfsv4 to Isilon
+
+Test NFSv4 no KRB  - get this working
+
+
+
+###Isilon
+Validate Auth Provider
+Review Networking
+Review Access Zone
+Review SmartConnect
+
+Validate SPN's for the Auth Provider
+
+Validate DNS from Isilon
+Validate Reverse DNS from Isilon
+
+
+
+Review Export Isilon
+
+
+
+
+###Review Client
+Review krb5.conf
+
+
+Test Kerberos
+kinit
+klist -ek
+
+
+Review SPN's on client
+
+klist -ek /etc/krb5.keytab
+
+Validate DNS from client
+Validate Reverse DNS from client
+Test SmartConnect
+
+
+
+Test nfsv4krb
+-mount  - use vers=4.0
+
+mountstats
+modprobe rpcsec_gss_krb5
+pcap
+
+
+
+
+####Review nfs utils
+rpm -qa nfs-utils
+yum upgrade nfs-utils
+
+
+###Review KDC
+kdamin.local
+listprincs
+
+###Add SPN
+kadmin.local
+addprinc -randkey host/blah.example.com@REALM
+###copy key to host and add to keytab
+ktadd -k /home/user/krb5.keytab nfs/nfsclient.domain.com
+
+
+
+###Add UPN
+addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
+kinit <as user>
+klist -e
+
+
+
+
+
+###More Troubleshooting
+
+kadmin.local - KDC admin
+kinit - get ticket
+kdestroy - destroy ticket
+klist - view tgt & keytab
+ktadd - adds keys to keytab
+ktutil - manages keytab files
+
+
+
+See what SPN's you have, look at the machine of tgt temp files
+
+ls -al /tmp/krb5…
+
+klist -e /tmp/krb5cc_machine_HADOOP.FOO.COM
+
+klist -e /tmp/krb5cc_machine_<REALM>
+
+
+Review the keytabs in the client versus KDC
+ktutil
+ktutil: rkt /etc/krb5.keytab
+ktutil:  list
+
+
+root@rduvnode258421:/mnt # ktutil
+ktutil:  rkt /etc/krb5.keytab
+ktutil:  list
+slot KVNO Principal
+---- ---- ---------------------------------------------------------------------
+   1    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   2    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   3    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   4    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   5    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   6    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   7    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   8    2 nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+   9    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  10    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  11    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  12    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  13    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  14    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  15    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+  16    2 host/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+
+
+
+On KDC
+kadmin.local
+Listprincs
+
+get_principal  nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+
+
+kadmin.local:  get_principal  nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+Principal: nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
+Expiration date: [never]
+Last password change: Thu Jul 26 18:32:37 UTC 2018
+Password expiration date: [never]
+Maximum ticket life: 1 day 00:00:00
+Maximum renewable life: 0 days 00:00:00
+Last modified: Thu Jul 26 18:32:37 UTC 2018 (root/admin@VLABKDC.LOCAL)
+Last successful authentication: [never]
+Last failed authentication: [never]
+Failed password attempts: 0
+Number of keys: 8
+Key: vno 2, aes256-cts-hmac-sha1-96
+Key: vno 2, aes128-cts-hmac-sha1-96
+Key: vno 2, des3-cbc-sha1
+Key: vno 2, arcfour-hmac
+Key: vno 2, camellia256-cts-cmac
+Key: vno 2, camellia128-cts-cmac
+Key: vno 2, des-hmac-sha1
+Key: vno 2, des-cbc-md5
+MKey: vno 1
+Attributes:
+Policy: [none]
+
+
