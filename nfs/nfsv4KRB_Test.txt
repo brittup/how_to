@@ -3,7 +3,6 @@
 Test NFSv4 no KRB  - get this working
 
 
-
 ###Isilon
 Validate Auth Provider
 Review Networking
@@ -16,10 +15,8 @@ Validate DNS from Isilon
 Validate Reverse DNS from Isilon
 
 
-
 Review Export Isilon
 -check settings here
-
 
 
 ###Review Client
@@ -44,9 +41,10 @@ Test SmartConnect
 Test nfsv4krb
 -mount  - use vers=4.0
 
+
 mountstats
 modprobe rpcsec_gss_krb5
-pcap
+pcaps
 
 
 
