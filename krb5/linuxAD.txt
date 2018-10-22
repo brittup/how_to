@@ -6,5 +6,5 @@ yum -y install krb5-workstation krb5-libs openldap-clients
 yum -y groupinstall "Development tools"
 
 
-
+###To be completed......
 
