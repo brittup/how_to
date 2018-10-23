@@ -292,6 +292,9 @@ chmod 700 /home/solr
 ****************************************************************************
 ##Ambari & HDP Install
 
+yum upgrade openssl
+yum -y install krb5-workstation krb5-libs openldap-clients
+
 ##Change Hostname to lower case & update DNS if needed
 hostname
 
@@ -345,6 +348,9 @@ ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 
 [Install]
 WantedBy=multi-user.target
+
+
+
 Save the file and reload SystemD daemon:
 
 
