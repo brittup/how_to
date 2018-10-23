@@ -1,56 +1,50 @@
+###How to setup and configure Ambari HDP and Isilon
 ####SETUP ISILON view and validate process
-(see bottom of file for just commands)
+(see bottom of file for just Ambari & HDP install commands if Isilon is configured)
 
-
-isi license list
-isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
-isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
+###Validate HDFS licensed
 isi license list
 
 
+###create HDP Access Zone
 isi zone zones create --name=zone1-hdp --path=/ifs/zone1/hdp --create-path
 isi zone zones list --verbose
 
-
+###create HDP root directory
 mkdir -p /ifs/zone1/hdp/hadoop-root
 ls -al /ifs/zone1/hdp
 
-
-
+###Setup SmartConnect and networking if required; sample here
 isi network subnets list --verbose
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
-
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hdp  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp.vlab.local    --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hdp  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp.demo.local   --description=hadoop
 
 
 isi network pools list --verbose
 isi network pools view --id=groupnet0:subnet0:hadoop-pool-hdp
 
 
-
-
-
 ###################################################################################################
-####SETUP windows DNS for SmartConnect Zone
+####SETUP windows DNS Server for SmartConnect Zone
 
 #connect to domain controller DC
 #admin tools DNS
-#select vlab.local
+#select demo.local
 add A record   ssip-isilon  192.168.1.100
 
 #new delegation
 	isilonsczone-hdp
 #Add
-	ssip-isilon.vlab.local
+	ssip-isilon.demo.local
 #Resolve, comes back as 192.168.1.100
 #complete
 
 
 
 #TEST SCZone
-ping isilonsczone-hdp.vlab.local
+ping isilonsczone-hdp.demo.local
 
 #should resolve to 192.168.1.60-68
 
@@ -75,33 +69,39 @@ isi auth settings acls modify --group-owner-inheritance=parent
 ####HDFS Users & Group setup
 mkdir -p /ifs/zone1/hdp/scripts
 
+
+###get the create scripts from github
 https://github.com/Isilon/isilon_hadoop_tools
 
 #clone or download, as a zip, go find the download, unzip
 #winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/hdp/scripts
 
+
+###download create scripts natively
 cd /ifs/zone1/hdp/scripts
+###8.1.2+ does not have wget
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
 
+
+
+###setup the scripts
 chmod u+x *
 
+
+###execute the create scripts
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp
 
 bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
 
 
-cat zone1-hdp.passwd
-cat zone1-hdp.group
 
-
+####on Isilon view users
 ls -al /ifs/zone1/hdp/hadoop-root
 ls -al /ifs/zone1/hdp/hadoop-root/user
 
 
-
-
-####on Isilon
+### cat the output from the scripts, this is used to create the users and groups on linux hosts to ensure user id parity
 cat zone1-hdp.passwd
 cat zone1-hdp.group
 
@@ -136,7 +136,7 @@ esc :wq
 
 
 
-#go to HDFS03
+#go to HDFS0XYX
 vi /etc/passwd
 #G
 #o
@@ -151,7 +151,9 @@ esc :wq
 
 
 
-##on all hosts add the folowing home
+
+
+##on all Linux hosts add the following home
 
 mkdir /home/httpfs
 mkdir /home/apache
@@ -194,6 +196,7 @@ mkdir /home/ambari-server
 mkdir /home/admin
 mkdir /home/activity_explorer
 
+
 chown hdfs:hdfs /home/hdfs
 chown mapred:mapred /home/mapred
 chown yarn:yarn /home/yarn
@@ -234,7 +237,6 @@ chown knox:knox /home/knox
 chown ambari-server:ambari-server /home/ambari-server
 chown admin:admin /home/admin
 chown activity_explorer:activity_explorer /home/activity_explorer
-
 
 
 chmod 700 /home/hdfs
@@ -290,26 +292,40 @@ chmod 700 /home/solr
 ****************************************************************************
 ##Ambari & HDP Install
 
-##Change Hostname to lower case & update DNS
+##Change Hostname to lower case & update DNS if needed
+hostname
 
-vi /etc/sysconfig/network
+###Linux HOST setup:
+###SELinux
+vi /etc/selinux/config
+ 
+SELINUX=disabled
 
-##Linux HOST setup:
-SELinux
-	vi /etc/selinux/config 
-	SELINUX=disabled
-
-	
-#IPtables off
+###install ntp
 yum -y install ntp
+	
 
+
+###setup services
+###centos6
 chkconfig iptables off
 chkconfig ip6tables off
 chkconfig ntpdate on
-chkconfig
 chkconfig ntpd on
 service ntpd start
 ntpq -np
+chkconfig
+
+###centos7
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl status firewalld
+systemctl enable ntpd
+systemctl start ntpd
+systemctl status ntpd
+
+
+
 
 #Ambari Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -332,12 +348,13 @@ fi
 reboot all hosts
 
 ##install Ambari on hdfs01
-##install higher version initially
-wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+##install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
+#wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
+#wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.5.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
+#wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.6.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
 
-8.1.1.1
-wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.6.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
 
+wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.2.2/ambari.repo -O /etc/yum.repos.d/ambari.repo
 yum clean all
 
 
