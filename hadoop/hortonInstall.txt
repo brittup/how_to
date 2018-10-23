@@ -301,10 +301,10 @@ vi /etc/selinux/config
  
 SELINUX=disabled
 
+
 ###install ntp
 yum -y install ntp
 	
-
 
 ###setup services
 ###centos6
@@ -326,12 +326,10 @@ systemctl status ntpd
 
 
 
-
 #Ambari Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
-echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
+
 
 #add
 
