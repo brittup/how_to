@@ -56,8 +56,8 @@ ping isilonsczone-hdp.demo.local
 isi hdfs settings view --zone=zone1-hdp
 isi hdfs settings modify --zone=zone1-hdp --root-directory=/ifs/zone1/hdp/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hdp
-isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
-isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.demo.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.demo.local
 
 touch /ifs/zone1/hdp/hadoop-root/THIS_IS_ISILON_zone1-hdp.txt
 
@@ -333,14 +333,28 @@ echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 #add
 
-vi /etc/rc.local
+vi /etc/systemd/system/disable-thp.service
+###and paste there following content:
 
-if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
-   echo never > /sys/kernel/mm/transparent_hugepage/enabled
-fi
-if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
-   echo never > /sys/kernel/mm/transparent_hugepage/defrag
-fi
+[Unit]
+Description=Disable Transparent Huge Pages (THP)
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
+
+[Install]
+WantedBy=multi-user.target
+Save the file and reload SystemD daemon:
+
+
+
+
+systemctl daemon-reload
+
+
+systemctl start disable-thp
+systemctl enable disable-thp
 
 
 reboot all hosts
@@ -362,6 +376,7 @@ ambari-server setup
 Custom users: n
 JDK option: 1
 Accept license : Y
+GPL License for LZO: n
 
 Database n
 
@@ -374,16 +389,16 @@ On ambari host
 
 ssh-keygen
 
-ssh-copy-id root@hdfs01.vlab.local
+ssh-copy-id root@hdfs1.demo.local
 
-ssh-copy-id root@hdfs02.vlab.local
+ssh-copy-id root@hdfs2.demo.local
 
-ssh-copy-id root@hdfs03.vlab.local
+ssh-copy-id root@hdfs3.demo.local
 
 ##test keyless ssh
-ssh root@hdfs01.vlab.local
-ssh root@hdfs02.vlab.local
-ssh root@hdfs03.vlab.local
+ssh root@hdfs1.demo.local
+ssh root@hdfs2.demo.local
+ssh root@hdfs3.demo.local
 
 cat /root/.ssh/id_rsa   
 ##Copy into a txt file on desktop and save
@@ -391,18 +406,13 @@ cat /root/.ssh/id_rsa
 
 Name cluster - HDP
 Select stack
-unselect all repos not needed
-Modify redhat6 repos to use local repo:
 
-
-http://192.168.1.20/hdp/HDP/centos6/2.x/updates/2.3.6.0
-http://192.168.1.20/hdp/HDP-UTILS-1.1.0.20/repos/centos6
 
 
 ##Host to deploy
-hdfs01.vlab.local
-hdfs02.vlab.local
-hdfs03.vlab.local
+hdfs1.demo.local
+hdfs2.demo.local
+hdfs3.demo.local
 
 ##on Ambari server, NO isilon yet
 
@@ -413,7 +423,7 @@ Register and confirm
 All hosts green
 BACK <---
 Select Perform Manual
-Add the isilon Sczonehost name in to list; isilonsczone-hdp.vlab.local
+Add the isilon Sczonehost name in to list; isilonsczone-hdp.demo.local
 Register
 
 All host + isilon are now green
@@ -470,18 +480,20 @@ Just the isilon commands in one block:
 
 
 
-
+###old version of OneFS
 isi license activate --key ISILO-HJXC0-H15JU-YTZTW-OKZLT
 isi license activate --key ISILO-HVOC0-PHOJU-YPATW-W4FKT
 
+###New version use trail keys
 
-#License before running
+
+###License before running
 
 
 isi zone zones create --name=zone1-hdp --path=/ifs/zone1/hdp --create-path
 mkdir -p /ifs/zone1/hdp/hadoop-root
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hdp  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp.vlab.local    --description=hdp_hadoop_access_zone
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-hdp  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp.demo.local    --description=hdp_hadoop_access_zone
 isi hdfs settings modify --zone=zone1-hdp --root-directory=/ifs/zone1/hdp/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-hdp
 touch /ifs/zone1/hdp/hadoop-root/THIS_IS_ISILON_zone1-hdp.txt
@@ -493,17 +505,17 @@ wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_
 chmod u+x *
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone1-hdp
 bash isilon_create_directories.sh --dist hwx --zone zone1-hdp  --fixperm
-isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.demo.local
 
 
 
 
 ##Need to have created the SCZone before running
-isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.vlab.local
+isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.demo.local
 
 
 ##IF AD, chnage domain name to your domain
-isi zone zones modify --user-mapping-rules="hdfs=>root, vlab\hdfs=>root, vlab\* &= *[], vlab\* += *[group], vlab\* += *[groups]" --zone=zone1-hdp
+isi zone zones modify --user-mapping-rules="hdfs=>root, demo\hdfs=>root, demo\* &= *[], demo\* += *[group], demo\* += *[groups]" --zone=zone1-hdp
 
 
 
