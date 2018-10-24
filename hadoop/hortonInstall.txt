@@ -386,6 +386,8 @@ GPL License for LZO: n
 
 Database n
 
+
+
 ambari-server status
 ambari-server start
 
@@ -424,6 +426,25 @@ hdfs3.demo.local
 
 Select ssh key file from above
 Register and confirm
+
+
+*********************
+rhel 7 has seen a known issue, if hosts fail to register and throws an SSL error with openssl, EOF violation of protocol
+add the following:
+
+vi /etc/ambari-agent/conf/ambari-agent.ini
+
+
+[security]
+force_https_protocol=PROTOCOL_TLSv1_2
+
+
+ambari-server restart
+ambari-agent restart
+*********************
+
+
+
 
 
 All hosts green
