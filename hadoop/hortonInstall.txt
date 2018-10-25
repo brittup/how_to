@@ -329,12 +329,12 @@ systemctl status ntpd
 
 
 
-#Ambari Host inspector fixes
+###Ambari Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 
-#add transparent_hugepage startup script rhel7
+###add transparent_hugepage startup script rhel7
 
 vi /etc/systemd/system/disable-thp.service
 ###and paste there following content:

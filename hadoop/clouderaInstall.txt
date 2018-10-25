@@ -240,6 +240,9 @@ SELinux
 	SELINUX=disabled
 
 	
+##install ntp
+yum -y install ntp
+	
 ###setup services
 ###centos6
 chkconfig iptables off
@@ -258,6 +261,10 @@ systemctl enable ntpd
 systemctl start ntpd
 systemctl status ntpd
 
+
+###CDH inspector fixes
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 
 #add transparent_hugepage startup script rhel7
