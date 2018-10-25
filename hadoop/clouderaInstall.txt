@@ -1,20 +1,15 @@
 ###How to setup and configure Cloudera Manager CDH and Isilon
-####SETUP ISILON view and validate process
+####SETUP ISILON 
 (see bottom of file for just Cloudera install commands if Isilon is configured)
-
-
 
 ###Validate HDFS licensed
 isi license list
 
-
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
 isi zone zones list --verbose
 
-
 mkdir -p /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh
-
 
 
 isi network subnets list --verbose
@@ -30,32 +25,29 @@ isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
 
 
 
-
-
 ###################################################################################################
 ####SETUP windows DNS for SmartConnect Zone
 
-#connect to domain controller DC
-#admin tools DNS
-#select demo.local
+###connect to domain controller DC
+###admin tools DNS
+###select demo.local
 add A record   ssip-isilon  192.168.1.100
 
-#new delegation
+###new delegation
 	isilonsczone-cdh
-#Add
+###Add
 	ssip-isilon.demo.local
-#Resolve, comes back as 192.168.1.100
-#complete
+###Resolve, comes back as 192.168.1.100
+###complete
 
 
 
-#TEST SCZone
+###TEST SCZone
 ping isilonsczone-cdh.demo.local
 
-#should resolve to 192.168.1.60-68
+####should resolve to 192.168.1.60-68
 
 ###################################################################################################
-
 
 
 ####Isilon HDFS Settings:
@@ -67,8 +59,6 @@ isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 
 isi auth settings acls modify --group-owner-inheritance=parent
-
-
 
 
 ####HDFS Users & Group setup
@@ -93,37 +83,37 @@ ls -al /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
-
-
 ####on Isilon
 cat zone1-cdh.passwd
 cat zone1-cdh.group
 
-#go to HDFS01
+
+
+###go to HDFS01
 vi /etc/passwd
-#G
-#o
-#cut and paste content from zone1-cdh.passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
 esc :wq
 
 vi /etc/group
-#G
-#o
-#cut and paste content from zone1-cdh.group
+shitft G
+o
+###cut and paste content from zone1-cdh.group
 esc :wq
 
 
 
 #go to HDFS02
 vi /etc/passwd
-#G
-#o
-#cut and paste content from zone1-cdh.passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
 esc :wq
 
 vi /etc/group
-#G
-#o
+shitft G
+o
 #cut and paste content from zone1-cdh.group
 esc :wq
 
@@ -132,19 +122,19 @@ esc :wq
 
 #go to HDFS03
 vi /etc/passwd
-#G
-#o
-#cut and paste content from zone1-cdh.passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
 esc :wq
 
 vi /etc/group
-#G
-#o
-#cut and paste content from zone1-cdh.group
+shitft G
+o
+###cut and paste content from zone1-cdh.group
 esc :wq
 
 
-##on all hosts add the folowing home
+###on all hosts add the folowing home
 
 mkdir /home/hdfs
 mkdir /home/mapred
@@ -233,12 +223,14 @@ chmod 700 /home/anonymous
 chmod 700 /home/cmjobuser
 
 
-
+usermod -a -G sqoop sqoop2
 
 ****************************************************************************
-##Cloudera Install
+###Cloudera Install
 
-##Change Hostname to lower case & update DNS
+
+###Host setup
+###Change Hostname to lower case & update DNS
 
 vi /etc/sysconfig/network
 
@@ -248,36 +240,54 @@ SELinux
 	SELINUX=disabled
 
 	
-##IPtables off
+###setup services
+###centos6
 chkconfig iptables off
 chkconfig ip6tables off
 chkconfig ntpdate on
-chkconfig
-
-yum -y install ntp
-
-
 chkconfig ntpd on
 service ntpd start
 ntpq -np
+chkconfig
 
-#Cloudera Host inspector fixes
-echo never > /sys/kernel/mm/transparent_hugepage/defrag
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
-echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
-
-vi /etc/rc.local
-if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
-   echo never > /sys/kernel/mm/transparent_hugepage/enabled
-fi
-if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
-   echo never > /sys/kernel/mm/transparent_hugepage/defrag
-fi
+###centos7
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl status firewalld
+systemctl enable ntpd
+systemctl start ntpd
+systemctl status ntpd
 
 
 
-usermod -a -G sqoop sqoop2
+#add transparent_hugepage startup script rhel7
+
+vi /etc/systemd/system/disable-thp.service
+###and paste there following content:
+
+[Unit]
+Description=Disable Transparent Huge Pages (THP)
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+Save the file and reload SystemD daemon:
+
+
+systemctl daemon-reload
+
+systemctl start disable-thp
+systemctl enable disable-thp
+
+
+
+
 
 cat /proc/sys/vm/swappiness
 vi /etc/sysctl.conf 

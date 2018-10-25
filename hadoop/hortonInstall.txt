@@ -334,7 +334,7 @@ echo never > /sys/kernel/mm/transparent_hugepage/defrag
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 
-#add
+#add transparent_hugepage startup script rhel7
 
 vi /etc/systemd/system/disable-thp.service
 ###and paste there following content:
@@ -354,10 +354,7 @@ WantedBy=multi-user.target
 Save the file and reload SystemD daemon:
 
 
-
-
 systemctl daemon-reload
-
 
 systemctl start disable-thp
 systemctl enable disable-thp
