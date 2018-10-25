@@ -288,12 +288,8 @@ Save the file and reload SystemD daemon:
 
 
 systemctl daemon-reload
-
 systemctl start disable-thp
 systemctl enable disable-thp
-
-
-
 
 
 cat /proc/sys/vm/swappiness
@@ -307,22 +303,29 @@ vi /etc/sysctl.conf
 reboot 
 
 cat /proc/sys/vm/swappiness
+cat /sys/kernel/mm/transparent_hugepage/defrag
+cat /sys/kernel/mm/transparent_hugepage/enabled
 
-##if no internet access then from windows host go download the installer or wget with internet access; cloudera-manager-installer.bin
-##http://archive.cloudera.com/cm5/installer/5.8.2.3/
-##Copy to CM host using winscp
+
+*********************************************************************************************
+###Install CLouder Manager
+###install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
+###All installer can be found here
+http://archive.cloudera.com/cm5/installer/
 
 
 cd /tmp
-wget http://archive.cloudera.com/cm5/installer/5.8.2.3/cloudera-manager-installer.bin
+###wget http://archive.cloudera.com/cm5/installer/5.13.3.3/cloudera-manager-installer.bin
+###wget http://archive.cloudera.com/cm5/installer/5.14.4.3/cloudera-manager-installer.bin
+wget http://archive.cloudera.com/cm5/installer/5.15.1.3/cloudera-manager-installer.bin
 chmod u+x  cloudera-manager-installer.bin
 ls -al
 
 
 
-
-##All DNS is setup?
-##All Isilon setup?
+###Before proceeding confirm
+##All DNS is setup
+###All Isilon setup
 
 
 ##install cloudera manager
