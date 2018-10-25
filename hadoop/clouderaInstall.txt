@@ -308,15 +308,14 @@ cat /sys/kernel/mm/transparent_hugepage/enabled
 
 
 *********************************************************************************************
-###Install CLouder Manager
+###Install Clouder Manager
 ###install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
-###All installer can be found here
+###All installers can be found here
 http://archive.cloudera.com/cm5/installer/
-
-
-cd /tmp
 ###wget http://archive.cloudera.com/cm5/installer/5.13.3.3/cloudera-manager-installer.bin
 ###wget http://archive.cloudera.com/cm5/installer/5.14.4.3/cloudera-manager-installer.bin
+
+cd /tmp
 wget http://archive.cloudera.com/cm5/installer/5.15.1.3/cloudera-manager-installer.bin
 chmod u+x  cloudera-manager-installer.bin
 ls -al
@@ -324,20 +323,18 @@ ls -al
 
 
 ###Before proceeding confirm
-##All DNS is setup
+###All DNS is setup
 ###All Isilon setup
 
 
-##install cloudera manager
+###install cloudera manager
 cd /tmp
-./cloudera-manager-installer.bin --skip_repo_package=1
+./cloudera-manager-installer.bin 
+
+###Accept and follow the installer
 
 
-http://192.168.1.40:7180
-
-admin/admin
-
-##cloudera manager service check
+###cloudera manager service check
 service cloudera-scm-server status  
 service cloudera-scm-server-db status
 
@@ -347,32 +344,22 @@ service cloudera-scm-server-db restart
 Or a reboot can sometimes fix this.
 
 
-##now see the lab guide for local repo setup and configuration
-See lab install doc for specifics with cloudera repos --- >  you have to change the repo locations in CM
-
-
-
-##Goto to Cloudera Manager
+###with browser go to the CM installer site
+###host installed on port 7180 per the installer
 http://192.168.1.40:7180
 
 admin/admin
 
-##Host to deploy
+
+### select host to deploy
 hdfs01.demo.local
 hdfs02.demo.local
 hdfs03.demo.local
 
 
+###Select the version of CDH to install
 
-##Make repo changes for Cloudera CDH install
-##Page 17 of Support Isilon Hadoop Learning Guide, remove all the Remote Parcel repo URL and add this local one
-
-http://192.168.1.20/cdh5.8.2/
-
-
-##Select the version of CDH to install
-
-##Host paswords
+###Host paswords
 Password123!
 
 Install to hosts!
@@ -381,13 +368,13 @@ Install to hosts!
 ##Configure	
 ##Deploy Custom Services!  --- > NO hdfs, NO sqoop BUT add Isilon
 ##spread service around the hosts
-	
+###set isilon componets to configured isilon smartconnect name	
 	
 default_fs_name		hdfs://isilonsczone-cdh.demo.local:8020
 webhdfs_url			http://isilonsczone-cdh.demo.local:8082/webhdfs/v1
 
 
-Continue --->
+Continue installtion and complete--->
 
 
 
@@ -403,11 +390,6 @@ yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teragen 100000 /user/hdfs/teragenOUT
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
-
-
-
-
-
 
 
 
