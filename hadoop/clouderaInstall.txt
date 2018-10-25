@@ -230,11 +230,12 @@ usermod -a -G sqoop sqoop2
 ###Review versions of java install and they are compatible with Cloudera
 https://www.cloudera.com/documentation/enterprise/release-notes/topics/rn_consolidated_pcm.html#pcm_jdk
 
+###remove java if installed, let CM install it
 java -v
 rpm -qa | grep jdk
 yum -y remove java*
-yum -y remove java*
 rpm -qa | grep jdk
+
 
 ###Host setup
 ###Change Hostname to lower case & update DNS
@@ -387,16 +388,20 @@ Continue installtion and complete--->
 
 
 ##Test:
+adduser cdhuser1 -u 10000
+
 hadoop fs -ls /
 hadoop fs -mkdir /user/hdfs/TEST
+hadoop fs -mkdir /user/cdhuser1
+hadoop fs -chown  cdhuser1:cdhuser1 /user/cdhuser1
 hadoop fs -ls /user/hdfs/
 
-yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar pi 10 100
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar pi 10 100
 
 
-yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teragen 100000 /user/hdfs/teragenOUT
-yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
-yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.8.2.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teragen 100000 /user/hdfs/teragenOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
 
 
 
