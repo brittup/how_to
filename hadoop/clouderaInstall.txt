@@ -390,12 +390,16 @@ Continue installtion and complete--->
 ##Test:
 adduser cdhuser1 -u 10000
 
+su - hdfs
 hadoop fs -ls /
 hadoop fs -mkdir /user/hdfs/TEST
 hadoop fs -mkdir /user/cdhuser1
 hadoop fs -chown  cdhuser1:cdhuser1 /user/cdhuser1
+hadoop fs -chmod 700 /user/cdhuser1
 hadoop fs -ls /user/hdfs/
+exit
 
+su - cdhuser1
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar pi 10 100
 
 
