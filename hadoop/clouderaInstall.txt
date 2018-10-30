@@ -360,9 +360,9 @@ admin/admin
 
 
 ### select host to deploy
-hdfs01.demo.local
-hdfs02.demo.local
-hdfs03.demo.local
+hdfs1.demo.local
+hdfs2.demo.local
+hdfs3.demo.local
 
 
 ###Select the version of CDH to install

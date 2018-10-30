@@ -1,0 +1,15 @@
+### Join Linux AD with realm- centos07
+
+yum -y install realmd rpcbind nfs-utils nfs4-acl-tools -y
+yum -y install krb5-workstation krb5-libs openldap-clients
+
+yum -y groupinstall "Development tools"
+
+###using discover on the AD domain
+realm discover -v demo.local
+
+
+
+
+###To be completed......
+
