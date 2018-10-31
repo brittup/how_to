@@ -2,7 +2,7 @@
 ####SETUP ISILON 
 (see bottom of file for just Cloudera install commands if Isilon is configured)
 
-###Validate HDFS licensed
+###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
 
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
@@ -70,6 +70,8 @@ mkdir -p /ifs/zone1/cdh/scripts
 #https://github.com/Isilon/isilon_hadoop_tools
 
 cd /ifs/zone1/cdh/scripts
+
+###wget removed from OneFS; need to download and copy scripts to Isilon via any means possible
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
 

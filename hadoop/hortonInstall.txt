@@ -2,7 +2,7 @@
 ####SETUP ISILON view and validate process
 (see bottom of file for just Ambari & HDP install commands if Isilon is configured)
 
-###Validate HDFS licensed
+###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
 
 
@@ -79,6 +79,7 @@ https://github.com/Isilon/isilon_hadoop_tools
 
 ###download create scripts natively
 cd /ifs/zone1/hdp/scripts
+###wget removed from OneFS; need to download and copy scripts to Isilon via any means possible
 ###8.1.2+ does not have wget
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
 wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
@@ -545,7 +546,7 @@ isi hdfs settings modify --zone=zone1-hdp --ambari-namenode=isilonsczone-hdp.dem
 isi hdfs settings modify --zone=zone1-hdp --ambari-server=hdfs01.demo.local
 
 
-##IF AD, chnage domain name to your domain
+##IF AD, change domain name to your domain
 isi zone zones modify --user-mapping-rules="hdfs=>root, demo\hdfs=>root, demo\* &= *[], demo\* += *[group], demo\* += *[groups]" --zone=zone1-hdp
 
 
