@@ -371,12 +371,14 @@ cat /sys/kernel/mm/transparent_hugepage/enabled
 #wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.5.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
 #wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.6.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
 
-
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.2.2/ambari.repo -O /etc/yum.repos.d/ambari.repo
 yum clean all
 
-
+###install Ambari Server
 yum -y install ambari-server 
+
+
+###Setup Ambari
 ambari-server setup
 
 Custom users: n
@@ -384,16 +386,16 @@ JDK option: 1
 Accept license : Y
 GPL License for LZO: n
 
-Database n
+advanced database: n
 
 
-
+###Check status of Ambari
 ambari-server status
 ambari-server start
 
 http://ambari-server:8080   admin/admin
 
-On ambari host
+###On ambari host Server
 
 ssh-keygen
 
@@ -407,6 +409,23 @@ ssh-copy-id root@hdfs3.demo.local
 ssh root@hdfs1.demo.local
 ssh root@hdfs2.demo.local
 ssh root@hdfs3.demo.local
+
+
+
+*********************
+rhel 7 has seen a known issue, if hosts fail to register and throws an SSL error with openssl, EOF violation of protocol
+add the following:
+
+vi /etc/ambari-agent/conf/ambari-agent.ini
+
+
+[security]
+force_https_protocol=PROTOCOL_TLSv1_2
+
+
+ambari-server restart
+ambari-agent restart
+*********************
 
 cat /root/.ssh/id_rsa   
 ##Copy into a txt file on desktop and save
@@ -427,21 +446,6 @@ hdfs3.demo.local
 Select ssh key file from above
 Register and confirm
 
-
-*********************
-rhel 7 has seen a known issue, if hosts fail to register and throws an SSL error with openssl, EOF violation of protocol
-add the following:
-
-vi /etc/ambari-agent/conf/ambari-agent.ini
-
-
-[security]
-force_https_protocol=PROTOCOL_TLSv1_2
-
-
-ambari-server restart
-ambari-agent restart
-*********************
 
 
 

@@ -394,7 +394,7 @@ adduser cdhuser1 -u 10000
 
 su - hdfs
 hadoop fs -ls /
-hadoop fs -mkdir /user/hdfs/TEST
+hadoop fs -ls /user
 hadoop fs -mkdir /user/cdhuser1
 hadoop fs -chown  cdhuser1:cdhuser1 /user/cdhuser1
 hadoop fs -chmod 700 /user/cdhuser1
@@ -405,17 +405,31 @@ su - cdhuser1
 
 
 
-###Test YARN & mapred; use the valid version of the examples
+
 ### Modify the Yarn Memory limits for container size, default too small on these VM's
+###Yarn Service
+Container Memory: yarn.nodemanager.resource.memory-mb  2GB
+
+Restart and Redploy Yarn config and services
+
+
+###Review and surpress any warnings or set limits per CDH recommendations, you should be able to get all services green
 
 
 
+
+###Test YARN & mapred; use the valid version of the examples: hadoop-mapreduce-examples-2.6.0-cdh5.X.X = hadoop-mapreduce-examples-2.6.0-cdh5.5.15.1.jar
+
+
+###Run a test mapred example to test Yarn
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar pi 10 100
 
 
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teragen 100000 /user/hdfs/teragenOUT
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+
+
 
 
 
