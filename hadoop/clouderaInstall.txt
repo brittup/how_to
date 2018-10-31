@@ -300,7 +300,9 @@ systemctl start disable-thp
 systemctl enable disable-thp
 
 
+sysctl vm.swappiness=10
 cat /proc/sys/vm/swappiness
+
 vi /etc/sysctl.conf 
 	(Add at the end) G, o - esc:wq
 	
@@ -400,6 +402,14 @@ hadoop fs -ls /user/hdfs/
 exit
 
 su - cdhuser1
+
+
+
+###Test YARN & mapred; use the valid version of the examples
+### Modify the Yarn Memory limits for container size, default too small on these VM's
+
+
+
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar pi 10 100
 
 
