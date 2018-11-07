@@ -1,0 +1,36 @@
+###A simple multiprotocol setup to validate Isilon behavior
+
+###1a.setup SmartConnect on Isilon
+
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+isi network pools create --id=groupnet0:subnet0:pool0p --ranges=192.168.1.60-192.168.1.100  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
+mkdir -p /ifs/mp
+touch /ifs/mp/this_is_isilon.txt
+chmod 777 /ifs/mp/this_is_isilon.txt
+
+
+
+###1b.setup SmartConnect on DNS server
+###Add A record ssip.mp.demo.local
+###Add NS record mp.demo.local - ssip.mp.demo.local
+
+###test DNS
+nslookup mp.demo.local
+
+
+
+###2.create SMB share
+
+###3.create export
+
+###4.review file permissions from isilon
+
+###5.chmod acl file
+
+###6.acl a posix file
+
+###7.review access token
+
+
+
+
