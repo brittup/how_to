@@ -2,17 +2,20 @@
 
 ###1a.setup SmartConnect on Isilon
 
-isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
-isi network pools create --id=groupnet0:subnet0:pool0p --ranges=192.168.1.60-192.168.1.100  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
 mkdir -p /ifs/mp
 touch /ifs/mp/this_is_isilon.txt
 chmod 777 /ifs/mp/this_is_isilon.txt
-
+cd /ifs/mp
+ls -al 
+ls -le this_is_isilon.txt
+ls -len this_is_isilon.txt
 
 
 ###1b.setup SmartConnect on DNS server
-###Add A record ssip.mp.demo.local
-###Add NS record mp.demo.local - ssip.mp.demo.local
+###Add A record ssip-isilon.demo.local
+###Add NS record mp.demo.local - ssip-isilon.demo.local
 
 ###test DNS
 nslookup mp.demo.local
@@ -20,6 +23,9 @@ nslookup mp.demo.local
 
 
 ###2.create SMB share
+
+isi smb shares create --zone=System --path=/ifs/mp --name=mp
+
 
 ###3.create export
 
@@ -34,3 +40,5 @@ nslookup mp.demo.local
 
 
 
+
+###Run as root
