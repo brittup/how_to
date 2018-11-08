@@ -7,18 +7,18 @@
 
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
--isilon.vlab.local
+-isilon.demo.local
 test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
 
 
 ###Kerberize Isilon
 
-isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=KDC.vlab.local --admin-server=KDC.vlab.local --default-domain=vlab.local 
+isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldap-kdc.demo.local --admin-server=ldap-kdc.demo.local --default-domain=demo.local 
 isi auth krb5 realm list -v
 
 
-isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=vlab.local
-isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.vlab.local
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=demo.local
+isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.demo.local
 isi auth krb5 domain list
 
 isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
@@ -72,7 +72,7 @@ yum install rpcbind nfs-utils nfs4-acl-tools -y
 
 vi /etc/idmapd.conf
 [General]
-Domain = vlab.local
+Domain = demo.local
 
 ###need to add id mapping content here --->
 static mappings
@@ -84,7 +84,7 @@ sssd id & ldap/ad integration etc..
 
 yum -y install krb5-workstation krb5-libs openldap-clients
 
-###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = vlab.local
+###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = demo.local
 vi /etc/krb5.conf
 
 
@@ -103,14 +103,14 @@ vi /etc/krb5.conf
 
 [realms]
  VLABKDC.LOCAL = {
-  kdc = KDC.vlab.local
-  admin_server = KDC.vlab.local
-  default_domain = vlab.local
+  kdc = ldap-kdc.demo.local
+  admin_server = ldap-kdc.demo.local
+  default_domain = demo.local
  }
 
 [domain_realm]
-  .vlab.local = VLABKDC.LOCAL
-  vlab.local = VLABKDC.LOCAL
+  .demo.local = VLABKDC.LOCAL
+  demo.local = VLABKDC.LOCAL
 
   
   
@@ -127,7 +127,7 @@ isi nfs settings global view
 isi nfs settings global modify --nfsv4-enabled=true
 
 isi nfs settings zone view
-isi nfs settings zone modify --nfsv4-domain=vlab.local
+isi nfs settings zone modify --nfsv4-domain=demo.local
 
 
 isi nfs exports delete --id=1
@@ -144,10 +144,10 @@ service rpcbind start; chkconfig rpcbind on
 service rpcidmapd start; chkconfig rpcidmapd on
 chkconfig netfs on
 
-show mount -e isilon.vlab.local
+show mount -e isilon.demo.local
 
 mkdir /mnt/nfsv4
-mount -t nfs4 -o sec=sys isilon.vlab.local:/ifs/mp/nfsv4 /mnt/nfsv4
+mount -t nfs4 -o sec=sys isilon.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
 cd /mnt/nfsv4
@@ -175,14 +175,14 @@ kadmin.local
 listprincs
 
 ###add SPNs
-apprinc -randkey nfs/KDC.vlab.local
-apprinc -randkey host/KDC.vlab.local
+apprinc -randkey nfs/ldap-kdc.demo.local
+apprinc -randkey host/ldap-kdc.demo.local
 listprincs
 
 
 ###create keytab for SPNs
-ktadd -k /root/nfs-krb5.keytab nfs/KDC.vlab.local
-ktadd -k /root/host-krb5.keytab host/KDC.vlab.local
+ktadd -k /root/nfs-krb5.keytab nfs/ldap-kdc.demo.local
+ktadd -k /root/host-krb5.keytab host/ldap-kdc.demo.local
 exit
 
 ###review keytab
@@ -213,7 +213,7 @@ exit
 ######On Host centos7
 ###secure mount to isilon centos7
 rpc.gssd -f -vvv
-mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+mount –t nfs4 –o sec=krb5 isilon.demo.local:/ifs/data/mixed /mnt/nfsv4
 
 
 root@rduvnode258421:~ # klist -e
@@ -311,7 +311,7 @@ klist -ke /etc/krb5.keytab
 
 rpc.gssd -f -vvv
 rpc.gssd -f -vvv
-mount –t nfs4 –o sec=krb5 isilon.vlab.local:/ifs/data/mixed /mnt/nfsv4
+mount –t nfs4 –o sec=krb5 isilon.demo.local:/ifs/data/mixed /mnt/nfsv4
 mount
 mountstats
 

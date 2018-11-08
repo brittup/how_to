@@ -3,7 +3,7 @@
 
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
--isilon.vlab.local
+-isilon.demo.local
 test ssip & sc, forward and reverse DNS on smartconnect
 
 
@@ -15,7 +15,7 @@ isi nfs settings global view
 
 ###Review and Config nfs per Access Zone (assumes System zone here)
 isi nfs settings zone view --zone=System
-isi nfs settings zone modify --nfsv4-domain=vlab.local --zone=System
+isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
 isi nfs settings zone view --zone=System
 
 ### remove default /ifs export
@@ -43,7 +43,7 @@ yum install rpcbind nfs-utils nfs4-acl-tools -y
 
 vim /etc/idmapd.conf
 [General]
-Domain = vlab.local
+Domain = demo.local
 
 
 
@@ -76,12 +76,12 @@ systemctl status nfs-idmap
 on isilon:  isi network pools list     -- get sczone 
 
 ###get mount info from Isilon
-showmount -e isilon.vlab.local
+showmount -e isilon.demo.local
 
 
 mkdir /mnt/nfsv4
 
-mount -t nfs4 -o sec=sys isilon.vlab.local:/ifs/mp/nfsv4 /mnt/nfsv4
+mount -t nfs4 -o sec=sys isilon.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
 cd /mnt/nfsv4

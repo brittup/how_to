@@ -35,7 +35,7 @@ vi /var/kerberos/krb5kdc/kdc.conf
 ###Modify krb5.conf  
 ###set KDC and Admin Server to the KDC hosts
 ###set domain_realms to the dns realm
-###example:  Realm = VLABKDC.LOCAL, DNS = vlab.local
+###example:  Realm = VLABKDC.LOCAL, DNS = demo.local
 
 vi /etc/krb5.conf
 
@@ -52,16 +52,17 @@ vi /etc/krb5.conf
  renew_lifetime = 7d
  forwardable = true
 
+
 [realms]
  VLABKDC.LOCAL = {
-  kdc = KDC.vlab.local
-  admin_server = KDC.vlab.local
-  default_domain = vlab.local
+  kdc = ldap-kdc.demo.local
+  admin_server = ldap-kdc.demo.local
+  default_domain = demo.local
  }
 
 [domain_realm]
-  .vlab.local = VLABKDC.LOCAL
-  vlab.local = VLABKDC.LOCAL
+  .demo.local = VLABKDC.LOCAL
+  demo.local = VLABKDC.LOCAL
 
   
   
