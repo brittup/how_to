@@ -126,6 +126,7 @@ su - kdcuser1
 ###Test Kerberos & KDC
 kinit kdcuser1@VLABKDC.LOCAL
 
+
 ###passwords
 Password123!
 
