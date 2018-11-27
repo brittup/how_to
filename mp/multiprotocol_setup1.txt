@@ -1,5 +1,9 @@
 ###A simple multiprotocol setup to validate Isilon behavior
 
+####Under development still 11/2018
+
+
+
 ###1a.setup SmartConnect on Isilon
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
@@ -11,6 +15,7 @@ cd /ifs/mp
 ls -al 
 ls -le this_is_isilon.txt
 ls -len this_is_isilon.txt
+
 
 
 ###1b.setup SmartConnect on DNS server
