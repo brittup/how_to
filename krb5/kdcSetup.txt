@@ -129,6 +129,7 @@ kinit kdcuser1@VLABKDC.LOCAL
 ###passwords
 Password123!
 
+
 ###view KRB5 ticket
 klist -e
 
