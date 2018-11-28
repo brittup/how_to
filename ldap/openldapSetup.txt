@@ -1,18 +1,23 @@
+###this doc is how to install a basic openldap server from scratch
+
+
 yum install openldap openldap-clients openldap-servers
 
 [root]# slappasswd
 New password : password
 Re-enter new password : password
-{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS
+{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- copy this
 
 
 
 cd /etc/openldap/slapd.d/cn\=config
 ls -al
 vi olcDatabase\=\{2\}bdb.ldif
-olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS
 
-olcSuffix: dc=vlab,dc=local
+
+olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- use copied value here
+
+olcSuffix: dc=demo,dc=local
 
 olcRootDN: cn=Manager,dc=vlab,dc=local
 
