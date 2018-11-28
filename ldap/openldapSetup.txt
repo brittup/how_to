@@ -1,7 +1,7 @@
 ###this doc is how to install a basic openldap server from scratch
 
 
-yum install openldap openldap-clients openldap-servers
+yum install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel ntp
 
 [root]# slappasswd
 New password : password
@@ -58,6 +58,9 @@ systemctl status firewalld
 systemctl enable ntpd
 systemctl start ntpd
 systemctl status ntpd
+
+
+
 
 
 ###create Root
