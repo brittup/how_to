@@ -12,6 +12,9 @@ Re-enter new password : password
 
 cd /etc/openldap/slapd.d/cn\=config
 ls -al
+
+
+###update bdb.ldif with a valid password & ldap domain info
 vi olcDatabase\=\{2\}bdb.ldif
 
 
@@ -19,21 +22,27 @@ olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- use copied value here
 
 olcSuffix: dc=demo,dc=local
 
-olcRootDN: cn=Manager,dc=vlab,dc=local
+olcRootDN: cn=Manager,dc=demo,dc=local
 
+
+
+###replace the existing  olcAccess: {0}to * ...... entire line with this one
 
 vi olcDatabase\=\{1\}monitor.ldif
-olcAccess: {0}to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read  by dn.base="cn=Manager,dc=vlab,dc=local" read  by * none
+olcAccess: {0}to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read  by dn.base="cn=Manager,dc=demo,dc=local" read  by * none
 
+
+###add the following olcAccess: {0} & {1} lines 
 
 vi olcDatabase\=\{2\}bdb.ldif
-olcAccess: {0}to attrs=userPassword by self write by dn.base="cn=Manager,dc=vlab,dc=local" write by anonymous auth by * none
-olcAccess: {1}to * by dn.base="cn=Manager,dc=vlab,dc=local" write by self write by * read
+olcAccess: {0}to attrs=userPassword by self write by dn.base="cn=Manager,dc=demo,dc=local" write by anonymous auth by * none
+olcAccess: {1}to * by dn.base="cn=Manager,dc=demo,dc=local" write by self write by * read
 
 
 
 
-
+###setup services
+###centos6
 chkconfig iptables off
 chkconfig ip6tables off
 chkconfig slapd on
@@ -42,23 +51,29 @@ service iptables  status
 service slapd start
 
 
-
+###centos7
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl status firewalld
+systemctl enable ntpd
+systemctl start ntpd
+systemctl status ntpd
 
 
 ###create Root
 
 cd /tmp
-vi vlab.ldif
+vi demo.ldif
 
-dn: dc=vlab,dc=local
+dn: dc=demo,dc=local
 objectClass: dcObject
 objectClass: organization
-dc: vlab
-o : vlab
+dc: demo
+o : demo
 
 
 
-ldapadd -f vlab.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f demo.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 ###get LDAP browser
@@ -66,31 +81,31 @@ https://www.ldapadministrator.com/download.htm
 
 ###browser setup
 192.168.1.20
-cn=Manager,dc=vlab,dc=local
+cn=Manager,dc=demo,dc=local
 
 ###test ldap search
-ldapsearch -x -LLL -b dc=vlab,dc=local
+ldapsearch -x -LLL -b dc=demo,dc=local
 
 
 
 ###create user OU
 vi users.ldif
 
-dn: ou=users,dc=vlab,dc=local
+dn: ou=users,dc=demo,dc=local
 objectClass: organizationalUnit
 ou: users
 
-ldapadd -f users.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f users.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 ###create groups OU
 vi groups.ldif
 
-dn: ou=groups,dc=vlab,dc=local
+dn: ou=groups,dc=demo,dc=local
 objectClass: organizationalUnit
 ou: groups
 
-ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f groups.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 
@@ -99,44 +114,44 @@ ldapadd -f groups.ldif -D cn=Manager,dc=vlab,dc=local -w password
 *********************************************************************************************
 vi bob.ldif
 
-dn: cn=Bob Jones,ou=Users,dc=vlab,dc=local
+dn: cn=Bob Jones,ou=Users,dc=demo,dc=local
 cn: Bob Jones
 sn: Jones
 objectClass: inetOrgPerson
 userPassword: password
 uid: 10000
 
-ldapadd -f bob.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f bob.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 vi engineering.ldif
 
-dn: cn=Engineering,ou=Users,dc=vlab,dc=local
+dn: cn=Engineering,ou=Users,dc=demo,dc=local
 cn: Engineering
 objectClass: groupOfNames
-member: cn=Bob Jones,ou=Users,dc=vlab,dc=local
+member: cn=Bob Jones,ou=Users,dc=demo,dc=local
 
-ldapadd -f engineering.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f engineering.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 
 vi jack.ldif
 
-dn: cn=Jack Smith,ou=Users,dc=vlab,dc=local
+dn: cn=Jack Smith,ou=Users,dc=demo,dc=local
 cn: Jack Smith
 sn: Smith
 objectClass: inetOrgPerson
 userPassword: password
 uid: 10001
 
-ldapadd -f jack.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f jack.ldif -D cn=Manager,dc=demo,dc=local -w password
 
 
 vi addUserToGroup.ldif
 
-dn: cn=Engineering,ou=Users,dc=vlab,dc=local
+dn: cn=Engineering,ou=Users,dc=demo,dc=local
 changetype: modify
 add: member
-member: cn=Jack Smith,ou=Users,dc=vlab,dc=local
+member: cn=Jack Smith,ou=Users,dc=demo,dc=local
 
-ldapadd -f addUserToGroup.ldif -D cn=Manager,dc=vlab,dc=local -w password
+ldapadd -f addUserToGroup.ldif -D cn=Manager,dc=demo,dc=local -w password
