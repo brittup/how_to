@@ -3,6 +3,141 @@
 
 yum install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel ntp
 
+###centos7 install
+
+
+systemctl start slapd.service
+systemctl enable slapd.service
+
+slappasswd    
+New password : password
+Re-enter new password : password
+{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- copy this
+
+
+vi db.ldif
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: dc=demo,dc=local
+ 
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: cn=ldapadm,dc=demo,dc=local
+ 
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: hashed_output_from_the_slappasswd_command   < -- what you copied earlier
+
+
+ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
+
+
+
+
+vi monitor.ldif
+
+dn: olcDatabase={1}monitor,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth" read by dn.base="cn=ldapadm,dc=demo,dc=local" read by * none
+
+
+ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
+
+
+
+
+openssl req -new -x509 -nodes -out /etc/openldap/certs/myldap.demo.local.cert -keyout /etc/openldap/certs/myldap.demo.local.key -days 365
+
+chown -R ldap:ldap /etc/openldap/certs
+
+
+
+vi certs.ldif
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.cert
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
+
+
+ldapmodify -Y EXTERNAL -H ldapi:/// -f certs.ldif
+
+
+###test the configuration using the following command:
+slaptest -u
+
+
+
+Add the LDAP schemas:
+
+# ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
+# ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif
+# ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif
+
+
+
+
+vi base.ldif
+
+dn: dc=field,dc=linuxhostsupport,dc=com
+dc: field
+objectClass: top
+objectClass: domain
+
+dn: cn=ldapadm,dc=field,dc=linuxhostsupport,dc=com
+objectClass: organizationalRole
+cn: ldapadm
+description: LDAP Manager
+
+dn: ou=People,dc=field,dc=linuxhostsupport,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Group,dc=field,dc=linuxhostsupport,dc=com
+objectClass: organizationalUnit
+ou: Group
+
+
+ldapadd -x -W -D "cn=ldapadm,dc=field,dc=linuxhostsupport,dc=com" -f base.ldif
+
+
+
+
+
+###get LDAP browser
+https://www.ldapadministrator.com/download.htm
+
+###browser setup
+192.168.1.20
+cn=ldapadm,dc=demo,dc=local
+
+###test ldap search
+ldapsearch -x -LLL -b dc=demo,dc=local
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################################################################################################################
+###centos6 install
 [root]# slappasswd
 New password : password
 Re-enter new password : password
@@ -39,8 +174,6 @@ olcAccess: {0}to attrs=userPassword by self write by dn.base="cn=Manager,dc=demo
 olcAccess: {1}to * by dn.base="cn=Manager,dc=demo,dc=local" write by self write by * read
 
 
-
-
 ###setup services
 ###centos6
 chkconfig iptables off
@@ -49,18 +182,6 @@ chkconfig slapd on
 chkconfig
 service iptables  status
 service slapd start
-
-
-###centos7
-systemctl disable firewalld
-systemctl stop firewalld
-systemctl status firewalld
-systemctl enable ntpd
-systemctl start ntpd
-systemctl status ntpd
-
-
-
 
 
 ###create Root
@@ -109,9 +230,6 @@ objectClass: organizationalUnit
 ou: groups
 
 ldapadd -f groups.ldif -D cn=Manager,dc=demo,dc=local -w password
-
-
-
 
 
 *********************************************************************************************
