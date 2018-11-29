@@ -1,7 +1,20 @@
 ###this doc is how to install a basic openldap server from scratch
 
+yum update
+
+
 
 yum install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel ntp
+
+
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl status firewalld
+systemctl enable ntpd
+systemctl start ntpd
+systemctl status ntpd
+
+
 
 ###centos7 install
 
