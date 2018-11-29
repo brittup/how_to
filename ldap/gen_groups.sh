@@ -21,7 +21,7 @@ echo "" >> $OUTPUT
 echo "# testgroup1: all users"
 echo ""
 cat <<EOF
-dn: cn=testgroup1,ou=groups,dc=vlab,dc=local
+dn: cn=testgroup1,ou=groups,dc=demo,dc=local
 cn: testgroup1
 gidnumber: 1001
 objectclass: posixGroup
@@ -46,7 +46,7 @@ echo ''
 echo "# testgroup2: all AD/LDAP users"
 echo ""
 cat <<EOF
-dn: cn=testgroup2,ou=Groups,dc=vlab,dc=local
+dn: cn=testgroup2,ou=Groups,dc=demo,dc=local
 cn: testgroup2
 gidnumber: 1002
 objectclass: posixGroup
@@ -65,7 +65,7 @@ echo ''
 echo "# testgroup3: all mixed case users"
 echo ""
 cat <<EOF
-dn: cn=testgroup3,ou=groups,dc=vlab,dc=local
+dn: cn=testgroup3,ou=groups,dc=demo,dc=local
 cn: testgroup3
 gidnumber: 1003
 objectclass: posixGroup
@@ -84,7 +84,7 @@ echo ''
 echo "# testgroup4: all LDAP-only users"
 echo ""
 cat <<EOF
-dn: cn=testgroup4,ou=groups,dc=vlab,dc=local
+dn: cn=testgroup4,ou=groups,dc=demo,dc=local
 cn: testgroup4
 gidnumber: 1004
 objectclass: posixGroup
@@ -103,7 +103,7 @@ echo ''
 echo "# testgroup5: mixed set of users"
 echo ""
 cat <<EOF
-dn: cn=testgroup5,ou=groups,dc=vlab,dc=local
+dn: cn=testgroup5,ou=groups,dc=demo,dc=local
 cn: testgroup5
 gidnumber: 1005
 objectclass: posixGroup
@@ -129,7 +129,7 @@ echo ''
 echo "# testgroup6: empty group"
 echo ""
 cat <<EOF
-dn: cn=testgroup6,ou=groups,dc=vlab,dc=local
+dn: cn=testgroup6,ou=groups,dc=demo,dc=local
 cn: testgroup6
 gidnumber: 1006
 objectclass: posixGroup

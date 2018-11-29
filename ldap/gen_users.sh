@@ -12,13 +12,13 @@ echo "" >> $OUTPUT
 for i in {1..20}; do
   j=$(printf "%02d" $i)
   cat <<EOF
-dn: uid=testuser${i},ou=users,dc=vlab,dc=local
+dn: uid=testuser${i},ou=users,dc=demo,dc=local
 cn: Test User ${i}
 gecos: Test User ${i},,,
 gidnumber: 1001
 homedirectory: /ifs/home/testuser${i}
 loginshell: /bin/bash
-mail: testuser${i}@vlab.local
+mail: testuser${i}@demo.local
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
@@ -41,13 +41,13 @@ echo "" >> $OUTPUT
 for i in {1..10}; do
   j=$(printf "%02d" $i)
   cat <<EOF
-dn: uid=MixedUser${i},ou=users,dc=vlab,dc=local
+dn: uid=MixedUser${i},ou=users,dc=demo,dc=local
 cn: Mixed-Case Test User ${i}
 gecos: Mixed-Case Test User ${i},,,
 gidnumber: 1001
 homedirectory: /ifs/home/MixedUser${i}
 loginshell: /bin/bash
-mail: MixedUser${i}@vlab.local
+mail: MixedUser${i}@demo.local
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
@@ -70,13 +70,13 @@ echo "" >> $OUTPUT
 for i in {1..10}; do
   j=$(printf "%02d" $i)
   cat <<EOF
-dn: uid=ldapuser${i},ou=users,dc=vlab,dc=local
+dn: uid=ldapuser${i},ou=users,dc=demo,dc=local
 cn: LDAP-only Test User ${i}
 gecos: LDAP-only Test User ${i},,,
 gidnumber: 1001
 homedirectory: /ifs/home/ldapuser${i}
 loginshell: /bin/bash
-mail: ldapuser${i}@vlab.local
+mail: ldapuser${i}@demo.local
 objectclass: inetOrgPerson
 objectclass: posixAccount
 objectclass: shadowAccount
