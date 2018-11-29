@@ -25,7 +25,7 @@ systemctl enable slapd.service
 slappasswd    
 New password : password
 Re-enter new password : password
-{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- copy this
+{SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- copy this, include the {SSHA}
 
 
 vi db.ldif
@@ -94,6 +94,9 @@ slaptest -u
 
 
 
+cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
+chown -R ldap:ldap /var/lib/ldap
+
 Add the LDAP schemas:
 
 ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
@@ -106,7 +109,6 @@ ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif
 vi base.ldif
 
 dn: dc=demo,dc=local
-dc: field
 objectClass: top
 objectClass: domain
 
@@ -125,6 +127,8 @@ ou: Group
 
 
 ldapadd -x -W -D "cn=ldapadm,dc=demo,dc=local" -f base.ldif
+###enter password used above - password
+
 
 
 
@@ -143,6 +147,8 @@ Base DN: cn=ldapadm,dc=demo,dc=local
 
 ###test ldap search
 ldapsearch -x -LLL -b dc=demo,dc=local
+
+
 
 
 
