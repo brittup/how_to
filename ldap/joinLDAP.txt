@@ -8,7 +8,6 @@ isi auth ldap create  --base-dn=DC=demo,DC=local --server-uris=ldap://ldap-kdc.d
 
 isi auth ldap list
 
-isi auth ldap list
 
 isi auth ldap view ldap1
 
