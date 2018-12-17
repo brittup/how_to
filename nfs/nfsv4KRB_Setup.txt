@@ -173,15 +173,11 @@ mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/ /mnt/nfsv4
 mountstats
 
 ###look for sec=sys
-
-
-
+###test mount
 cd /mnt/nfsv4
 touch 1.txt
 ls -al
-
 nfs4_getfacl 1.txt
-
 
 
 ###test non-root user
@@ -193,7 +189,7 @@ ls -al
 nfs4_getfacl 2.txt
 
 ls -al  on isilon
-ls -le 	on isilon
+ls -le  on isilon
 
 
 
@@ -203,15 +199,15 @@ ls -le 	on isilon
 
 isi nfs exports list --zone=System
 
-
 mkdir /ifs/mp
 mkdir /ifs/mp/nfsv4
 chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mm/nfsv4 --map-root=root
-isi nfs exports list -view
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root
+isi nfs exports list --zone=System
+isi nfs exports view --id=2
 
 
-###Kerberized nfs setup
+###Kerberized nfs setup - create client SPN & keytab
 ###
 ###on KDC
 kadmin.local
