@@ -76,7 +76,7 @@ systemctl status nfs-idmap
 on isilon:  isi network pools list     -- get sczone 
 
 ###get mount info from Isilon
-showmount -e isilon.demo.local
+showmount -e <smartconnectname>
 
 
 mkdir /mnt/nfsv4
