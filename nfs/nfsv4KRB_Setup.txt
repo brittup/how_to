@@ -214,25 +214,31 @@ kadmin.local
 listprincs
 
 ###add SPNs
-apprinc -randkey nfs/ldap-kdc.demo.local
-apprinc -randkey host/ldap-kdc.demo.local
+addprinc -randkey nfs/<hostname>.demo.local
+addprinc -randkey host/<hostname>.demo.local
 listprincs
 
 
 ###create keytab for SPNs
-ktadd -k /root/nfs-krb5.keytab nfs/ldap-kdc.demo.local
-ktadd -k /root/host-krb5.keytab host/ldap-kdc.demo.local
+ktadd -k /root/nfs-krb5.keytab nfs/<hostname>.demo.local
+ktadd -k /root/host-krb5.keytab host/<hostname>.demo.local
 exit
 
-###review keytab
+###review keytab file are created
 ls -al /root
 
 
+
 ##copy keytabs to nfs host-krb5, something like...
-scp /root/*.keytab root@10.224.36.46:/root/
+scp /root/*.keytab root@X.X.X.Y:/root/
 
 
 ###import the keytabs
+###ssh to the hostname, review keytabs copied over 
+cd /root
+ls -al   
+
+
 ktutil
 ktutil:  list
 
