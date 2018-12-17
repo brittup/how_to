@@ -266,7 +266,8 @@ exit
 ###secure mount to isilon centos7
 
 systemctl enable nfs-secure
-systemctl enable nfs-client.target
+systemctl status nfs-secure
+systemctl retart nfs-secure
 
 
 
@@ -352,6 +353,10 @@ PATHCONF:
         backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
 
 
+		
+		
+		
+		
 ###secure mount to isilon, centos 6
 vi /etc/sysconfig/nfs
 
@@ -371,7 +376,7 @@ klist -ke /etc/krb5.keytab
 
 rpc.gssd -f -vvv
 rpc.gssd -f -vvv
-mount –t nfs4 –o sec=krb5 isilon.demo.local:/ifs/data/mixed /mnt/nfsv4
+mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/data/mixed /mnt/nfsv4
 mount
 mountstats
 
