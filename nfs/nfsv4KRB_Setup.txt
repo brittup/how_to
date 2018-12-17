@@ -43,9 +43,10 @@ isilon/admin@VLABKDC.LOCAL
 Password123!
 
 
-###validate and fix
+###validate and fix DNS
 -fix reverse dns
-test with nslookup on name/IP
+test with nslookup on name and IP for smartconnect zone name & reverse IP's  - - all forward and reverse must resolve
+
 
 -fix spns if needed
 isilon/admin@VLABKDC.LOCAL
@@ -57,27 +58,31 @@ check permissions on the mount
 
 
 #########################################
-Setup export for krb authentication
+### in this example we use the simplest setup with no ID mgmt to validate Kerberos mounting
+###Setup export for krb authentication
 
 isi nfs exports list --zone=System
 isi nfs exports view --zone=System  --id=1
 
 isi nfs exports modify --security-flavors=unix,krb5 --zone=System  --id=1
-
+isi nfs exports list --zone=System
 
 #########################################
 ###setup client for nfsv4 & kerberize
 
 yum install rpcbind nfs-utils nfs4-acl-tools -y
 
+###modify the Domain in the idmap.conf for nfsv4
+
 vi /etc/idmapd.conf
 [General]
 Domain = demo.local
 
-###need to add id mapping content here --->
+
+######need to add id mapping content here ---> coming soon
 static mappings
 sssd id & ldap/ad integration etc..
-
+######
 
 
 ###Setup kerberos on client if not done
@@ -112,7 +117,11 @@ vi /etc/krb5.conf
   .demo.local = VLABKDC.LOCAL
   demo.local = VLABKDC.LOCAL
 
-  
+ 
+ 
+###add user if needed to local machine - test on KDC host initially
+useradd -u 50000 -d /home/kduser1 -m kdcuser1
+su - kdcuser1
   
 ###Test Kerberos for user principal created during kdc setup
 kinit kdcuser1@VLABKDC.LOCAL
