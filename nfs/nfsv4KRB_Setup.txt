@@ -270,15 +270,12 @@ systemctl status nfs-secure
 systemctl retart nfs-secure
 
 
-
-rpc.gssd -f -vvv
 mkdir /mnt/nfsv4krb
 mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4krb
 
 
-
-
-root@rduvnode258421:~ # klist -e
+###view SPN used for mount
+klist -e
 Ticket cache: KEYRING:persistent:0:0
 Default principal: nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
 
@@ -286,13 +283,13 @@ Valid starting       Expires              Service principal
 01/01/1970 00:00:00  01/01/1970 00:00:00  Encrypted/Credentials/v1@X-GSSPROXY:
 
 
-
-
+###check the status of the mount
 mount
 mountstats
 
 cd /mnt/nfsv4krb
 touch test1.txt
+ls -al 
 
 
 ###switch user context
@@ -314,6 +311,11 @@ cd /mnt/nfsv4krb
 
 
 
+
+
+
+###################################
+old content
 ###################################
 ###mount info
 root@rduvnode258421:~ # mountstats
