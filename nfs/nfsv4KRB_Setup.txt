@@ -57,15 +57,7 @@ check permissions on the mount
 
 
 
-#########################################
-### in this example we use the simplest setup with no ID mgmt to validate Kerberos mounting
-###Setup export for krb authentication
 
-isi nfs exports list --zone=System
-isi nfs exports view --zone=System  --id=1
-
-isi nfs exports modify --security-flavors=unix,krb5 --zone=System  --id=1
-isi nfs exports list --zone=System
 
 #########################################
 ###setup client for nfsv4 & kerberize
@@ -139,12 +131,14 @@ isi nfs settings zone view
 isi nfs settings zone modify --nfsv4-domain=demo.local
 
 
-isi nfs exports delete --id=1
-mkdir /ifs/mp
-mkdir /ifs/mp/nfsv4
-chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mm/nfsv4 --map-root=root
-isi nfs exports list -view
+
+#########################################
+### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
+###Setup export for krb authentication
+
+isi nfs exports list --zone=System
+isi nfs exports view --zone=System  --id=1
+
 
 
 
@@ -175,6 +169,20 @@ ls -al  on isilon
 ls -le 	on isilon
 
 
+
+#########################################
+### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
+###Setup export for krb authentication
+
+isi nfs exports list --zone=System
+isi nfs exports view --zone=System  --id=1
+
+
+mkdir /ifs/mp
+mkdir /ifs/mp/nfsv4
+chmod -R 777 /ifs/mp/nfsv4
+isi nfs exports create --path=/ifs/mm/nfsv4 --map-root=root
+isi nfs exports list -view
 
 
 ###Kerberized nfs setup
