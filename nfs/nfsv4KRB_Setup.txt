@@ -130,6 +130,7 @@ isi nfs settings zone modify --nfsv4-domain=demo.local
 ###
 check permissions on the export if needed
 
+
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
 ###Setup export for krb authentication
@@ -165,11 +166,15 @@ systemctl status nfs-server
 systemctl status nfs-lock
 systemctl status nfs-idmap
 
-show mount -e <smartconnectname>
+showmount -e <smartconnectname>
 
 mkdir /mnt/nfsv4
-mount -t nfs4 -o sec=sys isilon.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4
+mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/ /mnt/nfsv4
 mountstats
+
+###look for sec=sys
+
+
 
 cd /mnt/nfsv4
 touch 1.txt
@@ -177,11 +182,15 @@ ls -al
 
 nfs4_getfacl 1.txt
 
+
+
 ###test non-root user
 su - kdcuser1
+cd /mnt/nfsv4
+ls -al
 touch 2.txt
 ls -al
-nfs4_getfacl
+nfs4_getfacl 2.txt
 
 ls -al  on isilon
 ls -le 	on isilon
@@ -189,11 +198,10 @@ ls -le 	on isilon
 
 
 #########################################
-### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
-###Setup export for krb authentication
+### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
+###Setup new export for krb authentication
 
 isi nfs exports list --zone=System
-isi nfs exports view --zone=System  --id=1
 
 
 mkdir /ifs/mp
