@@ -202,7 +202,7 @@ isi nfs exports list --zone=System
 mkdir /ifs/mp
 mkdir /ifs/mp/nfsv4
 chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root --security-flavors=krb5 
 isi nfs exports list --zone=System
 isi nfs exports view --id=2
 
@@ -243,7 +243,7 @@ ktutil
 ktutil:  list
 
 ktutil:  rkt /root/nfs-krb5.keytab
-ktutil:  rkt /root/host-krb5.keytab
+###ktutil:  rkt /root/host-krb5.keytab
 ktutil:  list
 ktutil:  wkt /etc/krb5.keytab
 ktutil:  exit
