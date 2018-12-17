@@ -192,11 +192,18 @@ ls -al  on isilon
 ls -le  on isilon
 
 
+### umount the test nfsv4 export
+exit
+umount /mnt/nfsv4
+
+
+
+
 
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
-###Setup new export for krb authentication
-
+###Setup new export for krb authentication, delete the default ifs export
+isi nfs export delete --id=1
 isi nfs exports list --zone=System
 
 mkdir /ifs/mp
@@ -257,10 +264,17 @@ exit
 
 ######On Host centos7
 ###secure mount to isilon centos7
-rpc.gssd -f -vvv
 
+systemctl enable nfs-secure
+systemctl enable nfs-client.target
+
+
+
+rpc.gssd -f -vvv
 mkdir /mnt/nfsv4krb
 mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4krb
+
+
 
 
 root@rduvnode258421:~ # klist -e
@@ -271,10 +285,12 @@ Valid starting       Expires              Service principal
 01/01/1970 00:00:00  01/01/1970 00:00:00  Encrypted/Credentials/v1@X-GSSPROXY:
 
 
+
+
 mount
 mountstats
 
-cd /mnt/nfsv4
+cd /mnt/nfsv4krb
 touch test1.txt
 
 
@@ -283,12 +299,9 @@ su - kdcuser1
 klist
 kinit
 klist
-cd /mnt/nfsv4
+cd /mnt/nfsv4krb
 
 
-
-set only to krb
-isi nfs exports modify --security-flavors=krb5  --zone=zone1-cdh  --id=1
 
 
 
