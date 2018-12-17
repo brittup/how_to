@@ -76,6 +76,7 @@ chkconfig
 
 ###centos7
 systemctl disable firewalld
+systemctl stop firewalld
 systemctl status firewalld
 systemctl enable krb5kdc.service
 systemctl status krb5kdc.service
@@ -99,6 +100,7 @@ service krb5kdc status
 service kadmin status
 
 ###centos7
+systemctl status firewalld
 systemctl status krb5kdc.service
 systemctl status kadmin.service
 systemctl start krb5kdc.service
