@@ -258,7 +258,9 @@ exit
 ######On Host centos7
 ###secure mount to isilon centos7
 rpc.gssd -f -vvv
-mount –t nfs4 –o sec=krb5 isilon.demo.local:/ifs/data/mixed /mnt/nfsv4
+
+mkdir /mnt/nfsv4krb
+mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4krb
 
 
 root@rduvnode258421:~ # klist -e
