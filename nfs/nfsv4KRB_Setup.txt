@@ -52,9 +52,6 @@ test with nslookup on name and IP for smartconnect zone name & reverse IP's  - -
 isilon/admin@VLABKDC.LOCAL
 Password123!
 
-###
-check permissions on the mount
-
 
 
 
@@ -130,7 +127,8 @@ isi nfs settings global modify --nfsv4-enabled=true
 isi nfs settings zone view
 isi nfs settings zone modify --nfsv4-domain=demo.local
 
-
+###
+check permissions on the export if needed
 
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
@@ -141,13 +139,33 @@ isi nfs exports view --zone=System  --id=1
 
 
 
-
-###On Client - test nfs mount
+###On Client - test nfsv4 mount
+###centos6
 service rpcbind start; chkconfig rpcbind on
 service rpcidmapd start; chkconfig rpcidmapd on
 chkconfig netfs on
 
-show mount -e isilon.demo.local
+
+###centos7
+systemctl enable rpcbind.service
+systemctl enable rpcidmapd.service
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+
+systemctl start rpcbind.service
+systemctl start rpcidmapd.service
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+
+systemctl status rpcbind.service
+systemctl status rpcidmapd.service
+systemctl status nfs-server
+systemctl status nfs-lock
+systemctl status nfs-idmap
+
+show mount -e <smartconnectname>
 
 mkdir /mnt/nfsv4
 mount -t nfs4 -o sec=sys isilon.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4
