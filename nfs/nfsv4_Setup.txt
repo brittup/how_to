@@ -27,9 +27,9 @@ isi nfs exports list
 mkdir /ifs/mp
 mkdir /ifs/mp/nfsv4
 chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
 isi nfs exports list --zone=System
-isi nfs exports view --id=<1> --zone=System
+isi nfs exports view --id=2 --zone=System
 
 
 
