@@ -210,13 +210,12 @@ umount /mnt/nfsv4
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
 ###Setup new export for krb authentication
-isi nfs export delete --id=1
 isi nfs exports list --zone=System
 
 
 mkdir /ifs/mp/nfsv4krb
 chmod -R 777 /ifs/mp/nfsv4krb
-isi nfs exports create --path=/ifs/mp/nfsv4krb --map-root=root --security-flavors=krb5 
+isi nfs exports create --path=/ifs/mp/nfsv4krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
 isi nfs exports list --zone=System
 isi nfs exports view --id=2
 
