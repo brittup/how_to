@@ -253,11 +253,11 @@ ls -al /root
 
 
 
-##copy keytabs to nfs host-krb5, something like...
+##copy keytabs to nfs host, something like...
 scp /root/*.keytab root@X.X.X.Y:/root/
 
 
-###import the keytabs
+###import the keytabs on the host
 ###ssh to the hostname, review keytabs copied over 
 cd /root
 ls -al   
@@ -267,7 +267,7 @@ ktutil
 ktutil:  list
 
 ktutil:  rkt /root/nfs-krb5.keytab
-###ktutil:  rkt /root/host-krb5.keytab
+ktutil:  rkt /root/host-krb5.keytab
 ktutil:  list
 ktutil:  wkt /etc/krb5.keytab
 ktutil:  exit
@@ -283,12 +283,11 @@ exit
 ###secure mount to isilon centos7
 
 systemctl enable nfs-secure
+systemctl start nfs-secure
 systemctl status nfs-secure
-systemctl retart nfs-secure
-
 
 mkdir /mnt/nfsv4krb
-mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4krb
+mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4krb /mnt/nfsv4krb
 
 
 ###view SPN used for mount
