@@ -1,4 +1,4 @@
-###On KDC Host
+###On KDC Server
 yum -y install krb5-server krb5-libs krb5-workstation openldap-clients
 
 ###On All Compute hosts
@@ -111,7 +111,11 @@ systemctl status kadmin.service
 
 ###Add isilon admin& test user to KDC
 kadmin.local
+
+###add isilon admin UPN
 addprinc -pw Password123! isilon/admin@VLABKDC.LOCAL
+
+###add test user UPN
 addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 
 
