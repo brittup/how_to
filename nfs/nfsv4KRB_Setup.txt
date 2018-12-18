@@ -7,8 +7,12 @@
 
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
--isilon.demo.local
-test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
+-nfs.demo.local ns record
+-ssip.demo.local
+-create delegation
+-add all PTR
+-test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
+
 
 
 ###Kerberize Isilon if not already complete
@@ -179,6 +183,7 @@ mkdir /mnt/nfsv4
 mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
+
 ###look for sec=sys
 ###test mount
 cd /mnt/nfsv4
@@ -197,13 +202,6 @@ nfs4_getfacl b.txt
 
 ls -al  on isilon
 ls -le  on isilon
-
-
-### umount the test nfsv4 export
-exit
-umount /mnt/nfsv4
-
-
 
 
 
@@ -290,6 +288,7 @@ mkdir /mnt/nfsv4krb
 mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4krb /mnt/nfsv4krb
 
 
+
 ###view SPN used for mount
 klist -e
 Ticket cache: KEYRING:persistent:0:0
@@ -314,17 +313,8 @@ klist
 kinit
 klist
 cd /mnt/nfsv4krb
-
-
-
-
-
-
-
-
-
-
-
+touch a.txt
+ls -al 
 
 
 
