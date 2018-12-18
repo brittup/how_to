@@ -217,10 +217,12 @@ mkdir /ifs/mp/nfsv4krb
 chmod -R 777 /ifs/mp/nfsv4krb
 isi nfs exports create --path=/ifs/mp/nfsv4krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
 isi nfs exports list --zone=System
-isi nfs exports view --id=2
+isi nfs exports view --id=<id>
 
 
-###Kerberized nfs setup - create client SPN & keytab
+
+
+###Kerberized nfs setup - create client SPN & keytab on KDC Server
 ###
 ###on KDC
 kadmin.local
@@ -229,12 +231,21 @@ listprincs
 ###add SPNs
 addprinc -randkey nfs/<hostname>.demo.local
 addprinc -randkey host/<hostname>.demo.local
+
+eg: 
+addprinc -randkey nfs/hdfs1.demo.local
+addprinc -randkey host/hdfs1.demo.local
 listprincs
 
 
 ###create keytab for SPNs
 ktadd -k /root/nfs-krb5.keytab nfs/<hostname>.demo.local
 ktadd -k /root/host-krb5.keytab host/<hostname>.demo.local
+
+eg:
+ktadd -k /root/nfs-krb5.keytab nfs/hdfs1.demo.local
+ktadd -k /root/host-krb5.keytab host/hdfs1.demo.local
+
 exit
 
 ###review keytab file are created
