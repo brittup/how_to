@@ -11,7 +11,7 @@
 test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
 
 
-###Kerberize Isilon
+###Kerberize Isilon if not already complete
 
 isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldap-kdc.demo.local --admin-server=ldap-kdc.demo.local --default-domain=demo.local 
 isi auth krb5 realm list -v
@@ -22,6 +22,8 @@ isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.demo.local
 isi auth krb5 domain list
 
 isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+
+
 isi auth krb5 list
 
 
@@ -36,7 +38,12 @@ isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
 isi auth krb5 spn check --provider-name=VLABKDC.LOCAL
 
 isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+
+
 isi auth krb5 spn list --provider-name=VLABKDC.LOCAL --verbose
+isi zone zones list -v
+
+
 
 ###kdc admin principal & password
 isilon/admin@VLABKDC.LOCAL
@@ -133,10 +140,10 @@ check permissions on the export if needed
 
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
-###Setup export for krb authentication
+###Setup export for nfsv4 -- use the nfsv4 setup how_to to set the export up -- >
 
 isi nfs exports list --zone=System
-isi nfs exports view --zone=System  --id=1
+isi nfs exports view --zone=System  --id=<id>    if needed
 
 
 
@@ -169,24 +176,24 @@ systemctl status nfs-idmap
 showmount -e <smartconnectname>
 
 mkdir /mnt/nfsv4
-mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/ /mnt/nfsv4
+mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
 ###look for sec=sys
 ###test mount
 cd /mnt/nfsv4
-touch 1.txt
+touch a.txt
 ls -al
-nfs4_getfacl 1.txt
+nfs4_getfacl a.txt
 
 
 ###test non-root user
 su - kdcuser1
 cd /mnt/nfsv4
 ls -al
-touch 2.txt
+touch b.txt
 ls -al
-nfs4_getfacl 2.txt
+nfs4_getfacl b.txt
 
 ls -al  on isilon
 ls -le  on isilon
@@ -202,14 +209,14 @@ umount /mnt/nfsv4
 
 #########################################
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
-###Setup new export for krb authentication, delete the default ifs export
+###Setup new export for krb authentication
 isi nfs export delete --id=1
 isi nfs exports list --zone=System
 
-mkdir /ifs/mp
-mkdir /ifs/mp/nfsv4
-chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root --security-flavors=krb5 
+
+mkdir /ifs/mp/nfsv4krb
+chmod -R 777 /ifs/mp/nfsv4krb
+isi nfs exports create --path=/ifs/mp/nfsv4krb --map-root=root --security-flavors=krb5 
 isi nfs exports list --zone=System
 isi nfs exports view --id=2
 
