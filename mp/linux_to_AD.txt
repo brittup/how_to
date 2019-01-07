@@ -1,0 +1,15 @@
+###Linux to AD
+
+###Method1
+
+yum install realmd
+
+realm  discover -v demo.local
+
+realm join demo.local
+
+realm list -v
+
+
+
+su - test1@demo.local   < -- AD based 
