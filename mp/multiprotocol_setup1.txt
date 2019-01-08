@@ -32,10 +32,24 @@ nslookup mp.demo.local
 
 ###2.create SMB share
 
-isi smb shares create --zone=System --path=/ifs/mp --name=mp
+isi smb shares create --zone=System --path=/ifs/mp --name=mp ----description=mp_test_share 
+
+
+
+
+connect to smb share via explorer: \\mp.demo.local
+
 
 
 ###3.create export
+isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
+isi nfs exports list --zone=System
+isi nfs exports view --id=2 --zone=System
+
+
+
+
+
 
 ###4.review file permissions from isilon
 
