@@ -12,6 +12,7 @@ isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.
 ###make base mp directory
 
 mkdir -p /ifs/mp
+chmod 777 /ifs/mp
 touch /ifs/mp/this_is_isilon.txt
 chmod 777 /ifs/mp/this_is_isilon.txt
 cd /ifs/mp
@@ -32,26 +33,49 @@ nslookup mp.demo.local
 
 ###2.create SMB share
 
-isi smb shares create --zone=System --path=/ifs/mp --name=mp ----description=mp_test_share 
+isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share 
+isi smb shares permissions list mp
+isi smb shares permissions modify mp --permission-type=allow --permission=full --wellknown=Everyone
+isi smb shares permissions list mp
+
+###
+connect to smb share via explorer: \\mp.demo.local  --- > mp
+create smb.txt
+view permissions with windows explorer
 
 
-
-
-connect to smb share via explorer: \\mp.demo.local
-
-
-
-###3.create export
+###3.create nfs export
 isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
 isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
 
 
-
+###
+connect to nfs export from linux host vis nfs
+mkdir /mnt/isilon-mp
+mount -t nfs mp.demo.local:/ifs/mp
+mountstats
+cd /mnt/isilon-mp
+ls -al
+touch nfs.txt
+ls -al 
 
 
 
 ###4.review file permissions from isilon
+
+cd /ifs/mp
+
+
+ls -al
+ls -le nfs.tx
+ls -le smb.txt
+
+ls -len nfs.tx
+ls -len smb.txt
+
+
+
 
 ###5.chmod acl file
 
