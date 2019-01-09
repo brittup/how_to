@@ -1,6 +1,6 @@
 ###A simple multiprotocol setup to validate Isilon behavior
 
-####Under development still 11/2018
+####Under development still 01/2019
 
 
 
@@ -31,6 +31,8 @@ nslookup mp.demo.local
 
 
 
+
+
 ###2.create SMB share
 
 isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share 
@@ -42,6 +44,8 @@ isi smb shares permissions list mp
 connect to smb share via explorer: \\mp.demo.local  --- > mp
 create smb.txt
 view permissions with windows explorer
+
+
 
 
 ###3.create nfs export
@@ -79,12 +83,23 @@ ls -len smb.txt
 
 ###5.chmod acl file
 
+chmod 755 smb.txt
+ls -len smb.txt
+
+What happens to the DACL?
+
+
+
+
+
 ###6.acl a posix file
 
-###7.review access token
+Add to DACL
+chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
+ls -le nfs.tx
+
+What happens to the posix bits and the DACL?
 
 
 
 
-
-###Run as root
