@@ -58,7 +58,8 @@ view permissions with windows explorer
 
 
 
-###3.create nfs export
+###3.create nfs export on Isilon
+
 isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
 isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
@@ -66,8 +67,8 @@ isi nfs exports view --id=2 --zone=System
 
 
 
-###
-connect to nfs export from linux host vis  - use hdfs1 host
+###connect to nfs export from linux host vis  - use hdfs1 host
+
 mkdir /mnt/isilon-mp
 mount -t nfs mp.demo.local:/ifs/mp /mnt/isilon-mp
 mountstats
@@ -78,10 +79,11 @@ ls -al
 
 
 
-###4.review file permissions from isilon
+###4.review file permissions 
 
+
+###Review from Isilon
 cd /ifs/mp
-
 
 ls -al
 ls -le nfs.tx
@@ -91,21 +93,31 @@ ls -len nfs.tx
 ls -len smb.txt
 
 
+###Review from NFS 
+ls -al
 
 
-###5.chmod acl file
+###Review from SMB
+Windows Explorer
 
+
+
+
+
+####How do file permission changes look
+
+###5.chmod acl file from NFS
+###on NFS host
 chmod 755 smb.txt
 ls -len smb.txt
 
-What happens to the DACL?
-
+What happens to the DACL? Why?
 
 
 
 
 ###6.acl a posix file
-
+###From Isilon add an ACE
 Add to DACL
 chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
 ls -le nfs.tx
