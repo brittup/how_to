@@ -1,6 +1,6 @@
 ###A simple multiprotocol setup to validate Isilon behavior
 
-####Under development still 01/2019
+####Updated 02/2019
 
 
 
@@ -32,6 +32,8 @@ ls -len this_is_isilon.txt
 
 ###test DNS
 nslookup mp.demo.local
+
+
 
 
 
@@ -118,14 +120,18 @@ What happens to the DACL? Why?
 
 
 
-###6.modify the acl a acl'd file
-###From Isilon add an ACE
-Add to DACL
+###6.modify the acl on an acl'd file
+###From Isilon add an ACE - Add to DACL
+ls -le smb.txt
 chmod +a  group Administrators  allow file_gen_all,inherited_ace smb.txt
 ls -le smb.tx
 
 ###From Windows
 Review from SMB Windows Explorer
+
+###From NFS
+Review from NFS
+ls -al smb.txt
 
 
 What happens to the posix bits and the DACL?
@@ -136,7 +142,10 @@ What happens to the posix bits and the DACL?
 
 ###7.chmod an acl file from NFS
 ###on NFS host
-chmod 755 smb.txt
+chmod 775 smb.txt
+ls -al smb.txt
+
+###View from isilon
 ls -len smb.txt
 
 What happens to the DACL? Why?
@@ -147,10 +156,33 @@ What happens to the DACL? Why?
 ###8.acl a posix file
 ###From Isilon add an ACE
 Add to DACL
+ls -le nfs.txt
 chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
 ls -le nfs.tx
 
+###From NFS
+Review from NFS
+ls -al nfs.txt
+
+
+
 What happens to the posix bits and the DACL?
+
+
+
+
+
+
+####Notes:
+-only way to see full permission is ls -le
+-only way to see ondisk permission is ls -len
+-The ACL Policies on the cluster manage file permission change behavior
+in Balanced Mode
+-posix changes to posix files behaves as expected
+-modifying ACE on ACL'd file behaves as expected
+-adding ACE to a posix file changes file to ACL(+)
+
+
 
 
 
