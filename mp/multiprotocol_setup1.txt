@@ -101,12 +101,40 @@ ls -al
 Windows Explorer
 
 
-
-
-
 ####How do file permission changes look
 
-###5.chmod acl file from NFS
+
+###5.chmod posix file 
+###on NFS host
+chmod 755 nfs.txt
+ls -al nfs.txt
+
+###From Isilon
+ls -le nfs.tx
+
+
+What happens to the DACL? Why?
+
+
+
+
+###6.modify the acl a acl'd file
+###From Isilon add an ACE
+Add to DACL
+chmod +a  group Administrators  allow file_gen_all,inherited_ace smb.txt
+ls -le smb.tx
+
+###From Windows
+Review from SMB Windows Explorer
+
+
+What happens to the posix bits and the DACL?
+
+
+
+
+
+###7.chmod an acl file from NFS
 ###on NFS host
 chmod 755 smb.txt
 ls -len smb.txt
@@ -116,7 +144,7 @@ What happens to the DACL? Why?
 
 
 
-###6.acl a posix file
+###8.acl a posix file
 ###From Isilon add an ACE
 Add to DACL
 chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
