@@ -171,8 +171,18 @@ ls -al nfs.txt
 
 
 What happens to the posix bits and the DACL?
+Can the ACL be seen from NFS?
 
 
+
+###9.Remove ACL's reset to posix
+ls -le nfs.txt   (it has an ACL from step8)
+chmod -b 775 nfs.txt
+ls -le nfs.txt 
+
+###From NFS
+Review from NFS
+ls -al nfs.txt
 
 
 
