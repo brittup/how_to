@@ -39,13 +39,19 @@ nslookup mp.demo.local
 
 ###2.create SMB share
 
-isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share 
-isi smb shares permissions list mp
-isi smb shares permissions modify mp --permission-type=allow --permission=full --wellknown=Everyone
-isi smb shares permissions list mp
+isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share
+isi smb shares permissions list
+isi smb shares permission view mp
+isi smb shares permission modify mp --permission-type=allow --permission=full --wellknown=Everyone
+isi smb shares permission list mp
+isi smb shares permissions list
 
-###
+
+###Connect to SMB share
 connect to smb share via explorer: \\mp.demo.local  --- > mp
+
+At this time just use: localhost\root  Password123!  
+
 create smb.txt
 view permissions with windows explorer
 
@@ -58,10 +64,12 @@ isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
 
 
+
+
 ###
-connect to nfs export from linux host vis nfs
+connect to nfs export from linux host vis  - use hdfs1 host
 mkdir /mnt/isilon-mp
-mount -t nfs mp.demo.local:/ifs/mp
+mount -t nfs mp.demo.local:/ifs/mp /mnt/isilon-mp
 mountstats
 cd /mnt/isilon-mp
 ls -al
