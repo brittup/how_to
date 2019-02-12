@@ -81,6 +81,7 @@ ls -al
 
 
 
+
 ###4.review file permissions 
 
 
@@ -103,7 +104,10 @@ ls -al
 Windows Explorer
 
 
-####How do file permission changes look
+
+
+
+####How do file permission changes look 
 
 
 ###5.chmod posix file 
