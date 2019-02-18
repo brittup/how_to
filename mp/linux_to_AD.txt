@@ -16,9 +16,14 @@ realm join demo.local
 
 
 realm list -v
-su - test1@demo.local   < -- AD based user: test1
-id
 
+
+###Test AD user account, create a new account or use the test1 account
+### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
+test1@demo.local   < -- AD based user: test1
+Password123!
+id
+klist
 
 
 
@@ -40,8 +45,12 @@ loginShell /bin/bash
 
 
 
-su - test1@demo.local   < -- AD based user: test1
+###Test AD user account, create a new account or use the test1 account
+### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
+test1@demo.local   < -- AD based user: test1
+Password123!
 id
+klist
 
 
 
@@ -61,4 +70,9 @@ SSSD will now use POSIX attributes from AD, instead of creating them locally.
 
 
 
-su - test1@demo.local   < -- AD based user: test1
+###Test AD user account, create a new account or use the test1 account
+### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
+test1@demo.local   < -- AD based user: test1
+Password123!
+id
+klist
