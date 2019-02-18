@@ -1,15 +1,64 @@
 ###Linux to AD
 
-###Method1
+###Method - sssd via realmd 
 
-yum install realmd
-
+yum install -y realmd install krb5-workstation krb5-libs openldap-clients
 realm  discover -v demo.local
 
+
+
+
+###
+###Default behavior: SSSD will use ID Mapping to create UID/GID from AD based SID
 realm join demo.local
 
+###go validate computer object in AD for host
+
+
 realm list -v
+su - test1@demo.local   < -- AD based user: test1
+id
 
 
 
-su - test1@demo.local   < -- AD based 
+
+
+###
+###Disable ID Mapping and use AD to provide UID & GID's etc..
+###When using ID mapping described in Automatically generate new UIDs and GIDs for AD users, SSSD creates new UIDs and GIDs, which overrides the values defined in AD. To keep the AD-defined values, you must disable ID mapping in SSSD.
+realm join --automatic-id-mapping=no  demo.local 
+
+###go validate computer object in AD for host
+
+
+###Add unix attributes for user in AD;  uidNumber, gidNumber, unixHomeDirectory, or loginShell  + create group and add GID
+
+uidNumber 123456
+gidNumber 123456
+unixHomeDirectory /home/<username>
+loginShell /bin/bash
+
+
+
+su - test1@demo.local   < -- AD based user: test1
+id
+
+
+
+
+###
+How to Disable ID Mapping in SSSD
+	1. Open the /etc/sssd/sssd.conf file.
+	2. In the AD domain section, add the ldap_id_mapping = false setting.
+Note
+If you used the realm utility to join the domain and added the --automatic-id-mapping=no switch, the realm utility already set up SSSD with ldap_id_mapping = false.
+	3. If you previously requested any users with the default ID mapping configuration, remove the SSSD caches:  rm -f /var/lib/sss/db/*
+SSSD will now use POSIX attributes from AD, instead of creating them locally.
+
+
+
+
+
+
+
+su - test1@demo.local   < -- AD based user: test1
