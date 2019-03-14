@@ -122,6 +122,48 @@ mkdir /home/sqoop2
 mkdir /home/zookeeper
 mkdir /home/anonymous
 mkdir /home/cmjobuser
+
+chown hdfs:hdfs /home/hdfs
+chown mapred:mapred /home/mapred
+chown yarn:yarn /home/yarn
+chown HTTP:HTTP /home/HTTP
+chown hbase:hbase /home/hbase
+chown hive:hive /home/hive
+chown kms:kms /home/kms
+chown accumulo:accumulo /home/accumulo
+chown flume:flume /home/flume
+chown httpfs:httpfs /home/httpfs
+chown apache:apache /home/apache
+chown kafka:kafka /home/kafka
+chown oozie:oozie /home/oozie
+chown spark:spark /home/spark
+chown llama:llama /home/llama
+chown sqoop:sqoop /home/sqoop
+chown zookeeper:zookeeper /home/zookeeper
+chown anonymous:anonymous /home/anonymous
+chown storm:storm /home/storm
+chown falcon:falcon /home/falcon
+chown tracer:tracer /home/tracer
+chown tez:tez /home/tez
+chown solr:solr /home/solr
+chown hcat:hcat /home/hcat
+chown ambari-qa:ambari-qa /home/ambari-qa
+chown hue:hue /home/hue
+chown hadoopqa:hadoopqa /home/hadoopqa
+chown mahout:mahout /home/mahout
+chown ranger:ranger /home/ranger
+chown atlas:atlas /home/atlas
+chown ams:ams /home/ams
+chown zeppelin:zeppelin /home/zeppelin
+chown livy:livy /home/livy
+chown logsearch:logsearch /home/logsearch
+chown infra-solr:infra-solr /home/infra-solr
+chown activity_analyzer:activity_analyzer /home/activity_analyzer
+chown knox:knox /home/knox
+chown ambari-server:ambari-server /home/ambari-server
+chown admin:admin /home/admin
+chown activity_explorer:activity_explorer /home/activity_explorer
+
 chmod 700 /home/hdfs
 chmod 700 /home/mapred
 chmod 700 /home/yarn
