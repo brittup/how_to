@@ -46,6 +46,7 @@ sestatus
 ####Install Ambari
 
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.1.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
+wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.3.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
 yum repolist
 
 yum -y install ambari-server
@@ -53,14 +54,13 @@ yum -y install ambari-server
 ambari-server setup
 
 ambari-server start
-
 ambari-server status
 
 
 
 ###install mysql connector
 https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/content/download_and_set_up_database_connectors.html
-
+https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/download_and_set_up_database_connectors.html
 
 yum -y install mysql-connector-java*
 
@@ -73,7 +73,6 @@ ambari-server restart
 ###Install Isilon Mgmt Pack for Ambari
 Install Ambari Management Pack
 
-Install Ambari Management Pack
 
 ####
 Download the Ambari Management Pack for Isilon OneFS installation bundle from the product download page and extract the contents on to the Ambari server
