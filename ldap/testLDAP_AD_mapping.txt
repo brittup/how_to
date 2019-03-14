@@ -1,0 +1,25 @@
+###test and validate user mappings AD + LDAP
+
+1.complete ldap server setup include user and group additions
+2.join Isilon to LDAP
+3.join Isilon to AD
+4.add user(s) to AD with same username as LDAP; testuser1
+
+###
+isi auth mapping token --zone=System --user=testuser1
+
+isi auth mapping token --zone=System --user=demo\\testuser1
+
+
+isi auth mapping view UID:1001
+isi auth mapping view SID:<SID>
+
+
+isi auth mapping list
+isi auth mapping list | grep 1001
+
+
+###
+
+
+

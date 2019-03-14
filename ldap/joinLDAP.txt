@@ -14,8 +14,8 @@ isi auth ldap view ldap1
 
 
 ###
-isi auth users list --Zone=System --provider=lsa-ldap-provider:ldap1
-isi auth groups list --Zone=System --provider=lsa-ldap-provider:ldap1
+isi auth users list -v
+isi auth groups list -v
 isi auth mapping token --zone=System --user=testuser1
 isi auth mapping token --zone=System --uid=101
 

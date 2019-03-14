@@ -25,6 +25,10 @@ Password123!
 id
 klist
 
+or
+su - test1@demo.local
+Password123!
+id
 
 
 
