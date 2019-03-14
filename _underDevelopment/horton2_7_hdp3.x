@@ -41,8 +41,6 @@ sestatus
 
 
 
-
-
 ####Install Ambari
 
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.1.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
@@ -93,8 +91,7 @@ ambari-server status
 
 
 
-
-###continue with install
+###continue with install_setup
 
 
 ###isilon setup
@@ -102,8 +99,6 @@ ambari-server status
 or
 
 go to linux host  -- setup linux for isilon users uid/gid
-
-
 
 All hosts
 yum -y install krb5-workstation krb5-libs openldap-clients
@@ -117,16 +112,12 @@ http://10.246.156.6:8080
 watch out for this when ever it shows up in the install
 
 
-
-
-
-
-
+Don't let ambari manage the users, unselct
 
 
 
 use the OneFS tab to set the smartconnect zone name
-<image needed>
+
 
 
 
