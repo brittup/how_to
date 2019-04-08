@@ -2,7 +2,7 @@
 
 ###Method - sssd via realmd 
 
-yum install -y realmd install krb5-workstation krb5-libs openldap-clients
+yum install -y realmd install krb5-workstation krb5-libs openldap-clients sssd samba-common-tools
 realm  discover -v demo.local
 
 
