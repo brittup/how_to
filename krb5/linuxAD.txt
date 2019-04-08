@@ -1,10 +1,6 @@
 ### Join Linux AD - centos07
 
-yum -y install realmd rpcbind nfs-utils nfs4-acl-tools -y
-yum -y install krb5-workstation krb5-libs openldap-clients
-
-yum -y groupinstall "Development tools"
+see  https://github.com/brittup/how_to/blob/master/mp/linux_to_AD.txt
 
 
-###To be completed......
 
