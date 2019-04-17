@@ -3,7 +3,6 @@
 ####Updated 02/2019
 
 
-
 isi license add --evaluation=SMARTCONNECT_ADVANCED
 
 ###1a.setup SmartConnect on Isilon
@@ -35,10 +34,6 @@ nslookup mp.demo.local
 
 
 
-
-
-
-
 ###2.create SMB share
 
 isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share
@@ -53,19 +48,14 @@ connect to smb share via explorer: \\mp.demo.local  --- > mp
 
 At this time just use: localhost\root  Password123!  
 
-create smb.txt
-view permissions with windows explorer
+create a file smb.txt with windows explorer
+look at the permissions
 
-
-
-
-###3.create nfs export on Isilon
+###3.create nfs export on Isilon for mp
 
 isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
 isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
-
-
 
 
 ###connect to nfs export from linux host vis  - use hdfs1 host
@@ -81,7 +71,7 @@ ls -al
 
 
 
-###4.review file permissions 
+###4.review mp file permissions 
 
 
 ###Review from Isilon
@@ -104,21 +94,19 @@ Windows Explorer
 
 
 
-
-
-####How do file permission changes look 
+####How do mp file permission changes look
 
 
 ###5.chmod posix file 
 ###on NFS host
-chmod 755 nfs.txt
+chmod 775 nfs.txt
 ls -al nfs.txt
 
 ###From Isilon
 ls -le nfs.tx
 
 
-What happens to the DACL? Why?
+What happens to the Synthetic DACL? Why?
 
 
 
@@ -143,7 +131,7 @@ What happens to the posix bits and the DACL?
 
 
 
-###7.chmod an acl file from NFS
+###7.chmod an existing ACL file from NFS
 ###on NFS host
 chmod 775 smb.txt
 ls -al smb.txt
@@ -156,7 +144,7 @@ What happens to the DACL? Why?
 
 
 
-###8.acl a posix file
+###8.ACL a posix file
 ###From Isilon add an ACE
 Add to DACL
 ls -le nfs.txt
