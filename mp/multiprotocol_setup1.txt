@@ -42,11 +42,10 @@ nslookup mp.demo.local
 ###2.create SMB share
 
 isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share
-isi smb shares permissions list
-isi smb shares permission view mp
+isi smb share view mp
 isi smb shares permission modify mp --permission-type=allow --permission=full --wellknown=Everyone
 isi smb shares permission list mp
-isi smb shares permissions list
+
 
 
 ###Connect to SMB share
