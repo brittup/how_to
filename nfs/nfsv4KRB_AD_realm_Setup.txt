@@ -1,9 +1,8 @@
 ###Setup and configure AD based KRB nfsv4 to Isilon
 
-This setup will illustrate an ID mapping mismatch between AD user & linux user and how ID mismatch can occur.
 
-1. Setup 1 no ID mapping
-2. Setup 2 use AD ID mapping & ADrfc2307 on isilon
+1. Setup 1 no ID mapping - This setup will illustrate an ID mapping mismatch between AD user & linux user and how ID mismatch can occur.
+2. Setup 2 use AD ID mapping & ADrfc2307 on isilon - This setup will illustrate an ID mapping between AD user & linux user and how this fixes the ID mapping issue
 
 
 
