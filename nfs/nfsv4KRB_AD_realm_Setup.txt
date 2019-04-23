@@ -32,12 +32,13 @@ isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
 
 
-###set security to krb5-workstation
-isi nfs exports modify --security-flavors 2
-
-
-
 4. setup nfs export for krb
+###set security to krb5
+isi nfs exports modify --security-flavors=krb5 2
+
+
+
+
 
 
 5. add nfstestuser1 to AD
@@ -92,10 +93,10 @@ systemctl status nfs-idmap
 ###get mount info from Isilon
 showmount -e <smartconnectname> or IP
 
-
+###create mount
 mkdir /mnt/krb
 
-mount -t nfs4 -o sec=sys <smartconnectname> or IP:/ifs/krb /ifs/krb
+mount -t nfs4 -o sec=krb5 <smartconnectname> or IP:/ifs/krb /ifs/krb
 mountstats
 
 
