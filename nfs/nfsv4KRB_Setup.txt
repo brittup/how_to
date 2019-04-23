@@ -1,8 +1,10 @@
 ###Setup and configure Kerberos nfsv4 to Isilon
 
-###setup KDC for REALM
---> see kdcSetup doc for KDC server build   
---> see nfsv4_Setup doc for non-krb nfsv4 
+###setup a KDC for the KRB REALM
+
+###complete the following
+--> 1. see kdcSetup doc for KDC server build:  https://raw.githubusercontent.com/brittup/how_to/master/krb5/kdcSetup.txt
+--> 2. see nfsv4_Setup doc for non-krb nfsv4:  https://raw.githubusercontent.com/brittup/how_to/master/nfs/nfsv4_Setup.txt
 
 
 ###On Isilon
@@ -78,11 +80,6 @@ vi /etc/idmapd.conf
 [General]
 Domain = demo.local
 
-
-######need to add id mapping content here ---> coming soon
-static mappings
-sssd id & ldap/ad integration etc..
-######
 
 
 ###Setup kerberos on client if not done
@@ -205,7 +202,11 @@ ls -le  on isilon
 
 
 
+
+
+
 #########################################
+###Setup KRB NFS on Isilon
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
 ###Setup new export for krb authentication
 isi nfs exports list --zone=System
@@ -315,6 +316,8 @@ klist
 cd /mnt/nfsv4krb
 touch a.txt
 ls -al 
+
+
 
 
 
