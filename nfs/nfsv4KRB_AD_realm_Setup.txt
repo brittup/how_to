@@ -55,7 +55,7 @@ isi nfs exports modify --security-flavors=krb5 2
 
 
 5. add nfstestuser1 to AD
-6. add nfstestuser2 to AD assign uidnumber:100000, gidnumber:100000, unixHomeDirectory:/home/nfstestuser2 and loginShell:bash
+6. add nfstestuser2 to AD assign uidnumber:100000, gidnumber:100000, unixHomeDirectory:/home/nfstestuser2 and loginShell:/bin/sh
 
 
 
@@ -168,7 +168,8 @@ cd /ifs/krb
 ls -le 1.txt   <--- what is ownership on file 1.txt?
 ls -len 1.txt  <--- what is ID on file 1.txt?
 
-
+Why? -- look at tahe access token & ondiskID
+isi auth mapping token --zone=System --user=demo\\nfstestuser1
 
 
 
@@ -290,6 +291,12 @@ go to isilon
 cd /ifs/krb
 ls -le 2.txt   <--- what is ownership on file 1.txt?
 ls -len 2.txt  <--- what is ID on file 1.txt?
+
+
+
+Why? -- look at tahe access token & ondiskID
+isi auth mapping token --zone=System --user=demo\\nfstestuser2
+
 
 
 
