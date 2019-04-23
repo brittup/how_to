@@ -67,6 +67,15 @@ vim /etc/idmapd.conf
 [General]
 Domain = demo.local
 
+add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
+[Translation]
+Method=nsswitch,sss
+
+###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
+###To configure the modules, using these commands:
+modprobe auth_rpcgss
+modprobe rpcsec_gss_krb5
+depmod –a          
 
 
 ###centos7
@@ -96,7 +105,7 @@ showmount -e <smartconnectname> or IP
 ###create mount
 mkdir /mnt/krb
 
-mount -t nfs4 -o sec=krb5 <smartconnectname> or IP:/ifs/krb /ifs/krb
+mount -t nfs4 -o sec=krb5 <smartconnectname> or IP:/ifs/krb /mnt/krb
 mountstats
 
 
