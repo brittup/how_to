@@ -1,0 +1,22 @@
+###Setup and configure AD nfsv4 to Isilon
+
+
+1. Setup Smartconnect Zone on Isilon
+2. join Isilon to AD
+
+isi auth ads spn check demo.local
+isi auth ads spn list demo.local
+
+3. setup Isilon for nfsv4
+4. setup nfs export for krb
+
+
+#### setup linux for nfsv4 and AD KRB integration
+
+yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation
+
+
+
+
+
+ 
