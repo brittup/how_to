@@ -1,8 +1,12 @@
-###Setup and configure AD nfsv4 to Isilon
+###Setup and configure AD based KRB nfsv4 to Isilon
+
+This setup will illustrate an ID mapping mismatch between AD user & linux user and how ID mismatch can occur.
 
 
-1. Setup Smartconnect Zone on Isilon for nfs
-2. join Isilon to AD
+1. Setup Smartconnect Zone on Isilon for nfs and add reverse PTR for IP's in Pool
+
+
+2. join Isilon to AD, make sure all spn are present
 
 isi auth ads spn check demo.local
 isi auth ads spn list demo.local
@@ -27,16 +31,15 @@ isi nfs exports list
 ###simple export setup, modify as needed, add 777 to make things easy
 mkdir /ifs/krb
 chmod -R 777 /ifs/krb
+touch /ifs/krb/This_is_isilon_krb_export.txt
 isi nfs exports create --path=/ifs/krb --map-root=root  --zone=System --description=nfsv4
 isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
 
 
 4. setup nfs export for krb
-###set security to krb5
+###set security to krb5 only
 isi nfs exports modify --security-flavors=krb5 2
-
-
 
 
 
@@ -44,7 +47,7 @@ isi nfs exports modify --security-flavors=krb5 2
 5. add nfstestuser1 to AD
 
 
-
+1. On linux host1 only
 #### setup linux for nfsv4 and AD KRB integration
 
 yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation
@@ -77,7 +80,9 @@ modprobe auth_rpcgss
 modprobe rpcsec_gss_krb5
 depmod –a   
 
-### add SECURE_NFS="yes" to file /etc/sysconfig/nfs on the client. 
+### add SECURE_NFS="yes" 
+vi /etc/sysconfig/nfs
+
 ###And restart the rpcgssd service using commands
 systemctl restart rpcgssd
 
@@ -106,20 +111,52 @@ systemctl status nfs-idmap
 
 
 ###get mount info from Isilon
-showmount -e <smartconnectname> or IP
+showmount -e <smartconnectname>
 
 ###create mount
 mkdir /mnt/krb
 
-mount -t nfs4 -o sec=krb5 <smartconnectname> or IP:/ifs/krb /mnt/krb
+mount -t nfs4 -o sec=krb5 <smartconnectname>:/ifs/krb /mnt/krb
+mountstats
+
+###mount in fstab
+mount NFS export using fstab
+vi /etc/fstab
+<smartconnectname>:/ifs/krb /mnt/krb nfs4  rw,vers=4.0,sec=krb5 0 0
+
+
+klist -k
 mountstats
 
 
 
-
+###
 
 su - nfstestuser1@demo.local
-kinit
+kinit nfstestuser1@DEMO.LOCAL
+
+cd /mnt/krb
+ls -al
+touch 1.txt
+ls -al     <--- what is ownership on file 1.txt?
+
+
+go to isilon
+cd /ifs/krb
+ls -le 1.txt   <--- what is ownership on file 1.txt?
+ls -len 1.txt  <--- what is ID on file 1.txt?
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
