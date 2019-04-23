@@ -9,11 +9,71 @@ isi auth ads spn list demo.local
 
 3. setup Isilon for nfsv4
 4. setup nfs export for krb
+5. add nfstestuser1 to AD
+
 
 
 #### setup linux for nfsv4 and AD KRB integration
 
 yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation
+
+###join demo.local AD with realm
+realm join demo.local
+
+###list host SPN
+klist -k
+
+###review test user
+id nfstestuser1@demo.local
+
+
+
+
+###setup linux host for nfsv4
+
+vim /etc/idmapd.conf
+[General]
+Domain = demo.local
+
+
+
+###centos7
+systemctl enable rpcbind.service
+systemctl enable rpcidmapd.service
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+
+systemctl start rpcbind.service
+systemctl start rpcidmapd.service
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+
+systemctl status rpcbind.service
+systemctl status rpcidmapd.service
+systemctl status nfs-server
+systemctl status nfs-lock
+systemctl status nfs-idmap
+
+
+
+###get mount info from Isilon
+showmount -e <smartconnectname> or IP
+
+
+mkdir /mnt/nfsv4
+
+mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
+mountstats
+
+
+
+
+
+su - nfstestuser1@demo.local
+kinit
+
 
 
 
