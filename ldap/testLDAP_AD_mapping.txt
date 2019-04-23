@@ -6,6 +6,8 @@
 4.add user(s) to AD with same username as LDAP; testuser1
 
 ###
+
+
 isi auth mapping token --zone=System --user=testuser1
 
 isi auth mapping token --zone=System --user=demo\\testuser1
