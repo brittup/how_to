@@ -1,4 +1,4 @@
-### Join Linux AD - centos07
+### Join Linux AD - centos07 using realm
 
 see  https://github.com/brittup/how_to/blob/master/mp/linux_to_AD.txt
 
