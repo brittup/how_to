@@ -10,9 +10,7 @@ isi upgrade patches list
 
 isi upgrade patches install patch-.pkg -–rolling false 
 
-
 isi upgrade patches list
-
 
 
 
@@ -20,7 +18,7 @@ isi zone zones create --name=zone-hdp27 --path=/ifs/zone/hdp27 --create-path
 mkdir -p /ifs/zone/hdp27/hadoop-root
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=X.X.X.X
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=X.X.X.X-X.X.X.Y  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-hdp27.demo.local   --description=hdp27_hadoop_access_zone
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=X.X.X.X-X.X.X.Y  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
 
 
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
