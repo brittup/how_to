@@ -21,16 +21,20 @@ isi nfs settings zone view --zone=System
 
 ### remove default /ifs export
 isi nfs exports list
-isi nfs exports delete --id=1
+isi nfs exports delete --id=1 --force
 isi nfs exports list
 
 ###simple export setup, modify as needed, add 777 to make things easy
 mkdir /ifs/krb
-mkdir /ifs/krb
-chmod -R 777 /ifs/ifs/krb
+chmod -R 777 /ifs/krb
 isi nfs exports create --path=/ifs/krb --map-root=root  --zone=System --description=nfsv4
 isi nfs exports list --zone=System
 isi nfs exports view --id=2 --zone=System
+
+
+###set security to krb5-workstation
+isi nfs exports modify --security-flavors 2
+
 
 
 4. setup nfs export for krb
