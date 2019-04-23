@@ -4,10 +4,8 @@ https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/
 russ vm fixes
 hostnamectl set-hostname  xxxxx
 
-
-yum -y install bind-utils wget
-
-
+yum -y install bind-utils wget ntp
+systemctl enable ntpd
 ****************************************************************************
 ##Ambari  Preparation
 ****************************************************************************
@@ -16,8 +14,6 @@ ssh-keygen
 ssh-copy-id root@X.X.X.X
 cat /root/.ssh/id_rsa  --- > copy to txt file for ambari install
 
-yum install -y ntp
-systemctl enable ntpd
 
 Add a line for each host in your cluster. The line should consist of the IP address and the FQDN. For example:
 
