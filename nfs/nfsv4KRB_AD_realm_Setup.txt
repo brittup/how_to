@@ -182,7 +182,7 @@ ls -len 1.txt  <--- what is ID on file 1.txt?
 2. Setup 2 use AD ID mapping & ADrfc2307 on isilon, realm will pull AD UID's
 
 
-Modify Isilon AD provider to support AD+rfc2307
+###Modify Isilon AD provider to support AD+rfc2307  for unix attributes
 
 isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
 isi auth ads view DEMO.LOCAL -v
@@ -225,9 +225,9 @@ modprobe auth_rpcgss
 modprobe rpcsec_gss_krb5
 depmod –a   
 
+
 ### add SECURE_NFS="yes" 
 vi /etc/sysconfig/nfs
-
 
 SECURE_NFS="yes" 
 
@@ -236,7 +236,6 @@ SECURE_NFS="yes"
 ###And restart the rpcgssd service using commands
 systemctl restart rpcgssd
 
-       
 
 ###centos7
 systemctl enable rpcbind.service
@@ -273,17 +272,13 @@ mount NFS export using fstab
 vi /etc/fstab
 <smartconnectname>:/ifs/krb /mnt/krb nfs4  rw,vers=4.0,sec=krb5 0 0
 
-
 klist -k
 mountstats
 
-
-
-
 ###
 
-su - nfstestuser1@demo.local
-kinit nfstestuser1@DEMO.LOCAL
+su - nfstestuser2@demo.local
+kinit nfstestuser2@DEMO.LOCAL
 
 cd /mnt/krb
 ls -al
