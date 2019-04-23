@@ -75,7 +75,13 @@ Method=nsswitch,sss
 ###To configure the modules, using these commands:
 modprobe auth_rpcgss
 modprobe rpcsec_gss_krb5
-depmod –a          
+depmod –a   
+
+### add SECURE_NFS="yes" to file /etc/sysconfig/nfs on the client. 
+###And restart the rpcgssd service using commands
+systemctl restart rpcgssd
+
+       
 
 
 ###centos7
