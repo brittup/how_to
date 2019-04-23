@@ -174,6 +174,10 @@ Isilon sees AD SID
 Isilon does not have UID from linux/AD 
 Ondisk is SID, seen with ls -len
 
+This is probematic as we have ID mismatching and the ownership of files is incorrect, this illustrates why we need unified ID management. This can still work but 
+ultimately we need linux and isilon to be using a common unified ID to present consistent ownership.
+
+setup 2, will illustrate the preferred approach.
 
 
 
@@ -284,7 +288,7 @@ kinit nfstestuser2@DEMO.LOCAL
 cd /mnt/krb
 ls -al
 touch 2.txt
-ls -al     <--- what is ownership on file 1.txt?
+ls -al     <--- what is ownership on file 2.txt?
 
 
 ###
