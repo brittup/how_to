@@ -10,6 +10,8 @@ This setup will illustrate an ID mapping mismatch between AD user & linux user a
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
+isilon and AD setup:
+
 
 1. Setup Smartconnect Zone on Isilon for nfs and add reverse PTR for IP's in Pool
 
@@ -53,7 +55,7 @@ isi nfs exports modify --security-flavors=krb5 2
 
 
 5. add nfstestuser1 to AD
-6. add nfstestuser2 to AD assign UID:100000, GID:100000, home directory and shell
+6. add nfstestuser2 to AD assign uidnumber:100000, gidnumber:100000, unixHomeDirectory:/home/nfstestuser2 and loginShell:bash
 
 
 
@@ -63,7 +65,7 @@ isi nfs exports modify --security-flavors=krb5 2
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
-1. Setup 1 no ID mapping
+1. Setup 1 no ID mapping with AD, realm will manage unix ID
 
 
 
@@ -177,9 +179,13 @@ ls -len 1.txt  <--- what is ID on file 1.txt?
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
-2. Setup 2 use AD ID mapping & ADrfc2307 on isilon
+2. Setup 2 use AD ID mapping & ADrfc2307 on isilon, realm will pull AD UID's
 
 
+Modify Isilon AD provider to support AD+rfc2307
+
+isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
+isi auth ads view DEMO.LOCAL -v
 
 
 On linux host2 only
@@ -201,7 +207,9 @@ id nfstestuser2@demo.local
 
 ###setup linux host for nfsv4
 
-vim /etc/idmapd.conf
+vi /etc/idmapd.conf
+
+
 [General]
 Domain = demo.local
 
@@ -209,8 +217,10 @@ add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
 [Translation]
 Method=nsswitch,sss
 
+
 ###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
 ###To configure the modules, using these commands:
+
 modprobe auth_rpcgss
 modprobe rpcsec_gss_krb5
 depmod –a   
@@ -218,11 +228,15 @@ depmod –a
 ### add SECURE_NFS="yes" 
 vi /etc/sysconfig/nfs
 
+
+SECURE_NFS="yes" 
+
+
+
 ###And restart the rpcgssd service using commands
 systemctl restart rpcgssd
 
        
-
 
 ###centos7
 systemctl enable rpcbind.service
@@ -265,6 +279,7 @@ mountstats
 
 
 
+
 ###
 
 su - nfstestuser1@demo.local
@@ -272,14 +287,14 @@ kinit nfstestuser1@DEMO.LOCAL
 
 cd /mnt/krb
 ls -al
-touch 1.txt
+touch 2.txt
 ls -al     <--- what is ownership on file 1.txt?
 
 
 go to isilon
 cd /ifs/krb
-ls -le 1.txt   <--- what is ownership on file 1.txt?
-ls -len 1.txt  <--- what is ID on file 1.txt?
+ls -le 2.txt   <--- what is ownership on file 1.txt?
+ls -len 2.txt  <--- what is ID on file 1.txt?
 
 
 
