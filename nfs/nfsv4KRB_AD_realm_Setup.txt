@@ -1,14 +1,41 @@
 ###Setup and configure AD nfsv4 to Isilon
 
 
-1. Setup Smartconnect Zone on Isilon
+1. Setup Smartconnect Zone on Isilon for nfs
 2. join Isilon to AD
 
 isi auth ads spn check demo.local
 isi auth ads spn list demo.local
 
-3. setup Isilon for nfsv4
+3. setup isilon for nfsv4
+
+
+isi nfs settings global modify --nfsv4-enabled=yes
+isi nfs settings global view
+
+
+###Review and Config nfs per Access Zone (assumes System zone here)
+isi nfs settings zone view --zone=System
+isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
+isi nfs settings zone view --zone=System
+
+### remove default /ifs export
+isi nfs exports list
+isi nfs exports delete --id=1
+isi nfs exports list
+
+###simple export setup, modify as needed, add 777 to make things easy
+mkdir /ifs/krb
+mkdir /ifs/krb
+chmod -R 777 /ifs/ifs/krb
+isi nfs exports create --path=/ifs/krb --map-root=root  --zone=System --description=nfsv4
+isi nfs exports list --zone=System
+isi nfs exports view --id=2 --zone=System
+
+
 4. setup nfs export for krb
+
+
 5. add nfstestuser1 to AD
 
 
@@ -62,9 +89,9 @@ systemctl status nfs-idmap
 showmount -e <smartconnectname> or IP
 
 
-mkdir /mnt/nfsv4
+mkdir /mnt/krb
 
-mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
+mount -t nfs4 -o sec=sys <smartconnectname> or IP:/ifs/krb /ifs/krb
 mountstats
 
 
