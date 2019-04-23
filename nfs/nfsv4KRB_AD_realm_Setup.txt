@@ -55,7 +55,7 @@ isi nfs exports modify --security-flavors=krb5 2
 
 
 5. add nfstestuser1 to AD
-6. add nfstestuser2 to AD assign uidnumber:100000, gidnumber:100000, unixHomeDirectory:/home/nfstestuser2 and loginShell:/bin/sh
+6. add nfstestuser2 to AD and assign attributes:  uidnumber:100000, gidnumber:100000, unixHomeDirectory:/home/nfstestuser2 and loginShell:/bin/sh
 
 
 
@@ -65,7 +65,7 @@ isi nfs exports modify --security-flavors=krb5 2
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
-1. Setup 1 no ID mapping with AD, realm will manage unix ID
+1. Setup 1 --- no ID mapping with AD, realm will manage unix ID
 
 
 
@@ -163,6 +163,7 @@ touch 1.txt
 ls -al     <--- what is ownership on file 1.txt?
 
 
+###
 go to isilon
 cd /ifs/krb
 ls -le 1.txt   <--- what is ownership on file 1.txt?
@@ -180,7 +181,7 @@ isi auth mapping token --zone=System --user=demo\\nfstestuser1
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
-2. Setup 2 use AD ID mapping & ADrfc2307 on isilon, realm will pull AD UID's
+2. Setup 2 --- use AD ID mapping & ADrfc2307 on isilon, realm will pull AD UID's
 
 
 ###Modify Isilon AD provider to support AD+rfc2307  for unix attributes
@@ -287,6 +288,7 @@ touch 2.txt
 ls -al     <--- what is ownership on file 1.txt?
 
 
+###
 go to isilon
 cd /ifs/krb
 ls -le 2.txt   <--- what is ownership on file 1.txt?
