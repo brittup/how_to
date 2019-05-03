@@ -231,10 +231,11 @@ modprobe rpcsec_gss_krb5
 depmod –a   
 
 
-### add SECURE_NFS="yes" 
+### add to SECURE_NFS="yes" 
 vi /etc/sysconfig/nfs
 
 SECURE_NFS="yes" 
+
 
 
 
