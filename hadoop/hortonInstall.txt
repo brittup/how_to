@@ -57,7 +57,7 @@ isi hdfs settings view --zone=zone2-hdp
 isi hdfs settings modify --zone=zone2-hdp --root-directory=/ifs/zone2/hdp/hadoop-root
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone2-hdp
 isi hdfs settings modify --zone=zone2-hdp --ambari-namenode=isilonsczone-hdp.demo.local
-isi hdfs settings modify --zone=zone2-hdp --ambari-server=hdfs01.demo.local
+isi hdfs settings modify --zone=zone2-hdp --ambari-server=hdfs1.demo.local
 
 touch /ifs/zone2/hdp/hadoop-root/THIS_IS_ISILON_zone2-hdp.txt
 
@@ -366,7 +366,7 @@ cat /sys/kernel/mm/transparent_hugepage/defrag
 cat /sys/kernel/mm/transparent_hugepage/enabled
 
 *********************************************************************************************
-###install Ambari on hdfs01
+###install Ambari on hdfs1
 ##install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
 #wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.4.0.1/ambari.repo -O /etc/yum.repos.d/ambari.repo
 #wget -nv http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.5.0.0/ambari.repo -O /etc/yum.repos.d/ambari.rep
@@ -550,7 +550,7 @@ isi hdfs settings modify --zone=zone2-hdp --ambari-namenode=isilonsczone-hdp.dem
 
 
 ##Need to have created the SCZone before running
-isi hdfs settings modify --zone=zone2-hdp --ambari-server=hdfs01.demo.local
+isi hdfs settings modify --zone=zone2-hdp --ambari-server=hdfs1.demo.local
 
 
 ##IF AD, change domain name to your domain
