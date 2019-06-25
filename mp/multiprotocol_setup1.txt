@@ -18,6 +18,8 @@ isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.
 -Test SCzone nslookup mp.demo.local
 
 
+
+
 ###on isilon make base mp directory
 
 mkdir -p /ifs/mp
@@ -28,15 +30,6 @@ cd /ifs/mp
 ls -al 
 ls -le this_is_isilon.txt
 ls -len this_is_isilon.txt
-
-
-
-###1b.setup SmartConnect on DNS server
-###Add A record ssip-isilon.demo.local 192.268.1.100
-###Add NS record mp.demo.local - ssip-isilon.demo.local
-
-###test DNS
-nslookup mp.demo.local
 
 
 
