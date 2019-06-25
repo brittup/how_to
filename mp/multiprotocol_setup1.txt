@@ -1,6 +1,6 @@
 ###A simple multiprotocol setup to validate Isilon behavior
 
-####Updated 02/2019
+####Updated 06/2019
 
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED
@@ -11,8 +11,13 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --s
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
 
 
+GO to windows DNS
+-Add A record ssip-isilon.demo.local  192.168.1.100
+-Add NS record mp.demo.local   --> ssip-isilon.demo.local
+-Test SCzone nslookup mp.demo.local
 
-###make base mp directory
+
+###on isilon make base mp directory
 
 mkdir -p /ifs/mp
 chmod 777 /ifs/mp
