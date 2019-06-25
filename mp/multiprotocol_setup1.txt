@@ -11,8 +11,9 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --s
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
 
 
-GO to windows DNS
--Add A record ssip-isilon.demo.local  192.168.1.100
+###GO to windows DNS
+-go to the demo.local zone
+-Add A record ssip-isilon  192.168.1.100
 -Add NS record mp.demo.local   --> ssip-isilon.demo.local
 -Test SCzone nslookup mp.demo.local
 
