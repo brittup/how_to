@@ -1,4 +1,4 @@
-https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/content/ch_Getting_Ready.html
+﻿https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/content/ch_Getting_Ready.html
 
 
 russ vm fixes
@@ -74,6 +74,7 @@ Download the Ambari Management Pack for Isilon OneFS installation bundle from th
 or copy to host 
 wget https://download.emc.com/downloads/DL92119_Isilon-OneFS-Management-Pack-Installation-File.tar.gz?source=OLS
 wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.0.0.tar.gz
+wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.1.0.tar.gz
 
 
 Install the management pack on the Ambari server by running the following command: 
