@@ -17,22 +17,34 @@ or just install 8.2
 isi zone zones create --name=zone-hdp27 --path=/ifs/zone/hdp27 --create-path
 mkdir -p /ifs/zone/hdp27/hadoop-root
 
-isi network subnets modify groupnet0.subnet0 --sc-service-addr=X.X.X.X
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=192.168.1.60-192.168.1.80  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
 
+
+###setup SCZ in AD DNS
 
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp-27.demo.local
 
 
-
+###8.1.2 only
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
+isi auth settings acls modify --group-owner-inheritance=parent
+
+###8.2
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-hdp27
+isi auth roles view hdfs_access --zone=zone-hdp27
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
 
 ####
 isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
-
 touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
-isi auth settings acls modify --group-owner-inheritance=parent
 mkdir -p /ifs/zone/hdp27/scripts
 cd /ifs/zone/hdp27/scripts
 
@@ -50,12 +62,18 @@ copy files to scripts
 
 chmod u+x *
 
+
+
+
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone-hdp27
+
 
 bash isilon_create_directories.sh --dist hwx --zone zone-hdp27  --fixperm
 
 ls -al /ifs/zone/hdp27/hadoop-root
 ls -al /ifs/zone/hdp27/hadoop-root/user
+
+
 
 ###
 isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
@@ -235,12 +253,10 @@ chmod 700 /home/rangerlookup
 chmod 700 /home/gpadmin
 chmod 700 /home/anonymous
 
-
-
 ls -al /home
 
 
-##Ambari Preparation   --- > do not 
+##Ambari Preparation   
 
 
 Install Ambari Management Pack
