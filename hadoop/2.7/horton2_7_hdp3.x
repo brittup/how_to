@@ -25,8 +25,9 @@ sestatus
 
 
 ####Install Ambari
+###wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.1.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
 
-wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.1.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
+
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.3.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
 yum repolist
 
@@ -40,7 +41,10 @@ ambari-server status
 
 
 ###install mysql connector
-https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/content/download_and_set_up_database_connectors.html
+###https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.1.0/bk_ambari-installation/content/download_and_set_up_database_connectors.html
+
+
+
 https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/download_and_set_up_database_connectors.html
 
 yum -y install mysql-connector-java*
@@ -59,10 +63,13 @@ Install Ambari Management Pack
 Download the Ambari Management Pack for Isilon OneFS installation bundle from the product download page and extract the contents on to the Ambari server
 
 or copy to host 
-wget https://download.emc.com/downloads/DL92119_Isilon-OneFS-Management-Pack-Installation-File.tar.gz?source=OLS
-wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.0.0.tar.gz
-wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.1.0.tar.gz
+###wget https://download.emc.com/downloads/DL92119_Isilon-OneFS-Management-Pack-Installation-File.tar.gz?source=OLS
+###wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.0.0.tar.gz
 
+
+
+wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.0.0.tar.gz?raw=true
+wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.1.0.tar.gz?raw=true
 
 Install the management pack on the Ambari server by running the following command: 
 ambari-server install-mpack --mpack=NAME_OF_MPACK_TAR.tar.gz –verbose 
