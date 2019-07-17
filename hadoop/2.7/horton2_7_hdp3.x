@@ -65,17 +65,18 @@ Download the Ambari Management Pack for Isilon OneFS installation bundle from th
 or copy to host 
 ###wget https://download.emc.com/downloads/DL92119_Isilon-OneFS-Management-Pack-Installation-File.tar.gz?source=OLS
 ###wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.0.0.tar.gz
+###wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.0.0.tar.gz?raw=true
 
 
 
-wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.0.0.tar.gz?raw=true
 wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.1.0.tar.gz?raw=true
 
 Install the management pack on the Ambari server by running the following command: 
-ambari-server install-mpack --mpack=NAME_OF_MPACK_TAR.tar.gz –verbose 
+###ambari-server install-mpack --mpack=NAME_OF_MPACK_TAR.tar.gz –verbose 
+###ambari-server install-mpack --mpack=isilon-onefs-mpack-1.0.0.0.tar.gz --verbose
 
-ambari-server install-mpack --mpack=isilon-onefs-mpack-1.0.0.0.tar.gz --verbose
 
+ambari-server install-mpack --mpack=isilon-onefs-mpack-1.0.1.0.tar.gz --verbose
 
 ambari-server restart
 ambari-server status
@@ -93,6 +94,13 @@ go to linux host  -- setup linux for isilon users uid/gid
 
 All hosts
 yum -y install krb5-workstation krb5-libs openldap-clients
+
+
+
+
+
+
+
 
 
 

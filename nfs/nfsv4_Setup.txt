@@ -73,6 +73,8 @@ service rpcidmapd start; chkconfig rpcidmapd on
 chkconfig netfs on
 
 
+
+
 ###on isilon:  isi network pools list     -- get sczone name to list export on
 
 ###get mount info from Isilon

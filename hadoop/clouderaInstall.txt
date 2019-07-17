@@ -243,6 +243,8 @@ rpm -qa | grep jdk
 ###Change Hostname to lower case & update DNS
 
 vi /etc/sysconfig/network
+nmutil
+
 
 ##Linux HOST setup:
 SELinux
