@@ -1,5 +1,5 @@
 ###Setup and configure AD based KRB nfsv4 to Isilon
-
+###Automated Kerberos setup and management using realmd - manages SPN's keytab
 
 1. Setup 1 no ID mapping - This setup will illustrate an ID mapping mismatch between AD user & linux user and how ID mismatch can occur.
 2. Setup 2 use AD ID mapping & ADrfc2307 on isilon - This setup will illustrate an ID mapping between AD user & linux user and how this fixes the ID mapping issue
@@ -177,7 +177,10 @@ Ondisk is SID, seen with ls -len
 This is probematic as we have ID mismatching and the ownership of files is incorrect, this illustrates why we need unified ID management. This can still work but 
 ultimately we need linux and isilon to be using a common unified ID to present consistent ownership.
 
-setup 2, will illustrate the preferred approach.
+
+
+setup 2, will illustrate the preferred approach with AD managed uid/gid via rfc2307 in AD
+
 
 
 

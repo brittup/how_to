@@ -1,6 +1,7 @@
 ###Setup and configure Kerberos nfsv4 to Isilon
 
 ###setup a KDC for the KRB REALM
+###manual setup and configuration of kerberos on linux; SPN's & keytabs
 
 ###complete the following
 --> 1. see kdcSetup doc for KDC server build:  https://raw.githubusercontent.com/brittup/how_to/master/krb5/kdcSetup.txt
@@ -221,7 +222,10 @@ isi nfs exports view --id=<id>
 
 
 
-###Kerberized nfs setup - create client SPN & keytab on KDC Server
+
+
+
+###Manual Kerberized nfs setup - create client SPN & keytab on KDC Server
 ###
 ###on KDC
 kadmin.local
@@ -316,6 +320,9 @@ klist
 cd /mnt/nfsv4krb
 touch a.txt
 ls -al 
+
+
+
 
 
 
