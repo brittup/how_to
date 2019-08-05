@@ -2,10 +2,11 @@
 
 1.Join Clustet to AD, Assignt to System Zone
 
+isi zone zones list
+isi auth ads create demo.local  --user=administrator  --password=Password123!
 isi zone zones list -v
-isi auth ads create lsa-activedirectory-provider:demo.local  administrator     Password123!
-
-isi zone zones list -v
+isi zone zones modify --zone=System --add-auth-provider=lsa-activedirectory-provider:DEMO.LOCAL
+	
 
 
 ###2.Add some users to AD
@@ -13,9 +14,9 @@ isi zone zones list -v
 
 
 ###Add users to AD
-user1 - Password123! - add to some AD groups
-user2 - Password123! - add to some AD groups
-user3 - Password123! - add to some AD groups
+user1 - Password123! - add to some AD groups, set password to not require chnage or expire
+user2 - Password123! - add to some AD groups, set password to not require chnage or expire
+user3 - Password123! - add to some AD groups, set password to not require chnage or expire
 
 
 
@@ -36,7 +37,7 @@ isi auth mapping token --zone=System --user=demo\\user1
 isi auth mapping token --zone=System --user=demo\\user2
 isi auth mapping token --zone=System --user=demo\\user3
 
-? SID & UID?GID, why?
+? SID & UID?GID,ondisk memmberships why?
 
 
 
@@ -66,20 +67,26 @@ loginShell /bin/bash
 isi auth mapping dump --zone=System --file=/ifs/map.txt
 cat /ifs/map.txt
 
+?can you explain the id map db?
+
+
+
+
 ###Lets Clean it up
-isi auth mapping delete --all --force --zone=ad-test
-
-
+isi auth mapping delete --all --force --zone=System
 isi auth cache flush --all
 isi auth mapping flush
-
-
+isi auth mapping dump --zone=System --file=/ifs/map.txt
+cat /ifs/map.txt
 
 
 ###enable Isilon for AD + rfc2307
 
-isi auth ads view AD-TEST -v
-isi auth ads modify AD-TEST --sfu-support=rfc2307
+isi auth ads view DEMO.LOCAL -v
+isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
+isi auth ads view DEMO.LOCAL -v
+
+
 
 
 ###4.Lookup users on Isilon
@@ -89,4 +96,31 @@ isi auth mapping token --zone=System --user=demo\\user2
 isi auth mapping token --zone=System --user=demo\\user3
 
 
-What has chnaged and why?
+What has changed and why?
+
+
+#######
+Create a multiprotocl setup 
+-create directory - set permisisons for user1,user2,user3
+-add Export
+-Create Share
+
+-Access nfs export as user1 from linux, test and create files
+su - user1
+
+
+-Access smb share as user1 from window, test and create files
+
+
+Look at the files created from 
+- Isilon   ls -al, ls -le, ls -len
+-nfs ls -al
+-smb Win Explorer 
+
+
+
+
+
+
+
+

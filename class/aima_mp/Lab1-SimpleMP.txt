@@ -15,7 +15,8 @@ isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.
 -go to the demo.local zone
 -Add A record ssip-isilon  192.168.1.100
 -Add NS record mp    --> ssip-isilon.demo.local
--Test SCzone nslookup mp.demo.local
+-Test SCzone:
+nslookup mp.demo.local
 
 
 
