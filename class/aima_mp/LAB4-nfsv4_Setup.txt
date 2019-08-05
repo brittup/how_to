@@ -1,4 +1,4 @@
-###Setup Isilon and client for NFSv4
+###Setup Isilon and client for NFSv4 test
 
 
 ###On Isilon
