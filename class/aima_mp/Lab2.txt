@@ -1,0 +1,92 @@
+###A simple AD + rfc2307 setup
+
+1.Join Clustet to AD, Assignt to System Zone
+
+isi zone zones list -v
+isi auth ads create demo.local administrator
+lsa-local-provider:System, lsa-file-provider:System, lsa-activedirectory-provider:demo.local
+isi zone zones list -v
+
+
+###2.Add some users to AD
+
+
+
+###Add users to AD
+user1 - Password123! - add to some AD groups
+user2 - Password123! - add to some AD groups
+user3 - Password123! - add to some AD groups
+
+
+
+###Add linux local users
+useradd -u 11223344 -d /home/user1 -m user1
+useradd -u 44332211 -d /home/user1 -m user2
+useradd -u 33333333 -d /home/user1 -m user3
+
+id user1
+id user2
+id user3
+
+
+
+###3.Lookup users on Isilon
+
+isi auth mapping token --zone=System --user=demo\\user1
+isi auth mapping token --zone=System --user=demo\\user2
+isi auth mapping token --zone=System --user=demo\\user3
+
+? SID & UID?GID, why?
+
+
+
+
+
+###Add unix attributes for user1 & user2 in AD;  uidNumber, gidNumber, unixHomeDirectory, or loginShell  + create group and add GID
+
+Enable Advanced View in AD
+user1
+uidNumber 11223344
+gidNumber 11223344
+unixHomeDirectory /home/<username>
+loginShell /bin/bash
+
+Enable Advanced View in AD
+user2
+uidNumber 44332211
+gidNumber 44332211
+unixHomeDirectory /home/<username>
+loginShell /bin/bash
+
+
+
+
+
+###Review the ID map DB
+isi auth mapping dump --zone=System --file=/ifs/map.txt
+cat /ifs/map.txt
+
+###Lets Clean it up
+isi auth mapping delete --all --force --zone=ad-test
+
+
+isi auth cache flush --all
+isi auth mapping flush
+
+
+
+
+###enable Isilon for AD + rfc2307
+
+isi auth ads view AD-TEST -v
+isi auth ads modify AD-TEST --sfu-support=rfc2307
+
+
+###4.Lookup users on Isilon
+
+isi auth mapping token --zone=System --user=demo\\user1
+isi auth mapping token --zone=System --user=demo\\user2
+isi auth mapping token --zone=System --user=demo\\user3
+
+
+What has chnaged and why?

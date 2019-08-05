@@ -1,0 +1,132 @@
+###Setup Isilon and client for NFSv4
+
+
+###On Isilon
+###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
+-isilon.demo.local
+test ssip & sc, forward and reverse DNS on smartconnect
+
+
+
+isi nfs settings global view
+isi nfs settings global modify --nfsv4-enabled=yes
+isi nfs settings global view
+
+
+###Review and Config nfs per Access Zone (assumes System zone here)
+isi nfs settings zone view --zone=System
+isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
+isi nfs settings zone view --zone=System
+
+### remove default /ifs export
+isi nfs exports list
+isi nfs exports delete --id=1
+isi nfs exports list
+
+###simple export setup, modify as needed, add 777 to make things easy
+mkdir /ifs/mp
+mkdir /ifs/mp/nfsv4
+chmod -R 777 /ifs/mp/nfsv4
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
+isi nfs exports list --zone=System
+isi nfs exports view --id=2 --zone=System
+
+
+
+
+###On Client
+###setup client for nfsv4
+
+yum install rpcbind nfs-utils nfs4-acl-tools -y
+
+### setp client for nfsv4 - domain needs setup for dns namespace to match isilon
+
+vim /etc/idmapd.conf
+[General]
+Domain = demo.local
+
+
+
+###centos7
+systemctl enable rpcbind.service
+systemctl enable rpcidmapd.service
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+
+systemctl start rpcbind.service
+systemctl start rpcidmapd.service
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+
+systemctl status rpcbind.service
+systemctl status rpcidmapd.service
+systemctl status nfs-server
+systemctl status nfs-lock
+systemctl status nfs-idmap
+
+
+###centos6
+service rpcbind start; chkconfig rpcbind on
+service rpcidmapd start; chkconfig rpcidmapd on
+chkconfig netfs on
+
+
+
+
+###on isilon:  isi network pools list     -- get sczone name to list export on
+
+###get mount info from Isilon
+showmount -e <smartconnectname> or IP
+
+
+mkdir /mnt/nfsv4
+
+mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
+mountstats
+
+cd /mnt/nfsv4
+touch 1.txt
+ls -al
+
+###on isilon
+cd /ifs/mp/nfsv4
+ls -al
+
+
+
+###on host test nfsv4 onefs acl lookup support
+nfs4_getfacl 1.txt
+nfs4_setfacl .....
+
+
+###on isilon, add an acl via cli or use smb
+chmod +a  group Administrators allow dir_gen_all,object_inherit,container_inherit 1.txt
+ls -le 1.txt
+
+
+
+###add user if needed to isilon & client
+###on isilon
+isi auth groups create --zone=System --gid=50000 kdcuser1
+isi auth users create --zone=System --uid=50000 --primary-group-gid=50000 kdcuser1
+isi auth users view --zone=System kdcuser1
+
+###on host
+useradd -u 50000 -d /home/kduser1 -m kdcuser1
+su - kdcuser1
+cd /mnt/nfsv4
+touch 2.txt
+ls -al
+nfs4_getfacl 2.txt
+
+ls -al  on isilon
+ls -le 	on isilon
+
+
+
+
+
+
+
