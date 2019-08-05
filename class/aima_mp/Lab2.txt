@@ -3,8 +3,8 @@
 1.Join Clustet to AD, Assignt to System Zone
 
 isi zone zones list -v
-isi auth ads create demo.local administrator
-lsa-local-provider:System, lsa-file-provider:System, lsa-activedirectory-provider:demo.local
+isi auth ads create lsa-activedirectory-provider:demo.local  administrator     Password123!
+
 isi zone zones list -v
 
 
