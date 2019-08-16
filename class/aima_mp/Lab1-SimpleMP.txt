@@ -11,6 +11,13 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --s
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
 
 
+###join AD
+isi auth ads create demo.local administrator --password=Password123!
+isi auth ads list
+isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
+isi zone zones list -v
+
+
 ###GO to windows DNS
 -go to the demo.local zone
 -Add A record ssip-isilon  192.168.1.100
