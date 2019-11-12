@@ -23,9 +23,15 @@ isi zone zones list -v
 -Add A record ssip-isilon  192.168.1.100
 -Add NS record mp    --> ssip-isilon.demo.local
 -Test SCzone:
-nslookup mp.demo.local
+nslookup mp.demo.local 192.168.1.2
 
+OR (either way make sure you understand smartconnect)
+ 
+###Run the following PowerShell command:
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.186.100
 
+-Test SCzone:
+nslookup mp.demo.local 192.168.1.2
 
 
 ###on isilon make base mp directory

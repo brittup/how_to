@@ -109,6 +109,12 @@ systemctl status krb5kdc.service
 systemctl status kadmin.service
 
 
+
+################################################################
+test kerberos user
+################################################################
+
+
 ###Add isilon admin& test user to KDC
 kadmin.local
 
@@ -139,6 +145,12 @@ Password123!
 
 ###view KRB5 ticket
 klist -e
+
+
+###
+kdcuser1 now has a valid kerberos ticket and can be used against any service in the VLABKDC.LOCAL REALM
+
+
 
 
 

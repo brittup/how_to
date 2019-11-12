@@ -63,13 +63,10 @@ Install Ambari Management Pack
 Download the Ambari Management Pack for Isilon OneFS installation bundle from the product download page and extract the contents on to the Ambari server
 
 or copy to host 
-###wget https://download.emc.com/downloads/DL92119_Isilon-OneFS-Management-Pack-Installation-File.tar.gz?source=OLS
-###wget https://github.com/brittup/how_to/raw/master/_underDevelopment/isilon-onefs-mpack-1.0.0.0.tar.gz
-###wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.0.0.tar.gz?raw=true
 
 
 
-wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.1.0.tar.gz?raw=true
+wget https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon-onefs-mpack-1.0.1.0.tar.gz
 
 Install the management pack on the Ambari server by running the following command: 
 ###ambari-server install-mpack --mpack=NAME_OF_MPACK_TAR.tar.gz –verbose 
