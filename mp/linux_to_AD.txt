@@ -9,12 +9,15 @@ realm  discover -v demo.local
 
 
 ###
-###Default behavior: SSSD will use ID Mapping to create UID/GID from AD based SID
+###
+Option1
+Default behavior: SSSD will use ID Mapping to create UID/GID from AD based SID  
 realm join demo.local
 
 ###go validate computer object in AD for host
 
 
+###on Host1
 realm list -v
 
 
@@ -31,10 +34,21 @@ Password123!
 id
 
 
+Option1
+-why is this bad for us
+-What can we do
 
+
+
+
+
+
+Option2
 ###
 ###Disable ID Mapping and use AD to provide UID & GID's etc..
 ###When using ID mapping described in Automatically generate new UIDs and GIDs for AD users, SSSD creates new UIDs and GIDs, which overrides the values defined in AD. To keep the AD-defined values, you must disable ID mapping in SSSD.
+
+###on Host2
 realm join --automatic-id-mapping=no  demo.local 
 
 ###go validate computer object in AD for host
