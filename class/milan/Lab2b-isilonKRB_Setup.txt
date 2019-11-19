@@ -23,7 +23,7 @@ OR (either way make sure you understand smartconnect)
 Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "nfs4" -NameServer "ssip-isilon.demo.local" 
 
 -Test SCzone:
-nslookup mp.demo.local 192.168.1.2
+nslookup nfs4.demo.local 192.168.1.2
 
 
 
@@ -39,7 +39,7 @@ isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
 isi auth krb5 list
 
 isi auth status
-isi zone zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
+isi zone zones modify nfs4 --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
 isi zone zones list -v
 
 isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
