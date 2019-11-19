@@ -10,7 +10,7 @@ realm  discover -v demo.local
 
 ###
 ###
-Option1
+Option1 - on host hdfs2
 Default behavior: SSSD will use ID Mapping to create UID/GID from AD based SID  
 realm join demo.local
 
@@ -43,7 +43,7 @@ Option1
 
 
 
-Option2
+Option2 on host hdfs3
 ###
 ###Disable ID Mapping and use AD to provide UID & GID's etc..
 ###When using ID mapping described in Automatically generate new UIDs and GIDs for AD users, SSSD creates new UIDs and GIDs, which overrides the values defined in AD. To keep the AD-defined values, you must disable ID mapping in SSSD.
