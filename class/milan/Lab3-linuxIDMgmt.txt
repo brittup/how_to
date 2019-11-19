@@ -1,6 +1,6 @@
 ###Linux to AD
 
-###Method - sssd via realmd 
+###Method - sssd via realmd  against the AD demo.local
 
 yum install -y realmd install krb5-workstation krb5-libs openldap-clients sssd samba-common-tools
 realm  discover -v demo.local
@@ -10,21 +10,27 @@ realm  discover -v demo.local
 
 ###
 ###
-Option1 - on host hdfs2
+Option1 - on host hdfs2 192.168.1.41
 Default behavior: SSSD will use ID Mapping to create UID/GID from AD based SID  
 realm join demo.local
-
-###go validate computer object in AD for host
-
-
-###on Host1
 realm list -v
 
 
+Password123!
+
+###go validate computer object in AD for host, hdfs2 host now joined to AD
+
+In AD add new user - test1 Password123!  - uncheck 'must change password' 
+
+
 ###Test AD user account, create a new account or use the test1 account
-### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
+### using putty access the host and logon using an AD account
+
+
+putty to 192.168.1.41
 test1@demo.local   < -- AD based user: test1
 Password123!
+
 id
 klist
 
@@ -43,29 +49,32 @@ Option1
 
 
 
-Option2 on host hdfs3
+Option2 on host hdfs3 192.168.1.42
 ###
 ###Disable ID Mapping and use AD to provide UID & GID's etc..
-###When using ID mapping described in Automatically generate new UIDs and GIDs for AD users, SSSD creates new UIDs and GIDs, which overrides the values defined in AD. To keep the AD-defined values, you must disable ID mapping in SSSD.
+###When using ID mapping described in Automatically generate new UIDs and GIDs for AD users, SSSD creates new UIDs and GIDs, which overrides 
+###the values defined in AD. To keep the AD-defined values, you must disable ID mapping in SSSD.
 
-###on Host2
+###on hdfs3
 realm join --automatic-id-mapping=no  demo.local 
 
 ###go validate computer object in AD for host
 
-
+In AD add new user - test2 Password123!  - uncheck 'must change password' 
 ###Add unix attributes for user in AD;  uidNumber, gidNumber, unixHomeDirectory, or loginShell  + create group and add GID
 
 uidNumber 123456
 gidNumber 123456
-unixHomeDirectory /home/<username>
+unixHomeDirectory /home/test2
 loginShell /bin/bash
 
 
 
 ###Test AD user account, create a new account or use the test1 account
 ### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
-test1@demo.local   < -- AD based user: test1
+
+putty to 192.168.1.42
+test2@demo.local   < -- AD based user: test1
 Password123!
 id
 klist
