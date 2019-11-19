@@ -13,7 +13,7 @@ vi /var/kerberos/krb5kdc/kadm5.acl
 isilon/admin@VLABKDC.LOCAL       *
 
 
-###review and modify kdc.conf 
+###review and modify kdc.conf  -- Update the realms section to VLABKDC.LOCAL
 vi /var/kerberos/krb5kdc/kdc.conf
 
 [kdcdefaults]
@@ -33,8 +33,9 @@ vi /var/kerberos/krb5kdc/kdc.conf
  
  
 ###Modify krb5.conf  
-###set KDC and Admin Server to the KDC hosts
-###set domain_realms to the dns realm
+###set default_realm VLABKDC.LOCAL
+###set KDC and Admin Server to the KDC hosts - update [realms] section
+###set domain_realms to the dns realm [domain_realm]
 ###example:  Realm = VLABKDC.LOCAL, DNS = demo.local
 
 vi /etc/krb5.conf
@@ -88,7 +89,7 @@ systemctl status kadmin.service
 ###create the KDC db for the REALM, this can take awhile
 
 kdb5_util create -s -r VLABKDC.LOCAL
-Password123!
+Password123!      < --- this is your master KDC DB password 
 
 
 ###centos6
@@ -117,6 +118,10 @@ test kerberos user
 
 ###Add isilon admin& test user to KDC
 kadmin.local
+listprincs 
+
+
+
 
 ###add isilon admin UPN
 addprinc -pw Password123! isilon/admin@VLABKDC.LOCAL
@@ -126,6 +131,10 @@ addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 
 
 listprincs 
+
+get_principal kdcuser1@VLABKDC.LOCAL
+
+
 exit
 
 
@@ -150,7 +159,9 @@ klist -e
 ###
 kdcuser1 now has a valid kerberos ticket and can be used against any service in the VLABKDC.LOCAL REALM
 
-
+####
+KDC build is complete
+####
 
 
 
