@@ -28,7 +28,7 @@ nslookup mp.demo.local 192.168.1.2
 OR (either way make sure you understand smartconnect)
  
 ###Run the following PowerShell command:
-Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.186.100
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
 
 -Test SCzone:
 nslookup mp.demo.local 192.168.1.2
