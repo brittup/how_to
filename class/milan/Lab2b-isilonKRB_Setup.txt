@@ -36,6 +36,9 @@ isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.demo.local
 isi auth krb5 domain list
 
 isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+
+Password123!
+
 isi auth krb5 list
 
 isi auth status
@@ -45,7 +48,11 @@ isi zone zones list -v
 isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
 isi auth krb5 spn check --provider-name=VLABKDC.LOCAL
 
+
 isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
+
+Password123!
+
 isi auth krb5 spn list --provider-name=VLABKDC.LOCAL --verbose
 
 
