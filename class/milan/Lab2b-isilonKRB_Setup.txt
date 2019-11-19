@@ -1,5 +1,32 @@
 ###Kerberize Isilon
 
+###
+###create an Access Zone and Pool for nfs4
+
+isi zone zones create --name=nfs4 --create-path=/ifs/nfs4
+
+isi network pools create --id=groupnet0:subnet0:pool2 --ranges=192.168.1.90-192.168.1.99  --access-zone=nfs4  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=nfs4.demo.local --description=nfs4_pool
+
+
+
+
+
+###GO to windows DNS
+-go to the demo.local zone
+-Add NS record nfs4    --> ssip-isilon.demo.local
+-Test SCzone:
+nslookup nfs4.demo.local 192.168.1.2
+
+OR (either way make sure you understand smartconnect)
+ 
+###Run the following PowerShell command:
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "nfs4" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
+
+-Test SCzone:
+nslookup mp.demo.local 192.168.1.2
+
+
+
 isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldap-kdc.demo.local --admin-server=ldap-kdc.demo.local --default-domain=demo.local 
 isi auth krb5 realm list -v
 
