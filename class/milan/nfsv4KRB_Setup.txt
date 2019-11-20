@@ -69,13 +69,13 @@ klist -e
 ###Setup KRB NFS on Isilon
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
 ###Setup new export for krb authentication
-isi nfs exports list --zone=System
+isi nfs exports list --zone=nfs4
 
 
 
 mkdir /ifs/nfs4/krb
 chmod -R 777 /ifs/nfs4/krb
-isi nfs exports create --path=/ifs/nfs4/krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
+isi nfs exports create --zone=nfs4 --path=/ifs/nfs4/krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
 isi nfs exports list --zone=nfs4
 isi nfs exports view --id=4
 
