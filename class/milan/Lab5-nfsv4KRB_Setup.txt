@@ -74,6 +74,7 @@ isi nfs exports list --zone=nfs4
 
 mkdir /ifs/nfs4/krb
 chmod -R 777 /ifs/nfs4/krb
+touch /ifs/nfs4/krb/this_export_is kerberized.txt
 isi nfs exports create --zone=nfs4 --path=/ifs/nfs4/krb --map-root=root --security-flavors=krb5,krb5i,krb5p --description=nfsv4krb
 isi nfs exports list --zone=nfs4
 isi nfs exports view --id=4 --zone=nfs4
@@ -104,13 +105,16 @@ ls -al /root/*.keytab
 
 ##copy keytabs to nfs host, something like... to copy to hdfs1.demo.local
 scp /root/*.keytab root@192.168.1.40:/root/
-
+yes
+Password123!
 
 ###import the keytabs on the host
 ###ssh to the hostname, review keytabs copied over 
 cd /root
-ls -al   
+ls -al *.keytab  
 
+
+###using ktutil, we read the nfs & host keytabs in to the /etc/krb5.keytab file for use
 
 ktutil
 ktutil:  list
@@ -136,7 +140,7 @@ systemctl start nfs-secure
 systemctl status nfs-secure
 
 mkdir /mnt/nfsv4krb
-mount –t nfs4 –o sec=krb5 <smartconnectname>:/ifs/mp/nfsv4krb /mnt/nfsv4krb
+mount –t nfs4 –o sec=krb5 nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 
 
 
