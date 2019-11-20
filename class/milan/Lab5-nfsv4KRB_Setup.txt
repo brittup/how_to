@@ -85,7 +85,7 @@ isi nfs exports view --id=4 --zone=nfs4
 ###
 ###on KDC host ldap-kdc.demo.local
 kadmin.local
-listprincs
+listprincs       < --- review isilon nfs krb spn, added when isilon was kerberized
 
 ###add SPNs
 addprinc -randkey nfs/hdfs1.demo.local
@@ -99,7 +99,7 @@ ktadd -k /root/host-krb5.keytab host/hdfs1.demo.local
 exit
 
 ###review keytab file are created
-ls -al /root
+ls -al /root/*.keytab
 
 
 ##copy keytabs to nfs host, something like... to copy to hdfs1.demo.local
