@@ -5,9 +5,11 @@
 ###complete the following, should have been done in other labs
 Need to build a KDC
 https://github.com/brittup/how_to/blob/master/class/milan/Lab2a-kdcSetup.txt
+
 Kerberize Isilon
 https://github.com/brittup/how_to/blob/master/class/milan/Lab2b-isilonKRB_Setup.txt
-Get V4 working
+
+Get nfsV4 working
 https://github.com/brittup/how_to/blob/master/class/milan/Lab4-nfsv4_Setup.txt
 
 
@@ -50,92 +52,16 @@ vi /etc/krb5.conf
 
  
  
-###add user if needed to local machine - test on KDC host initially
+###add user if needed to local machine, likely added in prior lab or if tested on KDC host initially
 useradd -u 50000 -d /home/kduser1 -m kdcuser1
 su - kdcuser1
+id
   
 ###Test Kerberos for user principal created during kdc setup
 kinit kdcuser1@VLABKDC.LOCAL
 Password123!
 
 klist -e
-
-
-
-###On Isilon review nfsv4 settings if not done and test with non-krb sys based nfsv4 
-isi nfs settings global view
-isi nfs settings global modify --nfsv4-enabled=true
-
-isi nfs settings zone view
-isi nfs settings zone modify --nfsv4-domain=demo.local
-
-###
-check permissions on the export if needed
-
-
-#########################################
-### in this example we use the simplest setup with no ID mgmt to validate sys based mounting
-###Setup export for nfsv4 -- use the nfsv4 setup how_to to set the export up -- >
-
-isi nfs exports list --zone=System
-isi nfs exports view --zone=System  --id=<id>    if needed
-
-
-
-###On Client - test nfsv4 mount
-###centos6
-service rpcbind start; chkconfig rpcbind on
-service rpcidmapd start; chkconfig rpcidmapd on
-chkconfig netfs on
-
-
-###centos7
-systemctl enable rpcbind.service
-systemctl enable rpcidmapd.service
-systemctl enable nfs-server
-systemctl enable nfs-lock
-systemctl enable nfs-idmap
-
-systemctl start rpcbind.service
-systemctl start rpcidmapd.service
-systemctl start nfs-server
-systemctl start nfs-lock
-systemctl start nfs-idmap
-
-systemctl status rpcbind.service
-systemctl status rpcidmapd.service
-systemctl status nfs-server
-systemctl status nfs-lock
-systemctl status nfs-idmap
-
-showmount -e <smartconnectname>
-
-mkdir /mnt/nfsv4
-mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
-mountstats
-
-
-###look for sec=sys
-###test mount
-cd /mnt/nfsv4
-touch a.txt
-ls -al
-nfs4_getfacl a.txt
-
-
-###test non-root user
-su - kdcuser1
-cd /mnt/nfsv4
-ls -al
-touch b.txt
-ls -al
-nfs4_getfacl b.txt
-
-ls -al  on isilon
-ls -le  on isilon
-
-
-
 
 
 
@@ -146,13 +72,12 @@ ls -le  on isilon
 isi nfs exports list --zone=System
 
 
-mkdir /ifs/mp/nfsv4krb
-chmod -R 777 /ifs/mp/nfsv4krb
-isi nfs exports create --path=/ifs/mp/nfsv4krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
-isi nfs exports list --zone=System
-isi nfs exports view --id=<id>
 
-
+mkdir /ifs/nfs4/krb
+chmod -R 777 /ifs/nfs4/krb
+isi nfs exports create --path=/ifs/nfs4/krb --map-root=root --security-flavors=krb5 --description=nfsv4krb
+isi nfs exports list --zone=nfs4
+isi nfs exports view --id=4
 
 
 
