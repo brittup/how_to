@@ -20,8 +20,8 @@ isi nfs settings zone view --zone=nfs4
 
 ###simple export setup, modify as needed, add 777 to make things easy
 mkdir /ifs/nfsv4
-chmod -R 777 /ifs/nfsv4
-isi nfs exports create --path=/ifs/nfsv4 --map-root=root  --zone=nfs4 --description=nfsv4
+chmod -R 777 /ifs/nfs4/data
+isi nfs exports create --path=/ifs/nfs4/data --map-root=root  --zone=nfs4 --description=nfsv4
 isi nfs exports list --zone=nfs4
 isi nfs exports view --id=3 --zone=nfs4
 
