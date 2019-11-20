@@ -23,7 +23,7 @@ Password123!
 In AD add new user - test1 Password123!  - uncheck 'must change password' 
 
 
-###Test AD user account, create a new account or use the test1 account
+###Test AD user account
 ### using putty access the host and logon using an AD account
 
 
@@ -40,7 +40,8 @@ Password123!
 id
 
 
-Option1
+Option1:
+-uid/gid hashed from SID in AD for users, not stored in AD attributes but same on all linux host for this account
 -why is this bad for us
 -What can we do
 
@@ -60,24 +61,53 @@ realm join --automatic-id-mapping=no  demo.local
 
 ###go validate computer object in AD for host
 
+Enable Advanced Features from View in AD
+
 In AD add new user - test2 Password123!  - uncheck 'must change password' 
 ###Add unix attributes for user in AD;  uidNumber, gidNumber, unixHomeDirectory, or loginShell  + create group and add GID
+
+Go to user properties, Attribute Editor and add:
 
 uidNumber 123456
 gidNumber 123456
 unixHomeDirectory /home/test2
 loginShell /bin/bash
 
+create test2grp group in AD and assign GID
+gidNumber 123456
 
 
-###Test AD user account, create a new account or use the test1 account
-### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
+
+###Test AD user account
+### using putty access the host and logon using an AD account
 
 putty to 192.168.1.42
 test2@demo.local   < -- AD based user: test1
 Password123!
 id
 klist
+
+or
+su - test2@demo.local
+Password123!
+id
+klist ? why no krb ticket
+kinit
+klist
+
+
+
+
+#######
+lab complete
+
+option1 - auto assign ID 
+option2 - use ID from AD
+
+#######
+
+
+
 
 
 
@@ -94,12 +124,3 @@ SSSD will now use POSIX attributes from AD, instead of creating them locally.
 
 
 
-
-
-
-###Test AD user account, create a new account or use the test1 account
-### using putty access the host and logon using an AD account, if using the test1 AD account - in AD uncheck 'change password at next logon'
-test1@demo.local   < -- AD based user: test1
-Password123!
-id
-klist
