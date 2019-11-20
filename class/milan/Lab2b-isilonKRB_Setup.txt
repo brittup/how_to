@@ -5,7 +5,7 @@
 
 isi zone zones create --name=nfs4 --path=/ifs/nfs4 --create-path
 isi zone zones list -v
-isi network pools create --id=groupnet0:subnet0:pool2 --ranges=192.168.1.90-192.168.1.99  --access-zone=nfs4  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=nfs4.demo.local --description=nfs4_pool
+isi network pools create --id=groupnet0:subnet0:pool2 --ranges=192.168.1.90-192.168.1.96  --access-zone=nfs4  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=nfs4.demo.local --description=nfs4_pool
 
 
 
@@ -14,6 +14,16 @@ isi network pools create --id=groupnet0:subnet0:pool2 --ranges=192.168.1.90-192.
 ###GO to windows DNS
 -go to the demo.local zone
 -Add NS record nfs4    --> ssip-isilon.demo.local
+-Add PTR's for nfs4.demo.local
+192.168.1.90 - nfs4.demo.local
+192.168.1.91 - nfs4.demo.local
+192.168.1.92 - nfs4.demo.local
+192.168.1.93 - nfs4.demo.local
+192.168.1.94 - nfs4.demo.local
+192.168.1.95 - nfs4.demo.local
+192.168.1.96 - nfs4.demo.local
+
+
 -Test SCzone:
 nslookup nfs4.demo.local 192.168.1.2
 
@@ -21,6 +31,8 @@ OR (either way make sure you understand smartconnect)
  
 ###Run the following PowerShell command:
 Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "nfs4" -NameServer "ssip-isilon.demo.local" 
+
+Add-DnsServerResourceRecordPtr -Name "90" -ZoneName "0.168.192.in-addr.arpa" -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName "nfs4.demo.local"
 
 -Test SCzone:
 nslookup nfs4.demo.local 192.168.1.2

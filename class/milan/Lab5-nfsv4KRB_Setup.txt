@@ -12,7 +12,8 @@ https://github.com/brittup/how_to/blob/master/class/milan/Lab2b-isilonKRB_Setup.
 Get nfsV4 working
 https://github.com/brittup/how_to/blob/master/class/milan/Lab4-nfsv4_Setup.txt
 
-
+#########################################
+lab does not addess DNS or NTP
 #########################################
 
 
