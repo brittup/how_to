@@ -3,8 +3,7 @@
 
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
--isilon.demo.local
-test ssip & sc, forward and reverse DNS on smartconnect
+###done in lab https://github.com/brittup/how_to/blob/master/class/milan/Lab2b-isilonKRB_Setup.txt
 
 
 
@@ -13,23 +12,18 @@ isi nfs settings global modify --nfsv4-enabled=yes
 isi nfs settings global view
 
 
-###Review and Config nfs per Access Zone (assumes System zone here)
-isi nfs settings zone view --zone=System
-isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
-isi nfs settings zone view --zone=System
+###Review and Config nfs per Access Zone (assumes nfs4 zone here)
+isi nfs settings zone view --zone=nfs4
+isi nfs settings zone modify --nfsv4-domain=demo.local --zone=nfs4
+isi nfs settings zone view --zone=nfs4
 
-### remove default /ifs export
-isi nfs exports list
-isi nfs exports delete --id=1
-isi nfs exports list
 
 ###simple export setup, modify as needed, add 777 to make things easy
-mkdir /ifs/mp
-mkdir /ifs/mp/nfsv4
-chmod -R 777 /ifs/mp/nfsv4
-isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
-isi nfs exports list --zone=System
-isi nfs exports view --id=2 --zone=System
+mkdir /ifs/nfsv4
+chmod -R 777 /ifs/nfsv4
+isi nfs exports create --path=/ifs/nfsv4 --map-root=root  --zone=nfs4 --description=nfsv4
+isi nfs exports list --zone=nfs4
+isi nfs exports view --id=3 --zone=nfs4
 
 
 
@@ -109,9 +103,9 @@ ls -le 1.txt
 
 ###add user if needed to isilon & client
 ###on isilon
-isi auth groups create --zone=System --gid=50000 kdcuser1
-isi auth users create --zone=System --uid=50000 --primary-group-gid=50000 kdcuser1
-isi auth users view --zone=System kdcuser1
+isi auth groups create --zone=nfs4 --gid=50000 kdcuser1
+isi auth users create --zone=nfs4 --uid=50000 --primary-group-gid=50000 kdcuser1
+isi auth users view --zone=nfs4 kdcuser1
 
 ###on host
 useradd -u 50000 -d /home/kduser1 -m kdcuser1
