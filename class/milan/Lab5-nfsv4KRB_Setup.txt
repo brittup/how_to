@@ -144,11 +144,12 @@ mkdir /mnt/nfsv4krb
 ### test with no krb sec=sys, this will fail as the mount is denying sec=sys nfs
 mount –t nfs4 –o sec=sys nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 
-
+### change mount sec=krb5
 mount –t nfs4 –o sec=krb5 nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
-mountstats
 
 ###review the mount options, sec=krb5
+mountstats
+ls -al /mnt/nfsv4krb
 
 
 ###view SPN used for mount, you'll see its the nfs SPN
@@ -159,27 +160,45 @@ Default principal: nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
 Valid starting       Expires              Service principal
 01/01/1970 00:00:00  01/01/1970 00:00:00  Encrypted/Credentials/v1@X-GSSPROXY:
 
-
-
+### test a file write
 cd /mnt/nfsv4krb
 touch test1.txt
 ls -al 
 
 
-###switch user context
+###switch user context to validate kerberos mount
 su - kdcuser1
 kdestroy
 cd /mnt/nfsv4krb
-touch a.txt
+touch /mnt/nfsv4krb/a.txt
 klist
 
 ### it will fail why?
 kinit
+Password123!
+
 klist
 cd /mnt/nfsv4krb
-touch a.txt
+touch /mnt/nfsv4krb/.txt
 ls -al 
 
+###
+-the file will write
+-ownership will be messed up
+-this lab has no ID management, it's just to validate kerberos nfsv4
+
+
+###Additioanl test
+umount /mnt/nfsv4krb
+mount –t nfs4 –o sec=krb5i nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
+mountstats
+-test mount 
+
+
+umount /mnt/nfsv4krb
+mount –t nfs4 –o sec=krb5p nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
+mountstats
+-test mount 
 
 
 #####################################################################################
