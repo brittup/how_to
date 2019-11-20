@@ -21,6 +21,7 @@ isi nfs settings zone view --zone=nfs4
 ###simple export setup, modify as needed, add 777 to make things easy
 mkdir /ifs/nfs4/data
 chmod -R 777 /ifs/nfs4/data
+touch /ifs/nfs4/data/this_is_isilon_nfsv4.txt
 isi nfs exports create --path=/ifs/nfs4/data --map-root=root  --zone=nfs4 --description=nfsv4
 isi nfs exports list --zone=nfs4
 isi nfs exports view --id=3 --zone=nfs4
@@ -70,9 +71,10 @@ showmount -e nfs4.demo.local
 
 ###On linux client - hdfs1
 mkdir /mnt/nfsv4
-
 mount -t nfs4 -o sec=sys nfs4.demo.local:/ifs/nfs4/data /mnt/nfsv4
 mountstats
+
+###review the mount, vers=4.0 sec=sys -- nfsv4 mount created and successful
 
 
 cd /mnt/nfsv4
@@ -80,7 +82,7 @@ touch 1.txt
 ls -al
 
 ###on isilon
-cd /ifs/mp/nfsv4
+cd /ifs/nfs4/data
 ls -al
 
 
