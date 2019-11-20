@@ -68,11 +68,12 @@ isi network pools list
 ###get mount info from Isilon
 showmount -e nfs4.demo.local
 
-
+###On linux client - hdfs1
 mkdir /mnt/nfsv4
 
-mount -t nfs4 -o sec=sys <smartconnectname>:/ifs/mp/nfsv4 /mnt/nfsv4
+mount -t nfs4 -o sec=sys nfs4.demo.local:/ifs/nfs4/data /mnt/nfsv4
 mountstats
+
 
 cd /mnt/nfsv4
 touch 1.txt
