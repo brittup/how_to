@@ -183,12 +183,14 @@ ls -al
 umount /mnt/nfsv4krb
 mount –t nfs4 –o sec=krb5i nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 mountstats
+mount
 -test mount 
 
 
 umount /mnt/nfsv4krb
 mount –t nfs4 –o sec=krb5p nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 mountstats
+mount
 -test mount 
 
 
