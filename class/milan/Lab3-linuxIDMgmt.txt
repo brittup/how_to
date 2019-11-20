@@ -82,7 +82,7 @@ gidNumber 123456
 ### using putty access the host and logon using an AD account
 
 putty to 192.168.1.42
-test2@demo.local   < -- AD based user: test1
+test2@demo.local   < -- AD based user: test2
 Password123!
 id
 klist
@@ -104,6 +104,21 @@ lab complete
 option1 - auto assign ID 
 option2 - use ID from AD
 
+
+extra bonus -- how does isilon see these AD based used users
+
+isi auth ads view DEMO.LOCAL -v
+
+###enable AD-rfc2307 attributes
+
+isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
+isi auth ads view DEMO.LOCAL -v
+
+
+isi auth mapping token --zone=System --user=DEMO\\test1
+
+
+isi auth mapping token --zone=System --user=DEMO\\test2
 #######
 
 
