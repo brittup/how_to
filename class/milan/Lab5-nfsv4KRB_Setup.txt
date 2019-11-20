@@ -141,14 +141,17 @@ systemctl status nfs-secure
 
 mkdir /mnt/nfsv4krb
 
-### test with no krb sec=sys
+### test with no krb sec=sys, this will fail as the mount is denying sec=sys nfs
 mount –t nfs4 –o sec=sys nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 
+
 mount –t nfs4 –o sec=krb5 nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
+mountstats
+
+###review the mount options, sec=krb5
 
 
-
-###view SPN used for mount
+###view SPN used for mount, you'll see its the nfs SPN
 klist -e
 Ticket cache: KEYRING:persistent:0:0
 Default principal: nfs/rduvnode258421.west.isilon.com@VLABKDC.LOCAL
@@ -157,9 +160,6 @@ Valid starting       Expires              Service principal
 01/01/1970 00:00:00  01/01/1970 00:00:00  Encrypted/Credentials/v1@X-GSSPROXY:
 
 
-###check the status of the mount
-mount
-mountstats
 
 cd /mnt/nfsv4krb
 touch test1.txt
@@ -168,12 +168,25 @@ ls -al
 
 ###switch user context
 su - kdcuser1
+kdestroy
+cd /mnt/nfsv4krb
+touch a.txt
 klist
+
+### it will fail why?
 kinit
 klist
 cd /mnt/nfsv4krb
 touch a.txt
 ls -al 
+
+
+
+#####################################################################################
+
+
+
+
 
 
 
@@ -187,46 +200,6 @@ ls -al
 ###################################
 old content
 ###################################
-###mount info
-root@rduvnode258421:~ # mountstats
-Stats for cdh6-isilon.west.isilon.com:/ifs/zone1/cdh/hadoop-root/mp/nfsv4 mounted on /mnt/nfsv4:
-  NFS mount options: rw,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=krb5,clientaddr=10.224.37.178,local_lock=none
-  NFS server capabilities: caps=0x7fdf,wtmult=512,dtsize=32768,bsize=0,namlen=255
-  NFSv4 capability flags: bm0=0xfcffbf7f,bm1=0xf9be3e,bm2=0x0,acl=0x7,pnfs=notconfigured
-  NFS security flavor: 6  pseudoflavor: 390003
-
-NFS byte counts:
-  applications read 0 bytes via read(2)
-  applications wrote 0 bytes via write(2)
-  applications read 0 bytes via O_DIRECT read(2)
-  applications wrote 0 bytes via O_DIRECT write(2)
-  client read 0 bytes via NFS READ
-  client wrote 0 bytes via NFS WRITE
-
-RPC statistics:
-  39 RPC requests sent, 39 RPC replies received (0 XIDs not found)
-  average backlog queue length: 0
-
-SERVER_CAPS:
-        2 ops (5%)
-        avg bytes sent per op: 184      avg bytes received per op: 120
-        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
-FSINFO:
-        1 ops (2%)
-        avg bytes sent per op: 188      avg bytes received per op: 136
-        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
-GETATTR:
-        1 ops (2%)
-        avg bytes sent per op: 188      avg bytes received per op: 260
-        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
-PATHCONF:
-        1 ops (2%)
-        avg bytes sent per op: 184      avg bytes received per op: 100
-        backlog wait: 0.000000  RTT: 0.000000   total execute time: 0.000000 (milliseconds)
-
-
-		
-		
 		
 		
 ###secure mount to isilon, centos 6
