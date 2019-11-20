@@ -18,7 +18,7 @@ https://github.com/brittup/how_to/blob/master/class/milan/Lab4-nfsv4_Setup.txt
 
 
 
-###Setup kerberos on client if not done - on hdfs1
+###Setup kerberos on client if not done - on hdfs1.demo.local
 
 yum -y install krb5-workstation krb5-libs openldap-clients
 
@@ -81,27 +81,18 @@ isi nfs exports view --id=4 --zone=nfs4
 
 
 
-###Manual Kerberized nfs setup - create client SPN & keytab on KDC Server, assumes we are using hdfs.demo.local as the nfskrb client 
+###Manual Kerberized nfs setup - create client SPN & keytab on KDC Server, assumes we are using hdfs1.demo.local as the nfskrb client 
 ###
 ###on KDC host ldap-kdc.demo.local
 kadmin.local
 listprincs
 
 ###add SPNs
-addprinc -randkey nfs/<hostname>.demo.local
-addprinc -randkey host/<hostname>.demo.local
-
-eg: 
 addprinc -randkey nfs/hdfs1.demo.local
 addprinc -randkey host/hdfs1.demo.local
 listprincs
 
-
 ###create keytab for SPNs
-ktadd -k /root/nfs-krb5.keytab nfs/<hostname>.demo.local
-ktadd -k /root/host-krb5.keytab host/<hostname>.demo.local
-
-eg:
 ktadd -k /root/nfs-krb5.keytab nfs/hdfs1.demo.local
 ktadd -k /root/host-krb5.keytab host/hdfs1.demo.local
 
@@ -111,9 +102,8 @@ exit
 ls -al /root
 
 
-
-##copy keytabs to nfs host, something like...
-scp /root/*.keytab root@X.X.X.Y:/root/
+##copy keytabs to nfs host, something like... to copy to hdfs1.demo.local
+scp /root/*.keytab root@192.168.1.40:/root/
 
 
 ###import the keytabs on the host
