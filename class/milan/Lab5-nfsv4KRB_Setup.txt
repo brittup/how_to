@@ -64,14 +64,11 @@ Password123!
 
 klist -e
 
-
-
 #########################################
 ###Setup KRB NFS on Isilon, setup for krb5, krb5i, krb5p
 ### in this example we use the simplest setup with no ID mgmt to validate krb based mounting
 ###Setup new export for krb authentication
 isi nfs exports list --zone=nfs4
-
 
 mkdir /ifs/nfs4/krb
 chmod -R 777 /ifs/nfs4/krb
@@ -79,8 +76,6 @@ touch /ifs/nfs4/krb/this_export_is kerberized.txt
 isi nfs exports create --zone=nfs4 --path=/ifs/nfs4/krb --map-root=root --security-flavors=krb5,krb5i,krb5p --description=nfsv4krb
 isi nfs exports list --zone=nfs4
 isi nfs exports view --id=4 --zone=nfs4
-
-
 
 
 ###Manual Kerberized nfs setup - create client SPN & keytab on KDC Server, assumes we are using hdfs1.demo.local as the nfskrb client 
@@ -103,7 +98,6 @@ exit
 ###review keytab file are created
 ls -al /root/*.keytab
 
-
 ##copy keytabs to nfs host, something like... to copy to hdfs1.demo.local
 scp /root/*.keytab root@192.168.1.40:/root/
 yes
@@ -113,7 +107,6 @@ Password123!
 ###ssh to the hostname, review keytabs copied over 
 cd /root
 ls -al *.keytab  
-
 
 ###using ktutil, we read the nfs & host keytabs in to the /etc/krb5.keytab file for use
 
@@ -131,10 +124,8 @@ ktutil: rkt /etc/krb5.keytab
 ktutil: list
 exit
 
-
-
-######On Host centos7
-###secure mount to isilon centos7
+######On Host hdfs1
+###secure mount to isilon hdfs1
 
 systemctl enable nfs-secure
 systemctl start nfs-secure
@@ -151,7 +142,6 @@ mount –t nfs4 –o sec=krb5 nfs4.demo.local:/ifs/nfs4/krb /mnt/nfsv4krb
 ###review the mount options, sec=krb5
 mountstats
 ls -al /mnt/nfsv4krb
-
 
 ###view SPN used for mount, you'll see its the nfs SPN
 klist -e
