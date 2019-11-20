@@ -101,16 +101,17 @@ klist
 #######
 lab complete
 
-option1 - auto assign ID 
-option2 - use ID from AD
+option1 - auto assign ID from Hash
+option2 - use ID's from AD attributes
 
 
-extra bonus -- how does isilon see these AD based used users
+extra bonus -- how does isilon see these AD based used users!
 
+
+###validate AD setup
 isi auth ads view DEMO.LOCAL -v
 
 ###enable AD-rfc2307 attributes
-
 isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
 isi auth ads view DEMO.LOCAL -v
 
@@ -119,8 +120,6 @@ isi auth mapping token --zone=System --user=DEMO\\test1
 
 ###test option2 user - AD has attributes defined, linux uses AD ID's, what UID does Isilon assign and why?
 isi auth mapping token --zone=System --user=DEMO\\test2
-
-
 
 #######
 
