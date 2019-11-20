@@ -114,11 +114,14 @@ isi auth ads view DEMO.LOCAL -v
 isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
 isi auth ads view DEMO.LOCAL -v
 
-
+###test option1 user - no AD attributes defined, linux UID HASH based, what UID does Isilon assign and why?
 isi auth mapping token --zone=System --user=DEMO\\test1
 
-
+###test option2 user - AD has attributes defined, linux uses AD ID's, what UID does Isilon assign and why?
 isi auth mapping token --zone=System --user=DEMO\\test2
+
+
+
 #######
 
 
