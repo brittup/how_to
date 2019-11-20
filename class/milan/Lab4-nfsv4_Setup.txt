@@ -89,7 +89,7 @@ ls -al
 
 ###on host test nfsv4 onefs acl lookup support
 nfs4_getfacl 1.txt
-nfs4_setfacl .....
+nfs4_setfacl .....if you want to test setting them
 
 
 ###on isilon, add an acl via cli or use smb
@@ -116,7 +116,7 @@ ls -al  on isilon
 ls -le 	on isilon
 
 
-
+######################################################################################
 
 
 

@@ -1,89 +1,22 @@
 ###Setup and configure Kerberos nfsv4 to Isilon
 
-###setup a KDC for the KRB REALM
-###manual setup and configuration of kerberos on linux; SPN's & keytabs
-
-###complete the following
---> 1. see kdcSetup doc for KDC server build:  https://raw.githubusercontent.com/brittup/how_to/master/krb5/kdcSetup.txt
---> 2. see nfsv4_Setup doc for non-krb nfsv4:  https://raw.githubusercontent.com/brittup/how_to/master/nfs/nfsv4_Setup.txt
 
 
-###On Isilon
-###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
--nfs.demo.local ns record
--ssip.demo.local
--create delegation
--add all PTR
--test ssip & sc, forward and reverse DNS on smartconnect!!!  Reverse is REQUIRED, all IP's in pool need a PTR
-
-
-
-###Kerberize Isilon if not already complete
-
-isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldap-kdc.demo.local --admin-server=ldap-kdc.demo.local --default-domain=demo.local 
-isi auth krb5 realm list -v
-
-
-isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=demo.local
-isi auth krb5 domain create --realm=VLABKDC.LOCAL --domain=.demo.local
-isi auth krb5 domain list
-
-isi auth krb5 create --realm=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
-
-
-isi auth krb5 list
-
-
-###add to auth providers
-isi auth status
-isi zone zones modify System --add-auth-provider=lsa-krb5-provider:VLABKDC.LOCAL
-isi zone zones list -v
-
-
-###add SPN's
-isi auth krb5 spn list --provider-name=VLABKDC.LOCAL
-isi auth krb5 spn check --provider-name=VLABKDC.LOCAL
-
-isi auth krb5 spn fix --provider-name=VLABKDC.LOCAL --user=isilon/admin@VLABKDC.LOCAL
-
-
-isi auth krb5 spn list --provider-name=VLABKDC.LOCAL --verbose
-isi zone zones list -v
-
-
-
-###kdc admin principal & password
-isilon/admin@VLABKDC.LOCAL
-Password123!
-
-
-###validate and fix DNS
--fix reverse dns
-test with nslookup on name and IP for smartconnect zone name & reverse IP's  - - all forward and reverse must resolve
-
-
--fix spns if needed
-isilon/admin@VLABKDC.LOCAL
-Password123!
-
-
-
+###complete the following, should have been done in other labs
+Need to build a KDC
+https://github.com/brittup/how_to/blob/master/class/milan/Lab2a-kdcSetup.txt
+Kerberize Isilon
+https://github.com/brittup/how_to/blob/master/class/milan/Lab2b-isilonKRB_Setup.txt
+Get V4 working
+https://github.com/brittup/how_to/blob/master/class/milan/Lab4-nfsv4_Setup.txt
 
 
 #########################################
-###setup client for nfsv4 & kerberize
-
-yum install rpcbind nfs-utils nfs4-acl-tools -y
-
-###modify the Domain in the idmap.conf for nfsv4
-
-vi /etc/idmapd.conf
-[General]
-Domain = demo.local
 
 
 
-###Setup kerberos on client if not done
+
+###Setup kerberos on client if not done - on hdfs1
 
 yum -y install krb5-workstation krb5-libs openldap-clients
 
