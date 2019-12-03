@@ -5,6 +5,8 @@
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED
 
+###hit space, until end of eula, hit q and yes to accept eula
+
 ###1a.setup SmartConnect on Isilon
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
@@ -162,7 +164,7 @@ What happens to the DACL? Why?
 Add to DACL
 ls -le nfs.txt
 chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
-ls -le nfs.tx
+ls -le nfs.txt
 
 ###From NFS
 Review from NFS
