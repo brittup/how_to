@@ -28,7 +28,7 @@ nslookup 192.168.1.95 192.168.1.2
 OR (either way make sure you understand smartconnect)
  
 ###Run the following PowerShell command:
-Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "nfs4" -NameServer "ssip-isilon.demo.local" 
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "nfs4" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
 Add-DnsServerResourceRecordPtr -Name "90" -ZoneName "1.168.192.in-addr.arpa" -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName "nfs4.demo.local"
 Add-DnsServerResourceRecordPtr -Name "91" -ZoneName "1.168.192.in-addr.arpa" -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName "nfs4.demo.local"
 Add-DnsServerResourceRecordPtr -Name "92" -ZoneName "1.168.192.in-addr.arpa" -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName "nfs4.demo.local"
