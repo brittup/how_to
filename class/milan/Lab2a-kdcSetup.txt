@@ -66,15 +66,7 @@ vi /etc/krb5.conf
   demo.local = VLABKDC.LOCAL
 
   
-  
 ###setup services
-###centos6
-chkconfig iptables off
-chkconfig ip6tables off
-chkconfig krb5kdc  on
-chkconfig kadmin on
-chkconfig
-
 ###centos7
 systemctl disable firewalld
 systemctl stop firewalld
@@ -85,20 +77,11 @@ systemctl enable kadmin.service
 systemctl status kadmin.service
 
 
-
 ###create the KDC db for the REALM, this can take awhile
 
 kdb5_util create -s -r VLABKDC.LOCAL
 Password123!      < --- this is your master KDC DB password 
 
-
-###centos6
-service krb5kdc status
-service kadmin status
-service krb5kdc start
-service kadmin start
-service krb5kdc status
-service kadmin status
 
 ###centos7
 systemctl status firewalld
@@ -108,7 +91,6 @@ systemctl start krb5kdc.service
 systemctl start kadmin.service
 systemctl status krb5kdc.service
 systemctl status kadmin.service
-
 
 
 ################################################################
@@ -166,5 +148,45 @@ KDC build is complete
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####
+###centos6
+service krb5kdc status
+service kadmin status
+service krb5kdc start
+service kadmin start
+service krb5kdc status
+service kadmin status
 
 
