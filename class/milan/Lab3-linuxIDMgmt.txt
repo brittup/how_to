@@ -1,7 +1,7 @@
 ###Linux to AD
 
 ###Method - sssd via realmd  against the AD demo.local
-### on all hosts install the REALM 
+### on all hosts install the REALM librabries
 yum install -y realmd install krb5-workstation krb5-libs openldap-clients sssd samba-common-tools
 realm  discover -v demo.local
 
@@ -16,7 +16,7 @@ realm join demo.local
 realm list -v
 
 
-Password123!
+Password123!   < -- password for the AD join
 
 ###go validate computer object in AD for host, hdfs2 host now joined to AD
 
