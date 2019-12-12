@@ -3,15 +3,10 @@ mkdir -p /ifs/cdh6/hadoop/hadoop-root
 isi network pools create --id=groupnet0:subnet0:hadoop-cdh6-pool --ranges=10.246.156.34-10.246.156.34  --access-zone=zone-cdh6  --alloc-method=dynamic  --ifaces=1:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh6.foo.com    --description=hadoop_access_zone
 isi hdfs settings modify --zone=zone-cdh6 --root-directory=/ifs/cdh6/hadoop/hadoop-root
 touch /ifs/cdh6/hadoop/hadoop-root/THIS_IS_ISILON_zone1-hadoop.txt
-
-
 isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-cdh6
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-cdh6
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-cdh6
-isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-cdh6
-isi auth roles view hdfs_access --zone=zone-cdh6
-isi_for_array "isi auth mapping flush --all"
-isi_for_array "isi auth cache flush --all"
+
 
 
 isi zone zones list --verbose
@@ -23,16 +18,23 @@ ls -al /ifs/cdh6/hadoop/hadoop-root
 ls -al /ifs/cdh6/hadoop/hadoop-root/user
 
 
+
+###create users and directories
 https://github.com/Isilon/isilon_hadoop_tools
 
 yum install python36 python36-pip
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 pipx install isilon_hadoop_tools
-isilon_create_directories  --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh  192.168.1.33
-isilon_create_users --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.33                   
+isilon_create_directories  --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh  10.246.156.33
+isilon_create_users --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 10.246.156.33                   
 
 
 
+###complete RBAC now users are setup
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-cdh6
+isi auth roles view hdfs_access --zone=zone-cdh6
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
 
 
