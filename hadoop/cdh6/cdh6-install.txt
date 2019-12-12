@@ -5,6 +5,24 @@ isi hdfs settings modify --zone=zone-cdh6 --root-directory=/ifs/cdh6/hadoop/hado
 touch /ifs/cdh6/hadoop/hadoop-root/THIS_IS_ISILON_zone1-hadoop.txt
 
 
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-cdh6
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-cdh6
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-cdh6
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-cdh6
+isi auth roles view hdfs_access --zone=zone-cdh6
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-cdh6-pool
+isi hdfs settings view --zone=zone-cdh6
+ls -al /ifs/cdh6/hadoop/hadoop-root
+ls -al /ifs/cdh6/hadoop/hadoop-root/user
+
+
 https://github.com/Isilon/isilon_hadoop_tools
 
 yum install python36 python36-pip
@@ -18,10 +36,3 @@ isilon_create_users --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-passw
 
 
 
-isi zone zones list --verbose
-isi network subnets list --verbose
-isi network pools list --verbose
-isi network pools view --id=groupnet0:subnet0:hadoop-cdh6-pool
-isi hdfs settings view --zone=zone-cdh6
-ls -al /ifs/zone1/hadoop/hadoop-root
-ls -al /ifs/zone1/hadoop/hadoop-root/user
