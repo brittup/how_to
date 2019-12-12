@@ -1,0 +1,27 @@
+isi zone zones create --name=zone-cdh6 --path=/ifs/cdh6/hadoop --create-path
+mkdir -p /ifs/cdh6/hadoop/hadoop-root
+isi network pools create --id=groupnet0:subnet0:hadoop-cdh6-pool --ranges=192.168.1.34-192.168.1.34  --access-zone=zone-cdh6  --alloc-method=dynamic  --ifaces=1:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh6.foo.com    --description=hadoop_access_zone
+isi hdfs settings modify --zone=zone-cdh6 --root-directory=/ifs/cdh6/hadoop/hadoop-root
+touch /ifs/cdh6/hadoop/hadoop-root/THIS_IS_ISILON_zone1-hadoop.txt
+
+
+https://github.com/Isilon/isilon_hadoop_tools
+
+yum install python36 python36-pip
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+pipx install isilon_hadoop_tools
+isilon_create_directories  --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh  192.168.1.33
+isilon_create_users --zone=zone-cdh6 --no-verify --onefs-user=root --onefs-password=a --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.33                   
+
+
+
+
+
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-cdh6-pool
+isi hdfs settings view --zone=zone1-hadoop
+ls -al /ifs/zone1/hadoop/hadoop-root
+ls -al /ifs/zone1/hadoop/hadoop-root/user
