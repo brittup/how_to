@@ -22,6 +22,6 @@ isi zone zones list --verbose
 isi network subnets list --verbose
 isi network pools list --verbose
 isi network pools view --id=groupnet0:subnet0:hadoop-cdh6-pool
-isi hdfs settings view --zone=zone1-hadoop
+isi hdfs settings view --zone=zone-cdh6
 ls -al /ifs/zone1/hadoop/hadoop-root
 ls -al /ifs/zone1/hadoop/hadoop-root/user
