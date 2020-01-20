@@ -2,10 +2,17 @@
 
 ####Updated 01/2020
 
+Lab Overview:
 Add smartconnect advanced license
 Assign a SmartConnect Service IP to the subnet0
-Create an IP Pool and assign interfaces and smartconnect service name to the pool1
+Create an IP Pool, assign interfaces and smartconnect service name to the pool1
 Review the networking 
+Create the required DNS records for SmartConnect
+Test SmartConnect
+Join the Cluster to Active Directory
+Assign the Active Directory Provider to the System Access Zone
+Review the Access Zone
+
 
 
 
@@ -13,7 +20,8 @@ isi license add --evaluation=SMARTCONNECT_ADVANCED
 
 ###hit space, until end of eula, hit q and yes to accept eula
 
-###1a.setup SmartConnect on Isilon
+
+###setup SmartConnect on Isilon
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
@@ -22,27 +30,44 @@ isi network subnets view groupnet0.subnet0
 isi network pools list
 isi network pools view groupnet0:subnet0:pool1
 
-###join Active Directory
-isi auth ads create demo.local administrator --password=Password123!
-isi auth ads list
-isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
-isi zone zones list -v
+Review these settings from the webUI
+username: root
+password: Password123!
 
 
-###GO to windows DNS
+###Create the DNS records for SmartConnect
+###Go to windows DNS admin console, found in the toolbar on the democenter host
 -go to the demo.local zone
 -Add A record ssip-isilon  192.168.1.100
 -Add NS record mp    --> ssip-isilon.demo.local
 -Test SCzone:
 nslookup mp.demo.local 192.168.1.2
 
+
 OR (either way make sure you understand smartconnect)
+ 
  
 ###Run the following PowerShell command:
 Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
 
 -Test SCzone:
 nslookup mp.demo.local 192.168.1.2
+
+
+
+###join the Isilon Cluster to Active Directory, this lab has a preconfigured Active Domain - DEMO.LOCAL, the admins tools are on the toolbar on the democenter host 
+isi auth ads create demo.local administrator --password=Password123!
+isi auth ads list
+isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
+isi zone zones list -v
+
+Review these settings from the webUI
+
+
+
+
+###Review the Isilon Computer Object in Add
+From the Domain Controller, select Users and Computers and find the Isilon cluster in Computers
 
 
 ###on isilon make our base mp directory
