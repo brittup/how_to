@@ -20,6 +20,7 @@ isi license add --evaluation=SMARTCONNECT_ADVANCED
 
 ###hit space, until end of eula, hit q and yes to accept eula
 
+isi license list
 
 ###setup SmartConnect on Isilon
 
@@ -82,11 +83,9 @@ ls -le this_is_isilon.txt
 ls -len this_is_isilon.txt
 
 
-###basic Isilon administration
 
 
-###review the status of a cluster
-isi status
+
 
 
 
