@@ -4,9 +4,11 @@ mkdir /git
 cd /git 
 
 
-git clone https://github.com/acd13/kubernetes 
+git clone https://github.com/acd13/kubernetes_install_linux7.7
 cd  kubernetes_install_linux7.7
 ls -al
 chmod +x *.sh
-. /docker_install. sh
+ls -al
+. /docker_install.sh
+
 . /install_k8s_1.14.sh
