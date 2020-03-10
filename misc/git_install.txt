@@ -9,6 +9,8 @@ cd  kubernetes_install_linux7.7
 ls -al
 chmod +x *.sh
 ls -al
-. /docker_install.sh
+./docker_install.sh
+docker run -it ubuntu bash
 
-. /install_k8s_1.14.sh
+./install_k8s_1.14.sh
+kubectl get pods -A
