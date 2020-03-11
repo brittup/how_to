@@ -14,3 +14,10 @@ docker run -it ubuntu bash
 
 ./install_k8s_1.14.sh
 kubectl get pods -A
+
+
+
+
+################################
+What is it doing
+more install_k8s_1.14.sh | egrep -v "if|then|else|fi|echo|printf|sleep|read"
