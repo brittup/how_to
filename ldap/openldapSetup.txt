@@ -22,7 +22,7 @@ systemctl status slapd.service
 
 ###
 slappasswd    
-New password : password
+New password : password                  < -- use 'password' as password here
 Re-enter new password : password
 {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS   < -- copy value outputed, include the {SSHA}
 
@@ -174,14 +174,52 @@ https://www.ldapadministrator.com/download.htm
 ###browser setup
     
 Add New ldap server to browser
+-Local Server
+-New Profile
+
 Name: ldap1
 Host: ldap-kdc.demo.local  < ---- or whatever host you install LDAP on
-Base DN: cn=ldapadm,dc=demo,dc=local
+Base DN: dc=demo,dc=local
+
+use anonymous user if needed
 
 
 ###
 Add ldap to isilon
 <see https://github.com/brittup/how_to/blob/master/ldap/joinLDAP.txt  >
+
+
+#### configure ldap to use SSL  LDAPS
+
+vi /etc/sysconfig/slapd
+SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"
+
+netstat -antup | grep -i 636
+systemctl restart slapd
+netstat -antup | grep -i 636
+
+This configuration will also support startTLS from a client or isilon
+
+
+####ldaps test with browser
+
+change to use ldaps, right click the profile and select 'Use secure connection SSL
+ignore any SSL certificate error
+use anonymous
+
+
+#### ldap vs ldaps can be validated with tcpdump
+tcpdump -i ens192 port 389
+tcpdump -i ens192 port 686
+
+
+
+
+
+
+
+
+
 
 
 
