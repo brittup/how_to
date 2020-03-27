@@ -42,13 +42,21 @@ olcRootDN: cn=ldapadm,dc=demo,dc=local
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 replace: olcRootPW
-olcRootPW: <<<hashed_output_from_the_slappasswd_command>>   < -- what you copied earlier
+olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS                <<<hashed_output_from_the_slappasswd_command>>   < -- what you copied earlier, include {SSHA}
 
 
 #####
 ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
 
 
+##### create a certificate to allow secure connections
+
+openssl req -new -x509 -nodes -out \
+/etc/openldap/certs/myldap.field.dreamvps.com.cert \
+-keyout /etc/openldap/certs/demo.local.key \
+-days 365
+
+chown -R ldap:ldap /etc/openldap/certs
 
 ###
 vi monitor.ldif
