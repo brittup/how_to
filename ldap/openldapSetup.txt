@@ -52,7 +52,7 @@ ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
 ##### create a certificate to allow secure connections
 
 openssl req -new -x509 -nodes -out \
-/etc/openldap/certs/myldap.field.dreamvps.com.cert \
+/etc/openldap/certs/demo.local.cert \
 -keyout /etc/openldap/certs/demo.local.key \
 -days 365
 
