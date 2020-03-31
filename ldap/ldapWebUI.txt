@@ -1,0 +1,76 @@
+
+
+yum -y install httpd
+rm -f /etc/httpd/conf.d/welcome.conf
+vi /etc/httpd/conf/httpd.conf
+
+
+vi /etc/httpd/conf/httpd.conf
+
+# line 95: change to your server's name
+ServerName www.srv.world:80
+# line 151: change
+AllowOverride All
+# line 164: add file name that it can access only with directory's name
+DirectoryIndex index.html index.cgi index.php
+# add follows to the end
+# server's response header
+ServerTokens Prod
+# keepalive is ON
+KeepAlive On
+
+firewall-cmd --add-service=http --permanent
+firewall-cmd --reload
+
+vi /var/www/html/index.html
+
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+Test Page
+</div>
+</body>
+</html>
+
+
+
+yum -y install php php-mbstring php-pear
+vi /etc/php.ini
+
+# line 878: uncomment and add your timezone
+date.timezone = "Asia/Tokyo"
+
+systemctl restart httpd
+
+ vi /var/www/html/index.php
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+<?php
+   print Date("Y/m/d");
+?>
+</div>
+</body>
+</html>
+
+
+
+yum --enablerepo=epel -y install phpldapadmin
+
+
+vi /etc/phpldapadmin/config.php
+# line 397: uncomment, line 398: comment out
+$servers->setValue('login','attr','dn');
+// $servers->setValue('login','attr','uid');
+[root@dlp ~]# vi /etc/httpd/conf.d/phpldapadmin.conf
+Alias /phpldapadmin /usr/share/phpldapadmin/htdocs
+Alias /ldapadmin /usr/share/phpldapadmin/htdocs
+<Directory /usr/share/phpldapadmin/htdocs>
+  <IfModule mod_authz_core.c>
+    # Apache 2.4
+    # line 12: add access permission
+    Require local
+    Require ip 10.0.0.0/24
+[root@dlp ~]# systemctl restart httpd
+
+http://(server's hostname or IP address)/ldapadmin/" from a client which is in the network allowed by http server and then Click "login".
