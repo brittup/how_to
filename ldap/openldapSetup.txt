@@ -161,29 +161,27 @@ openssl x509 -req -in myldap.demo.local.csr  -CA demolocalrootCA.pem -CAkey demo
 
 
 ####Set the owner and group permissions.
-chown -R ldap:ldap /etc/openldap/certs/*
-
 ##Verify the created LDAP certificate under /etc/openldap/certs/ directory.
+ls -al /etc/openldap/certs/
+chown -R ldap:ldap /etc/openldap/certs/demo*
+chown -R ldap:ldap /etc/openldap/certs/myldap*
 ls -al /etc/openldap/certs/
 
 
-Output:
-
 
 ###Create certs.ldif file to configure LDAP to use secure communication using a self-signed certificate.
-
-
 vi certs.ldif
-
 
 dn: cn=config
 changetype: modify
 replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/openldap/certs/demolocalrootCA.pem
+
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateFile
 olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
+
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateKeyFile
@@ -195,11 +193,20 @@ Import the configurations to LDAP server.
 ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif
 
 
-
 Verify the configuration
 slaptest -u
 
 
+#### configure ldap to use SSL  LDAPS
+
+vi /etc/sysconfig/slapd
+SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"
+
+netstat -antup | grep -i 636
+systemctl restart slapd
+netstat -antup | grep -i 636
+
+This configuration will also support startTLS from a client or isilon
 
 
 
@@ -304,16 +311,7 @@ Add ldap to isilon
 <see https://github.com/brittup/how_to/blob/master/ldap/joinLDAP.txt  >
 
 
-#### configure ldap to use SSL  LDAPS
 
-vi /etc/sysconfig/slapd
-SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"
-
-netstat -antup | grep -i 636
-systemctl restart slapd
-netstat -antup | grep -i 636
-
-This configuration will also support startTLS from a client or isilon
 
 
 ####ldaps test with browser
