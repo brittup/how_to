@@ -60,6 +60,11 @@ olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, 
 ###
 ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
 
+
+
+
+
+1.use a Self Signed Ceriticate 
 ####
 openssl req -new -x509 -nodes -out /etc/openldap/certs/myldap.demo.local.cert -keyout /etc/openldap/certs/myldap.demo.local.key -days 365
 #Fill in the blanks with data
@@ -83,9 +88,119 @@ olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
 ###
 ldapmodify -Y EXTERNAL -H ldapi:/// -f certs.ldif
 
-
-###test the configuration using the following command:
+###Verify the configuration
 slaptest -u
+
+
+or
+
+
+
+2.Use a Custom Root CA
+###Create the root key using the following command.
+cd  /etc/openldap/certs/
+openssl genrsa -out demolocalrootCA.key 2048
+
+###create the self-signed root certificate.
+openssl req -x509 -new -nodes -key demolocalrootCA.key -sha256 -days 1024 -out demolocalrootCA.pem
+
+Output:
+You are about to be asked to enter information that will be incorporated into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:XX
+State or Province Name (full name) []:XXX
+Locality Name (eg, city) [Default City]:XXX
+Organization Name (eg, company) [Default Company Ltd]:Demo.Local
+Organizational Unit Name (eg, section) []:XXX
+Common Name (eg, your name or your server's hostname) []:Demo.Local Root CA
+Email Address []:admin@demo.local
+
+
+###Create a private key for LDAP server.
+openssl genrsa -out myldap.demo.local.key 2048
+
+
+####One you have the private key, create a certificate signing request.
+openssl req -new -key myldap.demo.local.key -out myldap.demo.local.csr
+
+
+#####
+Output:
+Make sure the common name matches your LDAP server hostname or IP Address.
+Generating RSA private key, 2048 bit long modulus
+.........+++
+.............................................................+++
+e is 65537 (0x10001)
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:XX
+State or Province Name (full name) []:XX
+Locality Name (eg, city) [Default City]:XXX
+Organization Name (eg, company) [Default Company Ltd]:Demo.Local
+Organizational Unit Name (eg, section) []:IT
+Common Name (eg, your name or your server's hostname) []:server.demo.local    < --- use the ldap server hostname here
+Email Address []:admin@itzgeek.com
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+#####
+
+
+###sign a certificate signing request using the custom root CA.
+openssl x509 -req -in myldap.demo.local.csr  -CA demolocalrootCA.pem -CAkey demolocalrootCA.key -CAcreateserial -out myldap.demo.local.crt -days 1460 -sha256
+
+
+####Set the owner and group permissions.
+chown -R ldap:ldap /etc/openldap/certs/*
+
+##Verify the created LDAP certificate under /etc/openldap/certs/ directory.
+ls -al /etc/openldap/certs/
+
+
+Output:
+
+
+###Create certs.ldif file to configure LDAP to use secure communication using a self-signed certificate.
+
+
+vi certs.ldif
+
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/openldap/certs/demolocalrootCA.pem
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
+
+
+
+Import the configurations to LDAP server.
+ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif
+
+
+
+Verify the configuration
+slaptest -u
+
+
+
 
 
 ###
