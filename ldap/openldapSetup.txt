@@ -95,6 +95,7 @@ slaptest -u
 or
 
 
+
 2.Use a Custom Root CA
 ###Create the root key using the following command.
 cd  /etc/openldap/certs/
