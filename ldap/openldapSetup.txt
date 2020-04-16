@@ -101,9 +101,13 @@ or
 cd  /etc/openldap/certs/
 openssl genrsa -aes256 -out demolocalrootCA.key 4096
 
+enter a password
+
 
 ###create the self-signed root certificate.
 openssl req -x509 -new -nodes -key demolocalrootCA.key -sha256 -days 1024 -out demolocalrootCA.pem
+enter a password
+
 
 Output:
 You are about to be asked to enter information that will be incorporated into your certificate request.
@@ -126,12 +130,12 @@ openssl x509 -noout -text -in demolocalrootCA.pem
 
 
 ###Create a private key for LDAP server.
-openssl genrsa aes256 -out myldap.demo.local.key 4096
-
+openssl genrsa -aes256 -out myldap.demo.local.key 4096
+enter a password
 
 ####One you have the private key, create a certificate signing request.
 openssl req -new -key myldap.demo.local.key -out myldap.demo.local.csr
-
+enter password <from above>
 
 #####
 Output:
@@ -165,8 +169,10 @@ An optional company name []:
 openssl req -in myldap.demo.local.csr -noout -text
 
 
-###sign a certificate signing request using the custom root CA.
+###sign a certificate request using the root CA.
 openssl x509 -req -in myldap.demo.local.csr  -CA demolocalrootCA.pem -CAkey demolocalrootCA.key -CAcreateserial -out myldap.demo.local.crt -days 1460 -sha256
+enter password
+
 
 ###Verify certificate contents:
 openssl x509 -in myldap.demo.local.crt -text -noout
@@ -175,13 +181,15 @@ openssl x509 -in myldap.demo.local.crt -text -noout
 
 ####Set the owner and group permissions.
 ##Verify the created LDAP certificate under /etc/openldap/certs/ directory.
+chown ldap:ldap /etc/openldap/certs/
 ls -al /etc/openldap/certs/
 chown -R ldap:ldap /etc/openldap/certs/demo*
 chown -R ldap:ldap /etc/openldap/certs/myldap*
 ls -al /etc/openldap/certs/
 
 
-
+###view the default values for the TLS related attributes
+slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile"
 
 
 
@@ -301,14 +309,13 @@ cat groups_add.ldif
 ldapadd -f users_add.ldif -D cn=ldapadm,dc=demo,dc=local -w password
 ldapadd -f groups_add.ldif -D cn=ldapadm,dc=demo,dc=local -w password
 
-ldapsearch -x -LLL -b dc=demo,dc=local
 
 ###validate the ldap users and groups with ldapbrowser or ldapsearch
 
 ldapsearch -x -LLL -b dc=demo,dc=local
 
 
-###get LDAP browser to jump host
+###get windows LDAP browser to jump host
 https://www.ldapadministrator.com/download.htm
 
 ###browser setup
@@ -324,15 +331,21 @@ Base DN: dc=demo,dc=local
 use anonymous user if needed
 
 
+and browse the ldap server.
+
+
+
+
+
 ###
-Add ldap to isilon
+Add ldap provider to isilon
 <see https://github.com/brittup/how_to/blob/master/ldap/joinLDAP.txt  >
 
 
 
 
 
-####ldaps test with browser
+####ldaps test with windows browser
 
 change to use ldaps, right click the profile and select 'Use secure connection SSL
 ignore any SSL certificate error
@@ -341,7 +354,7 @@ use anonymous
 
 #### ldap vs ldaps can be validated with tcpdump
 tcpdump -i ens192 port 389
-tcpdump -i ens192 port 686
+tcpdump -i ens192 port 636
 
 
 
