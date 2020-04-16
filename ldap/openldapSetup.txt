@@ -218,6 +218,10 @@ Import the configurations to LDAP server.
 ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif
 
 
+slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile"
+
+
+
 Verify the configuration
 slaptest -u
 
