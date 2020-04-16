@@ -95,11 +95,11 @@ slaptest -u
 or
 
 
-
 2.Use a Custom Root CA
 ###Create the root key using the following command.
 cd  /etc/openldap/certs/
-openssl genrsa -out demolocalrootCA.key 2048
+openssl genrsa -aes256 -out demolocalrootCA.key 4096
+
 
 ###create the self-signed root certificate.
 openssl req -x509 -new -nodes -key demolocalrootCA.key -sha256 -days 1024 -out demolocalrootCA.pem
@@ -120,8 +120,12 @@ Common Name (eg, your name or your server's hostname) []:Demo.Local Root CA
 Email Address []:admin@demo.local
 
 
+###Verify the root CA has "X509v3 Basic Constraints: CA:TRUE":
+openssl x509 -noout -text -in demolocalrootCA.pem
+
+
 ###Create a private key for LDAP server.
-openssl genrsa -out myldap.demo.local.key 2048
+openssl genrsa aes256 -out myldap.demo.local.key 4096
 
 
 ####One you have the private key, create a certificate signing request.
@@ -156,8 +160,16 @@ An optional company name []:
 #####
 
 
+###Verify the csr contents:
+openssl req -in myldap.demo.local.csr -noout -text
+
+
 ###sign a certificate signing request using the custom root CA.
 openssl x509 -req -in myldap.demo.local.csr  -CA demolocalrootCA.pem -CAkey demolocalrootCA.key -CAcreateserial -out myldap.demo.local.crt -days 1460 -sha256
+
+###Verify certificate contents:
+openssl x509 -in myldap.demo.local.crt -text -noout
+
 
 
 ####Set the owner and group permissions.
@@ -166,6 +178,10 @@ ls -al /etc/openldap/certs/
 chown -R ldap:ldap /etc/openldap/certs/demo*
 chown -R ldap:ldap /etc/openldap/certs/myldap*
 ls -al /etc/openldap/certs/
+
+
+
+
 
 
 
@@ -207,6 +223,7 @@ systemctl restart slapd
 netstat -antup | grep -i 636
 
 This configuration will also support startTLS from a client or isilon
+
 
 
 
