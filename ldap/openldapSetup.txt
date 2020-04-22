@@ -45,6 +45,7 @@ replace: olcRootPW
 olcRootPW: {SSHA}wuaeGiXKrzOUfLYqPzfkQevhbOTwUKYS                <<<hashed_output_from_the_slappasswd_command>>   < -- what you copied earlier, include {SSHA}
 
 
+
 #####
 ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
 
@@ -322,6 +323,11 @@ ldapadd -f groups_add.ldif -D cn=ldapadm,dc=demo,dc=local -w password
 ###validate the ldap users and groups with ldapbrowser or ldapsearch
 
 ldapsearch -x -LLL -b dc=demo,dc=local
+
+
+
+###install phpldapadmin
+https://github.com/brittup/how_to/blob/master/ldap/phpldapadmin.txt
 
 
 ###get windows LDAP browser to jump host
