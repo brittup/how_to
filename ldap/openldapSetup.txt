@@ -106,6 +106,7 @@ enter a password
 
 ###create the self-signed root certificate.
 openssl req -x509 -new -nodes -key demolocalrootCA.key -sha256 -days 1024 -out demolocalrootCA.pem
+
 enter a password
 
 
@@ -121,7 +122,7 @@ State or Province Name (full name) []:XXX
 Locality Name (eg, city) [Default City]:XXX
 Organization Name (eg, company) [Default Company Ltd]:Demo.Local
 Organizational Unit Name (eg, section) []:XXX
-Common Name (eg, your name or your server's hostname) []:Demo.Local Root CA
+Common Name (eg, your name or your server's hostname) []:demo.local
 Email Address []:admin@demo.local
 
 
@@ -131,10 +132,12 @@ openssl x509 -noout -text -in demolocalrootCA.pem
 
 ###Create a private key for LDAP server.
 openssl genrsa -aes256 -out myldap.demo.local.key 4096
+
 enter a password
 
 ####One you have the private key, create a certificate signing request.
 openssl req -new -key myldap.demo.local.key -out myldap.demo.local.csr
+
 enter password <from above>
 
 #####
@@ -171,6 +174,7 @@ openssl req -in myldap.demo.local.csr -noout -text
 
 ###sign a certificate request using the root CA.
 openssl x509 -req -in myldap.demo.local.csr  -CA demolocalrootCA.pem -CAkey demolocalrootCA.key -CAcreateserial -out myldap.demo.local.crt -days 1460 -sha256
+
 enter password
 
 
@@ -181,6 +185,7 @@ openssl x509 -in myldap.demo.local.crt -text -noout
 
 ####Set the owner and group permissions.
 ##Verify the created LDAP certificate under /etc/openldap/certs/ directory.
+ls -al /etc/openldap/certs/
 chown ldap:ldap /etc/openldap/certs/
 ls -al /etc/openldap/certs/
 chown -R ldap:ldap /etc/openldap/certs/demo*
@@ -189,7 +194,7 @@ ls -al /etc/openldap/certs/
 
 
 ###view the default values for the TLS related attributes
-slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile"
+slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile"
 
 
 

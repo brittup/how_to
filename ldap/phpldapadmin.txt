@@ -1,0 +1,94 @@
+[1]	Install httpd.
+yum -y install httpd
+
+# remove welcome page
+rm -f /etc/httpd/conf.d/welcome.conf
+
+[2]	Configure httpd. Replace server name to your own environment.
+vi /etc/httpd/conf/httpd.conf
+# line 95: change to your server's name
+ServerName hostname:80
+# line 151: change
+AllowOverride All
+
+# line 164: add file name that it can access only with directory's name
+DirectoryIndex index.html index.cgi index.php
+
+
+# add follows to the end
+# server's response header
+ServerTokens Prod
+# keepalive is ON
+KeepAlive On
+
+
+systemctl start httpd
+systemctl enable httpd
+
+
+[3]	If Firewalld is running, allow HTTP service. HTTP uses 80/TCP.
+
+[4]	Create a HTML test page and access to it from client PC with web browser. It's OK if following page is shown.
+
+vi /var/www/html/index.html
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+Test Page
+</div>
+</body>
+</html>
+
+test http://hostname/index.php
+
+
+
+[1]	Install PHP.
+yum -y install php php-mbstring php-pear
+
+
+[root@www ~]# systemctl restart httpd
+
+
+[2]	Create a PHP test page and access to it from client PC with web browser. It's OK if following page is shown.
+vi /var/www/html/index.php
+
+
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+<?php
+   print Date("Y/m/d");
+?>
+</div>
+</body>
+</html>
+
+test http://hostname/index.php
+
+
+# install from EPEL
+yum -y install epel-release
+yum -y install phpldapadmin
+
+
+vi /etc/phpldapadmin/config.php
+# line 397: uncomment, line 398: comment out
+$servers->setValue('login','attr','dn');
+// $servers->setValue('login','attr','uid');
+
+
+
+vi /etc/httpd/conf.d/phpldapadmin.conf
+Alias /phpldapadmin /usr/share/phpldapadmin/htdocs
+Alias /ldapadmin /usr/share/phpldapadmin/htdocs
+<Directory /usr/share/phpldapadmin/htdocs>
+  <IfModule mod_authz_core.c>
+    # Apache 2.4
+    # line 12: add access permission
+    Require local
+    Require ip 192.168.1.0/24
+	
+systemctl restart httpd
+
+test http://hostname/ldapadmin/

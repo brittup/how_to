@@ -1,9 +1,0 @@
-dn: cn=config
-changetype: modify
-replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
-
-dn: cn=config
-changetype: modify
-replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
