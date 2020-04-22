@@ -11,6 +11,9 @@ systemctl enable ntpd
 systemctl start ntpd
 systemctl status ntpd
 
+vi /etc/selinux/config
+set to disabled 
+reboot
 
 
 ###centos7 install
