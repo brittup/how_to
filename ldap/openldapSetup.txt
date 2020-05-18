@@ -201,41 +201,28 @@ slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile|o
 
 
 
-
 ###Create certs.ldif file to configure LDAP to use secure communication using a certificate.
 vi certs.ldif
 
 dn: cn=config
 changetype: modify
-replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
 
-dn: cn=config
-changetype: modify
 replace: olcTLSCertificateKeyFile
 olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
-
-
-
-dn: cn=config
-changetype: modify
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
+-
 replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/openldap/certs/demolocalrootCA.pem
-
-
-
-
-
-
 
 
 Import the configurations to LDAP server.
 ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif
 
 
+
 slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile"
-
-
 
 Verify the configuration
 slaptest -u
@@ -364,8 +351,6 @@ and browse the ldap server.
 ###
 Add ldap provider to isilon
 <see https://github.com/brittup/how_to/blob/master/ldap/joinLDAP.txt  >
-
-
 
 
 
