@@ -163,9 +163,9 @@ Locality Name (eg, city) [Default City]:XXX
 Organization Name (eg, company) [Default Company Ltd]:Demo.Local
 Organizational Unit Name (eg, section) []:IT
 Common Name (eg, your name or your server's hostname) []:server.demo.local    < --- use the ldap server hostname here
-Email Address []:admin@itzgeek.com
+Email Address []:admin@demo.local
 Please enter the following 'extra' attributes
-to be sent with your certificate request
+to be sent with your certificate request   (do not set a password)
 A challenge password []:
 An optional company name []:
 #####
@@ -202,23 +202,29 @@ slapcat -b "cn=config" | egrep "olcTLSCertificateFile|olcTLSCertificateKeyFile|o
 
 
 
-###Create certs.ldif file to configure LDAP to use secure communication using a self-signed certificate.
+###Create certs.ldif file to configure LDAP to use secure communication using a certificate.
 vi certs.ldif
 
 dn: cn=config
 changetype: modify
-replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: /etc/openldap/certs/demolocalrootCA.pem
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
 
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateFile
 olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
 
+
 dn: cn=config
 changetype: modify
-replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/openldap/certs/demolocalrootCA.pem
+
+
+
+
+
 
 
 
