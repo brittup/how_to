@@ -207,13 +207,14 @@ vi certs.ldif
 
 dn: cn=config
 changetype: modify
-replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
 
 dn: cn=config
 changetype: modify
-replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/openldap/certs/myldap.demo.local.crt
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/openldap/certs/myldap.demo.local.key
+
 
 
 dn: cn=config
