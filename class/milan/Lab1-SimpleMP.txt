@@ -5,7 +5,7 @@
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED
 
-###hit space, until end of eula, hit q and yes to accept eula
+###hit q and yes to accept eula
 
 ###1a.setup SmartConnect on Isilon
 
@@ -54,6 +54,7 @@ ls -len this_is_isilon.txt
 isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share
 isi smb share view mp
 isi smb shares permission modify mp --permission-type=allow --permission=full --wellknown=Everyone
+isi smb shares permission modify az1 --zone=az1  --wellknown=Everyone --run-as-root
 isi smb shares permission list mp
 
 

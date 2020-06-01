@@ -5,6 +5,8 @@
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED
 
+###hit q and yes to accept eula
+
 ###1a.setup SmartConnect on Isilon
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
@@ -52,6 +54,7 @@ ls -len this_is_isilon.txt
 isi smb shares create --zone=System --path=/ifs/mp --name=mp --description=mp_test_share
 isi smb share view mp
 isi smb shares permission modify mp --permission-type=allow --permission=full --wellknown=Everyone
+isi smb shares permission modify az1 --zone=az1  --wellknown=Everyone --run-as-root
 isi smb shares permission list mp
 
 
@@ -162,7 +165,7 @@ What happens to the DACL? Why?
 Add to DACL
 ls -le nfs.txt
 chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
-ls -le nfs.tx
+ls -le nfs.txt
 
 ###From NFS
 Review from NFS
