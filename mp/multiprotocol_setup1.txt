@@ -1,6 +1,7 @@
 ###A simple multiprotocol setup to validate Isilon behavior
 
-####Updated 06/2019
+####Updated 06/2020
+-This is very simple demo of multiprotocol behavior with OneFS with SMB & NFS.
 
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED
@@ -61,7 +62,7 @@ isi smb shares permission list mp
 
 
 ###Connect to SMB share
-connect to smb share via explorer: \\mp.demo.local  --- > mp
+connect to smb share via explorer: \\mp.demo.local\mp  --- > mp
 
 At this time just use: localhost\root  Password123!  
 
@@ -87,19 +88,46 @@ ls -al
 
 
 
+###4.review mp file access to files created and edited via different protocols
+from Win Explorer:
+-open smb.txt  add some text similar to smb-edit, save and exit
+-open nfs.txt  add some text similar to smb-edit, save and exit
 
-###4.review mp file permissions 
+from nfs host:
+-vi nfs.txt  add some text similar to nfs-edit, save and exit
+-vi smb.txt  add some text similar to nfs-edit, save and exit
+
+then review all your updates from Win Explorer & nfs and Isilon CLI
 
 
-###Review from Isilon
+##this is a simple test to ilustrate multiprotocol access and not demonstrate the OneFS File Permission model
+
+
+
+
+
+###5.review mp file permissions and the behavior of the oneFS permission model, no interptetation of the behavior is presented here
+###It can be used as a demo of the permission model:
+-posix files
+-acl'd files
+and how permission chnages are executed
+
+ 
+
+From NFS host add new file posix.txt
+From SMB host add new file acls.txt
+
+
+
+###Review from file permissions from Isilon
 cd /ifs/mp
 
 ls -al
-ls -le nfs.tx
-ls -le smb.txt
+ls -le posix.txt
+ls -le acls.txt
 
-ls -len nfs.tx
-ls -len smb.txt
+ls -len posix.txt
+ls -len acls.txt
 
 
 ###Review from NFS 
@@ -114,10 +142,10 @@ Windows Explorer
 ####How do mp file permission changes look
 
 
-###5.chmod posix file 
+###6.chmod posix file 
 ###on NFS host
-chmod 775 nfs.txt
-ls -al nfs.txt
+chmod 775 posix.txt
+ls -al posix.txt
 
 ###From Isilon
 ls -le nfs.tx
@@ -128,18 +156,18 @@ What happens to the Synthetic DACL? Why?
 
 
 
-###6.modify the acl on an acl'd file
+###7.modify the acl on an acl'd file
 ###From Isilon add an ACE - Add to DACL
-ls -le smb.txt
-chmod +a  group Administrators  allow file_gen_all,inherited_ace smb.txt
-ls -le smb.tx
+ls -le acls.txt
+chmod +a  group Administrators  allow file_gen_all,inherited_ace acls.txt
+ls -le acls.txt
 
 ###From Windows
 Review from SMB Windows Explorer
 
 ###From NFS
 Review from NFS
-ls -al smb.txt
+ls -al acls.txt
 
 
 What happens to the posix bits and the DACL?
@@ -148,29 +176,29 @@ What happens to the posix bits and the DACL?
 
 
 
-###7.chmod an existing ACL file from NFS
+###8.chmod an existing ACL file from NFS
 ###on NFS host
-chmod 775 smb.txt
-ls -al smb.txt
+chmod 775 acls.txt
+ls -al acls.txt
 
 ###View from isilon
-ls -len smb.txt
+ls -len acls.txt
 
 What happens to the DACL? Why?
 
 
 
 
-###8.ACL a posix file
+###9.ACL a posix file
 ###From Isilon add an ACE
 Add to DACL
-ls -le nfs.txt
-chmod +a  group Administrators  allow file_gen_all,inherited_ace nfs.txt
-ls -le nfs.txt
+ls -le posix.txt
+chmod +a  group Administrators  allow file_gen_all,inherited_ace posix.txt
+ls -le posix.txt
 
 ###From NFS
 Review from NFS
-ls -al nfs.txt
+ls -al posix.txt
 
 
 
@@ -179,14 +207,14 @@ Can the ACL be seen from NFS?
 
 
 
-###9.Remove ACL's reset to posix
-ls -le nfs.txt   (it has an ACL from step8)
-chmod -b 775 nfs.txt
-ls -le nfs.txt 
+###10.Remove ACL's reset to posix
+ls -le posix.txt   (it has an ACL from step8)
+chmod -b 775 posix.txt
+ls -le posix.txt 
 
 ###From NFS
 Review from NFS
-ls -al nfs.txt
+ls -al posix.txt
 
 
 
