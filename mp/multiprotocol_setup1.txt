@@ -69,6 +69,8 @@ At this time just use: localhost\root  Password123!
 create a file smb.txt with windows explorer
 look at the permissions
 
+
+
 ###3.create nfs export on Isilon for mp
 
 isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
@@ -85,6 +87,7 @@ cd /mnt/isilon-mp
 ls -al
 touch nfs.txt
 ls -al 
+
 
 
 
@@ -106,6 +109,7 @@ then review all your updates from Win Explorer & nfs and Isilon CLI
 
 
 
+
 ###5.review mp file permissions and the behavior of the oneFS permission model, no interptetation of the behavior is presented here
 ###It can be used as a demo of the permission model:
 -posix files
@@ -113,7 +117,7 @@ then review all your updates from Win Explorer & nfs and Isilon CLI
 and how permission chnages are executed
 
  
-
+###Add new test files
 From NFS host add new file posix.txt
 From SMB host add new file acls.txt
 
