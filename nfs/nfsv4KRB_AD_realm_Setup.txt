@@ -1,4 +1,4 @@
-###Setup and configure AD based KRB nfsv4 to Isilon
+﻿###Setup and configure AD based KRB nfsv4 to Isilon
 ###Automated Kerberos setup and management using realmd - manages SPN's keytab
 
 1. Setup 1 no ID mapping - This setup will illustrate an ID mapping mismatch between AD user & linux user and how ID mismatch can occur.
@@ -59,6 +59,9 @@ isi nfs exports modify --security-flavors=krb5 2
 
 
 
+
+
+
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
@@ -69,7 +72,7 @@ isi nfs exports modify --security-flavors=krb5 2
 On linux host1 only
 #### setup linux for nfsv4 and AD KRB integration
 
-yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation
+yum install -y sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation krb5-libs openldap-clients 
 
 ###join demo.local AD with realm
 realm join demo.local
@@ -127,7 +130,9 @@ systemctl status nfs-server
 systemctl status nfs-lock
 systemctl status nfs-idmap
 
-
+systemctl enable nfs-secure
+systemctl start nfs-secure
+systemctl status nfs-secure
 
 ###get mount info from Isilon
 showmount -e <smartconnectname>
@@ -179,6 +184,8 @@ ultimately we need linux and isilon to be using a common unified ID to present c
 
 
 
+
+
 setup 2, will illustrate the preferred approach with AD managed uid/gid via rfc2307 in AD
 
 
@@ -190,7 +197,7 @@ setup 2, will illustrate the preferred approach with AD managed uid/gid via rfc2
 2. Setup 2 --- use AD ID mapping & ADrfc2307 on isilon, realm will pull AD UID's
 
 
-###Modify Isilon AD provider to support AD+rfc2307  for unix attributes
+###Modify Isilon AD provider to support AD+rfc2307 for unix attributes
 
 isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
 isi auth ads view DEMO.LOCAL -v
@@ -199,7 +206,7 @@ isi auth ads view DEMO.LOCAL -v
 On linux host2 only
 #### setup linux for nfsv4 and AD KRB integration
 
-yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation
+yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation krb5-libs openldap-clients
 
 ###join demo.local AD with realm -- Disable ID management and let AD provide UID/GID
 realm join demo.local -U administrator --automatic-id-mapping=no
@@ -240,8 +247,6 @@ vi /etc/sysconfig/nfs
 SECURE_NFS="yes" 
 
 
-
-
 ###And restart the rpcgssd service using commands
 systemctl restart rpcgssd
 
@@ -264,6 +269,10 @@ systemctl status rpcidmapd.service
 systemctl status nfs-server
 systemctl status nfs-lock
 systemctl status nfs-idmap
+
+systemctl enable nfs-secure
+systemctl start nfs-secure
+systemctl status nfs-secure
 
 
 
