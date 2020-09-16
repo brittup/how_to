@@ -80,6 +80,12 @@ realm join demo.local
 ###list host SPN
 klist -k
 
+###list keytab
+ktutil 
+rkt /etc/krb5.keytab
+list
+
+
 ###review test user
 id nfstestuser1@demo.local
 

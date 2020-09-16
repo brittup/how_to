@@ -1,0 +1,395 @@
+
+Source:
+mkdir /ifs/synciq_certs
+openssl genrsa -aes256 -out /ifs/synciq_certs/rootCA.key 4096
+openssl req -x509 -new -key /ifs/synciq_certs/rootCA.key -sha256 -days 1024 -out /ifs/synciq_certs/rootCA.pem
+openssl x509 -noout -text -in /ifs/synciq_certs/rootCA.pem
+openssl genrsa -aes256 -out /ifs/synciq_certs/source_cluster_key.key 4096
+openssl req -new -key /ifs/synciq_certs/source_cluster_key.key -out /ifs/synciq_certs/source_cluster_csr.pem
+openssl req -in /ifs/synciq_certs/source_cluster_csr.pem -noout -text
+openssl x509 -req -in /ifs/synciq_certs/source_cluster_csr.pem -CA /ifs/synciq_certs/rootCA.pem -CAkey /ifs/synciq_certs/rootCA.key -CAcreateserial -out /ifs/synciq_certs/source_cluster_cert.pem -days 500 -sha256
+openssl x509 -in /ifs/synciq_certs/source_cluster_cert.pem -text -noout
+
+Target:
+mkdir /ifs/synciq_certs
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/rootCA.key /ifs/synciq_certs/
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/rootCA.pem /ifs/synciq_certs/
+openssl genrsa -aes256 -out /ifs/synciq_certs/target_cluster_key.key 4096
+openssl req -new -key /ifs/synciq_certs/target_cluster_key.key -out /ifs/synciq_certs/target_cluster_csr.pem
+openssl req -in /ifs/synciq_certs/target_cluster_csr.pem -noout -text
+openssl x509 -req -in /ifs/synciq_certs/target_cluster_csr.pem -CA /ifs/synciq_certs/rootCA.pem -CAkey /ifs/synciq_certs/rootCA.key -CAcreateserial -out /ifs/synciq_certs/target_cluster_cert.pem -days 500 -sha256
+openssl x509 -in /ifs/synciq_certs/target_cluster_cert.pem -text -noout
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/source_cluster_cert.pem /ifs/synciq_certs/
+
+Source:
+scp root@"target_cluster_ip_address":/ifs/synciq_certs/target_cluster_cert.pem /ifs/synciq_certs/
+isi cert auth import /ifs/synciq_certs/rootCA.pem
+isi sync cert peer import /ifs/synciq_certs/target_cluster_cert.pem
+isi sync cert server import /ifs/synciq_certs/source_cluster_cert.pem /ifs/synciq_certs/source_cluster_key.key --set-certificate-key-password
+(no --set, just --certificate-key-password=)
+
+Target:
+isi cert auth import /ifs/synciq_certs/rootCA.pem
+isi sync cert peer import /ifs/synciq_certs/source_cluster_cert.pem
+isi sync cert server import /ifs/synciq_certs/target_cluster_cert.pem /ifs/synciq_certs/target_cluster_key.key --certificate-key-password
+
+
+
+
+
+Source Cluster
+#1Create the root CA key:
+mkdir /ifs/synciq_certs
+openssl genrsa -aes256 -out /ifs/synciq_certs/rootCA.key 4096
+
+
+#Generating RSA private key, 4096 bit long modulus
+#...................................................................++++
+#................................................++++
+#e is 65537 (0x10001)
+Enter pass phrase for /ifs/synciq_certs/rootCA.key:
+Verifying - Enter pass phrase for /ifs/synciq_certs/rootCA.key:
+NOTE: Remember this password, don’t forget it!!
+
+
+#2Create the root CA certificate:
+openssl req -x509 -new -key /ifs/synciq_certs/rootCA.key -sha256 -days 1024 -out /ifs/synciq_certs/rootCA.pem
+
+
+#Enter pass phrase for /ifs/synciq_certs/rootCA.key:
+#You are about to be asked to enter information that will be incorporated
+#into your certificate request.
+#What you are about to enter is what is called a Distinguished Name or a DN.
+#There are quite a few fields but you can leave some blank
+#For some fields there will be a default value,
+#If you enter '.', the field will be left blank.
+#-----
+#Country Name (2 letter code) [AU]:US
+#State or Province Name (full name) [Some-State]:PA
+#Locality Name (eg, city) []:.
+#Organization Name (eg, company) [Internet Widgits Pty Ltd]:EMC
+#Organizational Unit Name (eg, section) []:.
+#Common Name (e.g. server FQDN or YOUR name) []:acd8220-4
+#Email Address []:.
+
+
+
+#3Verify the root CA has "X509v3 Basic Constraints: CA:TRUE":
+openssl x509 -noout -text -in /ifs/synciq_certs/rootCA.pem
+
+#...
+#     X509v3 Basic Constraints:
+#                CA:TRUE
+#
+#...
+
+
+
+
+#4Create the source cluster key:
+openssl genrsa -aes256 -out /ifs/synciq_certs/source_cluster_key.key 4096
+
+
+
+#Generating RSA private key, 4096 bit long modulus
+#.......................................................................++++
+#..................................................++++
+#e is 65537 (0x10001)
+#Enter pass phrase for /ifs/synciq_certs/source_cluster_key.key:
+#Verifying - Enter pass phrase for /ifs/synciq_certs/source_cluster_key.key:
+
+
+
+#5Create the source cluster csr:
+openssl req -new -key /ifs/synciq_certs/source_cluster_key.key -out /ifs/synciq_certs/source_cluster_csr.pem
+
+#Enter pass phrase for /ifs/synciq_certs/source_cluster_key.key:
+#You are about to be asked to enter information that will be incorporated
+#into your certificate request.
+#What you are about to enter is what is called a Distinguished Name or a DN.
+#There are quite a few fields but you can leave some blank
+#For some fields there will be a default value,
+#If you enter '.', the field will be left blank.
+#-----
+#Country Name (2 letter code) [AU]:US
+#State or Province Name (full name) [Some-State]:PA
+#Locality Name (eg, city) []:.
+#Organization Name (eg, company) [Internet Widgits Pty Ltd]:EMC
+#Organizational Unit Name (eg, section) []:.
+#Common Name (e.g. server FQDN or YOUR name) []:sourceclustercertificate
+#Email Address []:.
+
+#Please enter the following 'extra' attributes
+#to be sent with your certificate request
+#A challenge password []:.
+#An optional company name []:.
+
+
+
+#6Verify the source cluster csr contents:
+openssl req -in /ifs/synciq_certs/source_cluster_csr.pem -noout -text
+
+
+#Certificate Request:
+#   Data:
+#        Version: 0 (0x0)
+#        Subject: C=US, ST=PA, O=EMC, CN=sourceclustercertificate
+#        Subject Public Key Info:
+#            Public Key Algorithm: rsaEncryption
+#                Public-Key: (4096 bit)
+#                Modulus:
+#                    00:94:68:d1:f0:6b:84:0a:ad:fc:5a:07:f7:b9:07:
+#                    86:00:b2:4b:63:04:d8:34:eb:36:ef:92:16:32:23:
+#                    44:1a:28:b7:5d:37:ab:91:cc:51:c7:5e:33:26:53:
+#...
+
+
+
+#7Create the source cluster certificate:
+openssl x509 -req -in /ifs/synciq_certs/source_cluster_csr.pem -CA /ifs/synciq_certs/rootCA.pem -CAkey /ifs/synciq_certs/rootCA.key -CAcreateserial -out /ifs/synciq_certs/source_cluster_cert.pem -days 500 -sha256
+
+
+#Signature ok
+#subject=/C=US/ST=PA/O=EMC/CN=sourceclustercertificate
+#Getting CA Private Key
+#Enter pass phrase for /ifs/synciq_certs/rootCA.key:
+
+
+#8Verify the source cluster certificate contents:
+openssl x509 -in /ifs/synciq_certs/source_cluster_cert.pem -text -noout
+
+
+#Certificate:
+#    Data:
+#        Version: 1 (0x0)
+#        Serial Number:
+#            8d:6b:4f:3e:62:a9:e5:a2
+#    Signature Algorithm: sha256WithRSAEncryption
+#        Issuer: C=US, ST=PA, O=EMC, CN=sourceclustercertificate
+#        Validity
+#            Not Before: Apr 10 04:49:10 2020 GMT
+#            Not After : Aug 23 04:49:10 2021 GMT
+#        Subject: C=US, ST=PA, O=EMC, CN=acd8220-4
+#        Subject Public Key Info:
+#            Public Key Algorithm: rsaEncryption
+#                Public-Key: (4096 bit)
+#...
+
+
+
+
+
+
+On Target Cluster
+#1
+mkdir /ifs/synciq_certs
+
+
+#2Transfer the root CA key to target cluster:
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/rootCA.key /ifs/synciq_certs/
+
+
+#3Transfer the root CA certificate to target cluster:
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/rootCA.pem /ifs/synciq_certs/
+
+
+#4Create the target cluster key:
+openssl genrsa -aes256 -out /ifs/synciq_certs/target_cluster_key.key 4096
+
+
+#Generating RSA private key, 4096 bit long modulus
+#....................................................................................................................................................................................................++++
+#..........................................................................................................................++++
+#e is 65537 (0x10001)
+#Enter pass phrase for /ifs/synciq_certs/target_cluster_key.key:
+#Verifying - Enter pass phrase for /ifs/synciq_certs/target_cluster_key.key:
+
+
+#5Create the target cluster csr:
+openssl req -new -key /ifs/synciq_certs/target_cluster_key.key -out /ifs/synciq_certs/target_cluster_csr.pem
+
+#Enter pass phrase for /ifs/synciq_certs/target_cluster_key.key:
+#You are about to be asked to enter information that will be incorporated
+#into your certificate request.
+#What you are about to enter is what is called a Distinguished Name or a DN.
+#There are quite a few fields but you can leave some blank
+#For some fields there will be a default value,
+#If you enter '.', the field will be left blank.
+#-----
+#Country Name (2 letter code) [AU]:US
+#State or Province Name (full name) [Some-State]:PA
+#Locality Name (eg, city) []:.
+#Organization Name (eg, company) [Internet Widgits Pty Ltd]:EMC
+#Organizational Unit Name (eg, section) []:.
+#Common Name (e.g. server FQDN or YOUR name) []:acd8220t-1
+#Email Address []:.
+
+#Please enter the following 'extra' attributes
+#to be sent with your certificate request
+#A challenge password []:.
+#An optional company name []:.
+
+
+
+#6Verify the target cluster csr contents:
+openssl req -in /ifs/synciq_certs/target_cluster_csr.pem -noout -text
+
+#Certificate Request:
+#    Data:
+#        Version: 0 (0x0)
+#        Subject: C=US, ST=PA, O=EMC, CN=acd8220t-1
+#        Subject Public Key Info:
+#            Public Key Algorithm: rsaEncryption
+#                Public-Key: (4096 bit)
+#                Modulus:
+#                    00:ae:72:e8:9d:df:c0:da:ea:31:92:09:f0:a5:01:
+#...
+
+
+
+#7Create the target cluster certificate:
+openssl x509 -req -in /ifs/synciq_certs/target_cluster_csr.pem -CA /ifs/synciq_certs/rootCA.pem -CAkey /ifs/synciq_certs/rootCA.key -CAcreateserial -out /ifs/synciq_certs/target_cluster_cert.pem -days 500 -sha256
+
+#Signature ok
+#subject=/C=US/ST=PA/O=EMC/CN=acd8220t-1
+#Getting CA Private Key
+#Enter pass phrase for /ifs/synciq_certs/rootCA.key:
+
+
+
+#8Verify the target cluster certificate contents:
+openssl x509 -in /ifs/synciq_certs/target_cluster_cert.pem -text -noout
+
+#Certificate:
+#    Data:
+#        Version: 1 (0x0)
+#        Serial Number:
+#            bf:bb:95:fd:3b:7f:e0:12
+#    Signature Algorithm: sha256WithRSAEncryption
+#        Issuer: C=US, ST=PA, O=EMC, CN=acd8220-4
+#        Validity
+#            Not Before: Apr 10 21:05:49 2020 GMT
+#            Not After : Aug 23 21:05:49 2021 GMT
+#        Subject: C=US, ST=PA, O=EMC, CN=acd8220t-1
+#        Subject Public Key Info:
+#            Public Key Algorithm: rsaEncryption
+#                Public-Key: (4096 bit)
+#                Modulus:
+#                    00:ae:72:e8:9d:df:c0:da:ea:31:92:09:f0:a5:01:
+#...
+
+
+9. Transfer the source cluster certificate to target cluster:
+scp root@"source_cluster_ip_address":/ifs/synciq_certs/source_cluster_cert.pem /ifs/synciq_certs/
+
+
+
+
+
+
+#On Source Cluster (If you have any old certs already added, remove them first)
+#1. Transfer the target cluster certificate to source cluster:
+scp root@"target_cluster_ip_address":/ifs/synciq_certs/target_cluster_cert.pem /ifs/synciq_certs/
+
+#2. Import the root CA certificate:
+isi cert auth import /ifs/synciq_certs/rootCA.pem
+
+3. Import the target cluster certificate:
+#isi sync cert peer import /ifs/synciq_certs/target_cluster_cert.pem
+
+#4. Import the source cluster certificate:
+isi sync cert server import /ifs/synciq_certs/source_cluster_cert.pem /ifs/synciq_certs/source_cluster_key.key --set-certificate-key-password
+(no --set, just --certificate-key-password=)
+
+#On Target Cluster
+#1. Import the root CA certificate:
+isi cert auth import /ifs/synciq_certs/rootCA.pem
+
+#2. Import the source cluster certificate:
+isi sync cert peer import /ifs/synciq_certs/source_cluster_cert.pem
+
+#3. Import the target cluster certificate:
+isi sync cert server import /ifs/synciq_certs/target_cluster_cert.pem /ifs/synciq_certs/target_cluster_key.key --certificate-key-password
+
+
+This completes the procedure.
+
+
+
+
+Creating a policy
+You can create a SyncIQ policy as below:
+1.	On the source cluster
+#isi sync certificates server list
+ID      Name  Status  Expires
+-----------------------------------------
+c4a2eb2       valid   2021-08-26T16:13:16
+-----------------------------------------
+Total: 1
+
+# isi sync certificates server view c4a2eb2
+          ID: c4a2eb2f08601c79cdac5d2d87075075bb2fca30180a87f0d354a71171cf943c
+        Name:
+ Description:
+     Subject: C=US, ST=PA, O=EMC, CN=sourceclustercertificate
+      Issuer: C=US, ST=PA, O=EMC, CN=acd8220-4
+      Status: valid
+  Not Before: 2020-04-13T16:13:16
+   Not After: 2021-08-26T16:13:16
+Fingerprints
+            Type: SHA1
+           Value: d7:43:ca:13:c6:50:0c:74:47:a9:da:86:da:e0:04:32:7d:6b:53:bb
+
+            Type: SHA256
+           Value: c4:a2:eb:2f:08:60:1c:79:cd:ac:5d:2d:87:07:50:75:bb:2f:ca:30:18:0a:87:f0:d3:54:a7:11:71:cf:94:3c
+
+2.	Create the policy by using the ID from above command
+# isi sync policies create encryptedpolicy3 sync /ifs/acd8220/parent-dir 192.168.239.29 /ifs/acd8220/parent-dir --target-certificate-id= c4a2eb2f08601c79cdac5d2d87075075bb2fca30180a87f0d354a71171cf943c
+3.	Adjust any policy parameters you’d like to change, either through the WebUI or CLI
+4.	Start the policy
+NOTE: SyncIQ does an SSL handshake once you start the policy, if there are any certificate related errors, it’d fail within the first few seconds, citing the error in policy reports.
+For additional error information, check the /var/log/isi_migrate.log file on both clusters.
+Additional useful commands for troubleshooting
+To delete all the certs (if you’re replacing with new certs), do the following:
+Delete the source cluster cert and peer on source:
+Isi sync certificates server list
+Isi sync certificates server delete <id>
+Isi sync certificates peer list
+Isi sync certificates peer delete <id>
+
+Delete the target cluster cert and peer (source) on target: 
+Isi sync certificates server list
+Isi sync certificates server delete <id>
+Isi sync certificates peer list
+Isi sync certificates peer delete <id>
+
+Delete the root certificate authority:
+Isi certificate authority list (pick the one related to SyncIQ)
+Isi certificate authority delete <id>
+
+To verify certificates:
+# openssl verify -CAfile rootCA.pem source_cluster_cert.pem
+source_cluster_cert.pem: OK
+(above should be the output if all is well with the cert. You can use this command to also check the certificate on target cluster)
+openssl x509 -in source_cluster_cert.pem -text
+If you update the source/target cluster certificates, then you must also modify sync settings on respective cluster as shown below as an example. This is the ID that your SyncIQ policy will use:
+isi sync settings modify --cluster-certificate-id=c4a2eb2f08601c79cdac5d2d87075075bb2fca30180a87f0d354a71171cf943c
+To see which ciphers are supported on the cluster:
+Opeenssl ciphers
+
+Additional Information
+Supported RSA based suites
+•	AES256-GCM-SHA384
+•	AES256-SHA256
+•	AES256-SHA
+Supported ECC based suites
+•	ECDH-ECDSA-AES256-GCM-SHA384
+•	ECDH-ECDSA-AES256-SHA384
+•	ECDH-ECDSA-AES256-SHA
+•	ECDH-ECDSA-AES128-SHA256
+•	ECDH-ECDSA-AES128-SHA
+
+Following documents refer to SyncIQ encryption:
+OneFS 8.2.2 CLI Guide: https://www.dellemc.com/en-us/collaterals/unauth/technical-guides-support-information/products/storage/docu96959.pdf
+SyncIQ Best Practices Guide: https://www.dellemc.com/resources/en-us/asset/white-papers/products/storage/h8224_replication_isilon_synciq_wp.pdf
+
