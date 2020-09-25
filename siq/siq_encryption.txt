@@ -317,6 +317,9 @@ This completes the procedure.
 
 
 
+
+
+
 Creating a policy
 You can create a SyncIQ policy as below:
 1.	On the source cluster

@@ -1,4 +1,4 @@
-###Setup and configure Kerberos nfsv4 to Isilon
+###Setup and configure MIT KDC Kerberos nfsv4 to Isilon
 
 ###setup a KDC for the KRB REALM
 ###manual setup and configuration of kerberos on linux; SPN's & keytabs
