@@ -21,6 +21,8 @@ isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:D
 isi zone zones list -v
 
 
+###Setup DNS, two options; 1. manual in DNS Server, 2. powershell  -- (either way make sure you understand smartconnect)
+
 ###GO to windows DNS
 -go to the demo.local zone
 -Add A record ssip-isilon  192.168.1.100
@@ -28,12 +30,16 @@ isi zone zones list -v
 -Test SCzone:
 nslookup mp.demo.local 192.168.1.2
 
-OR (either way make sure you understand smartconnect)
+OR 
  
 ###Run the following PowerShell command:
+
+-open PowerShell prompt from Start Menu
 Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
 
+
 -Test SCzone:
+-go to linux host and test
 nslookup mp.demo.local 192.168.1.2
 
 
@@ -45,6 +51,8 @@ touch /ifs/mp/this_is_isilon.txt
 chmod 777 /ifs/mp/this_is_isilon.txt
 cd /ifs/mp
 ls -al 
+
+###highlight Isilon permission model and the use of -le and -len
 ls -le this_is_isilon.txt
 ls -len this_is_isilon.txt
 
@@ -59,15 +67,19 @@ isi smb shares permission modify mp --zone=System --wellknown=Everyone --run-as-
 
 isi smb shares permission list mp
 
-
+###review share configurations as needed
 
 ###Connect to SMB share
-connect to smb share via explorer: \\mp.demo.local\mp  --- > mp
+connect to smartconnectname and open the smb share via windows explorer: 
 
-At this time just use: localhost\root  Password123!  
+\\mp.demo.local\
+open mp  
 
-create a file smb.txt with windows explorer
-look at the permissions
+At this time just use the following if needed: localhost\root  Password123!  
+
+- create a file smb.txt with windows explorer
+- open and edit the smb.txt file
+- look at the permissions on smb.txt with win explorer security tab
 
 
 
@@ -75,7 +87,15 @@ look at the permissions
 
 isi nfs exports create --path=/ifs/mp/ --map-root=root  --zone=System --description=mp_test_export
 isi nfs exports list --zone=System
+
+onefs 9.x
+isi nfs exports view --id=1 --zone=System
+
+onefs 8.x
 isi nfs exports view --id=2 --zone=System
+
+###review export configurations as needed
+
 
 
 ###connect to nfs export from linux host vis  - use hdfs1 host
@@ -85,8 +105,16 @@ mount -t nfs mp.demo.local:/ifs/mp /mnt/isilon-mp
 mountstats
 cd /mnt/isilon-mp
 ls -al
+
+##
+- create a file nfs.txt 
+- open and edit the nfs.txt file
+- look at the permissions on nfs.txt 
 touch nfs.txt
-ls -al 
+ls -al
+vi nfs.txt
+ls -al
+cat nfs.txt
 
 
 
