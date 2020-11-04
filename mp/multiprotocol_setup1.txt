@@ -133,16 +133,22 @@ then review all your updates from Win Explorer & nfs and Isilon CLI
 
 ##this is a simple test to ilustrate multiprotocol access and not demonstrate the OneFS File Permission model
 
+Some things we can talk about here are:
+-run as root on the smb share
+-acl on smb file, posix on nfs file
+-it all works here b/c of root user
+
+!Remember the goal is a simple MP demo to show just how easy this can be!
 
 
-
-
+####################################################################################################################################
+Bonus!
 
 ###5.review mp file permissions and the behavior of the oneFS permission model, no interptetation of the behavior is presented here
 ###It can be used as a demo of the permission model:
 -posix files
 -acl'd files
-and how permission chnages are executed
+and how permission changes are executed
 
  
 ###Add new test files
@@ -168,6 +174,7 @@ ls -al
 
 ###Review from SMB
 Windows Explorer
+
 
 
 
@@ -254,8 +261,7 @@ ls -al posix.txt
 ####Notes:
 -only way to see full permission is ls -le
 -only way to see ondisk permission is ls -len
--The ACL Policies on the cluster manage file permission change behavior
-in Balanced Mode
+-The ACL Policies on the cluster manage file permission change behavior in Balanced Mode
 -posix changes to posix files behaves as expected
 -modifying ACE on ACL'd file behaves as expected
 -adding ACE to a posix file changes file to ACL(+)
