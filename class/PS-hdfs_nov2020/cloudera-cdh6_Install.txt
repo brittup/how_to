@@ -376,6 +376,8 @@ Password123!
 
 Install to hosts!
 
+###Follow the installation Guide here:
+https://www.dell.com/support/article/en-us/sln318813/using-hadoop-with-onefs-info-hub?lang=en
 
 ##Configure	
 ##Deploy Custom Services!  --- > NO hdfs, NO sqoop BUT add Isilon
