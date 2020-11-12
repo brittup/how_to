@@ -1,0 +1,484 @@
+###How to setup and configure Cloudera Manager CDH and Isilon
+####SETUP ISILON 
+(see bottom of file for just Cloudera install commands if Isilon is configured)
+
+###Validate HDFS & SmartConnect Advanced are licensed
+isi license list
+
+isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
+isi zone zones list --verbose
+
+mkdir -p /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh
+
+
+isi network subnets list --verbose
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+
+
+isi network pools list --verbose
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.158  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local    --description=hadoop
+
+
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
+
+
+
+###################################################################################################
+####SETUP windows DNS for SmartConnect Zone
+
+###connect to domain controller DC
+###admin tools DNS
+###select demo.local
+add A record   ssip-isilon  192.168.1.100
+
+###new delegation
+	isilonsczone-cdh
+###Add
+	ssip-isilon.demo.local
+###Resolve, comes back as 192.168.1.100
+###complete
+
+
+
+###TEST SCZone
+ping isilonsczone-cdh.demo.local
+
+####should resolve to 192.168.1.60-68
+
+###################################################################################################
+
+
+####Isilon HDFS Settings:
+isi hdfs settings view --zone=zone1-cdh
+isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+
+
+touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
+
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+####HDFS Users & Group setup
+mkdir -p /ifs/zone1/cdh/scripts
+
+
+#clone or download, as a zip, go find the download, unzip
+#winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/cdh/scripts
+#https://github.com/Isilon/isilon_hadoop_tools
+
+cd /ifs/zone1/cdh/scripts
+
+###wget removed from OneFS; need to download and copy scripts to Isilon via any means possible
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+
+chmod u+x *
+
+bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
+
+bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
+
+ls -al /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
+
+####on Isilon
+cat zone1-cdh.passwd
+cat zone1-cdh.group
+
+
+
+###go to HDFS01
+vi /etc/passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+shitft G
+o
+###cut and paste content from zone1-cdh.group
+esc :wq
+
+
+
+#go to HDFS02
+vi /etc/passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+shitft G
+o
+#cut and paste content from zone1-cdh.group
+esc :wq
+
+
+
+
+#go to HDFS03
+vi /etc/passwd
+shitft G
+o
+###cut and paste content from zone1-cdh.passwd
+esc :wq
+
+vi /etc/group
+shitft G
+o
+###cut and paste content from zone1-cdh.group
+esc :wq
+
+
+###on all hosts add the folowing home
+
+mkdir /home/hdfs
+mkdir /home/mapred
+mkdir /home/yarn
+mkdir /home/HTTP
+mkdir /home/hbase
+mkdir /home/hive
+mkdir /home/impala
+mkdir /home/hue
+mkdir /home/cloudera-scm
+mkdir /home/accumulo
+mkdir /home/flume
+mkdir /home/httpfs
+mkdir /home/apache
+mkdir /home/kafka
+mkdir /home/kms
+mkdir /home/keytrustee
+mkdir /home/kudu
+mkdir /home/llama
+mkdir /home/oozie
+mkdir /home/solr
+mkdir /home/spark
+mkdir /home/sentry
+mkdir /home/sqoop
+mkdir /home/sqoop2
+mkdir /home/zookeeper
+mkdir /home/anonymous
+mkdir /home/cmjobuser
+
+
+chown hdfs:hdfs /home/hdfs
+chown mapred:mapred /home/mapred
+chown yarn:yarn /home/yarn
+chown HTTP:HTTP /home/HTTP
+chown hbase:hbase /home/hbase
+chown hive:hive /home/hive
+chown impala:impala /home/impala
+chown hue:hue /home/hue
+chown cloudera-scm:cloudera-scm /home/cloudera-scm
+chown accumulo:accumulo /home/accumulo
+chown flume:flume /home/flume
+chown httpfs:httpfs /home/httpfs
+chown apache:apache /home/apache
+chown kafka:kafka /home/kafka
+chown kms:kms /home/kms
+chown keytrustee:keytrustee /home/keytrustee
+chown kudu:kudu /home/kudu
+chown llama:llama /home/llama
+chown oozie:oozie /home/oozie
+chown solr:solr /home/solr
+chown spark:spark /home/spark
+chown sentry:sentry /home/sentry
+chown sqoop:sqoop /home/sqoop
+chown sqoop2:sqoop2 /home/sqoop2
+chown zookeeper:zookeeper /home/zookeeper
+chown anonymous:anonymous /home/anonymous
+chown cmjobuser:cmjobuser /home/cmjobuser
+
+
+chmod 700 /home/hdfs
+chmod 700 /home/mapred
+chmod 700 /home/yarn
+chmod 700 /home/HTTP
+chmod 700 /home/hbase
+chmod 700 /home/hive
+chmod 700 /home/impala
+chmod 700 /home/hue
+chmod 700 /home/cloudera-scm
+chmod 700 /home/accumulo
+chmod 700 /home/flume
+chmod 700 /home/httpfs
+chmod 700 /home/apache
+chmod 700 /home/kafka
+chmod 700 /home/kms
+chmod 700 /home/keytrustee
+chmod 700 /home/kudu
+chmod 700 /home/llama
+chmod 700 /home/oozie
+chmod 700 /home/solr
+chmod 700 /home/spark
+chmod 700 /home/sentry
+chmod 700 /home/sqoop
+chmod 700 /home/sqoop2
+chmod 700 /home/zookeeper
+chmod 700 /home/anonymous
+chmod 700 /home/cmjobuser
+
+
+usermod -a -G sqoop sqoop2
+
+****************************************************************************
+###Cloudera Install
+###Review versions of java install and they are compatible with Cloudera
+https://www.cloudera.com/documentation/enterprise/release-notes/topics/rn_consolidated_pcm.html#pcm_jdk
+
+###remove java if installed, let CM install it
+java -v
+rpm -qa | grep jdk
+yum -y remove java*
+rpm -qa | grep jdk
+
+
+###Host setup
+###Change Hostname to lower case & update DNS
+
+vi /etc/sysconfig/network
+or
+nmutil
+
+
+##Linux HOST setup:
+SELinux
+	vi /etc/selinux/config 
+	SELINUX=disabled
+
+	
+##install ntp
+yum -y install ntp
+	
+###setup services
+###centos6
+chkconfig iptables off
+chkconfig ip6tables off
+chkconfig ntpdate on
+chkconfig ntpd on
+service ntpd start
+ntpq -np
+chkconfig
+
+###centos7
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl status firewalld
+systemctl enable ntpd
+systemctl start ntpd
+systemctl status ntpd
+
+
+###CDH inspector fixes
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+
+#add transparent_hugepage startup script rhel7
+
+vi /etc/systemd/system/disable-thp.service
+###and paste there following content:
+
+[Unit]
+Description=Disable Transparent Huge Pages (THP)
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+Save the file and reload SystemD daemon:
+
+
+systemctl daemon-reload
+systemctl start disable-thp
+systemctl enable disable-thp
+
+
+sysctl vm.swappiness=10
+cat /proc/sys/vm/swappiness
+
+vi /etc/sysctl.conf 
+	(Add at the end) G, o - esc:wq
+	
+	vm.swappiness=10
+	
+
+##reboot all hosts
+reboot 
+
+cat /proc/sys/vm/swappiness
+cat /sys/kernel/mm/transparent_hugepage/defrag
+cat /sys/kernel/mm/transparent_hugepage/enabled
+
+
+*********************************************************************************************
+###Install Clouder Manager
+###install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
+
+
+cd /tmp
+wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
+chmod u+x  cloudera-manager-installer.bin
+ls -al
+
+
+
+###Before proceeding confirm
+###All DNS is setup
+###All Isilon setup
+
+
+###install cloudera manager
+cd /tmp
+./cloudera-manager-installer.bin 
+
+###Accept and follow the installer
+
+
+###cloudera manager service check
+service cloudera-scm-server status  
+service cloudera-scm-server-db status
+
+service cloudera-scm-server  restart
+service cloudera-scm-server-db restart
+
+Or a reboot can sometimes fix this.
+
+
+###with browser go to the CM installer site
+###host installed on port 7180 per the installer
+http://192.168.1.40:7180
+
+admin/admin
+
+
+### select host to deploy
+hdfs1.demo.local
+hdfs2.demo.local
+hdfs3.demo.local
+
+
+###Select the version of CDH to install
+
+###Host paswords
+Password123!
+
+Install to hosts!
+
+
+##Configure	
+##Deploy Custom Services!  --- > NO hdfs, NO sqoop BUT add Isilon
+##spread service around the hosts
+###set isilon componets to configured isilon smartconnect name	
+	
+default_fs_name		hdfs://isilonsczone-cdh.demo.local:8020
+webhdfs_url			http://isilonsczone-cdh.demo.local:8082/webhdfs/v1
+
+
+Continue installtion and complete--->
+
+
+
+
+##Test:
+adduser cdhuser1 -u 10000
+
+su - hdfs
+hadoop fs -ls /
+hadoop fs -ls /user
+hadoop fs -mkdir /user/cdhuser1
+hadoop fs -chown  cdhuser1:cdhuser1 /user/cdhuser1
+hadoop fs -chmod 700 /user/cdhuser1
+hadoop fs -ls /user/hdfs/
+exit
+
+su - cdhuser1
+
+
+
+
+### Modify the Yarn Memory limits for container size, default too small on these VM's
+###Yarn Service
+Container Memory: yarn.nodemanager.resource.memory-mb  2GB
+
+Restart and Redploy Yarn config and services
+
+
+###Review and surpress any warnings or set limits per CDH recommendations, you should be able to get all services green
+
+
+
+
+###Test YARN & mapred; use the valid version of the examples: hadoop-mapreduce-examples-2.6.0-cdh5.X.X = hadoop-mapreduce-examples-2.6.0-cdh5.5.15.1.jar
+
+
+###Run a test mapred example to test Yarn
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar pi 10 100
+
+
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teragen 100000 /user/hdfs/teragenOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar terasort /user/hdfs/teragenOUT /user/hdfs/terasortOUT
+yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
+
+
+
+
+
+
+
+###uninstall CM if needed
+/usr/share/cmf/uninstall-cloudera-manger.sh
+
+
+
+Just the isilon commands in one block:
+#################################################################################
+#################################################################################
+
+
+isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
+mkdir -p /ifs/zone1/cdh/hadoop-root
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.60-192.168.1.68  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local    --description=cdh_hadoop_access_zone
+isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
+isi auth settings acls modify --group-owner-inheritance=parent
+mkdir -p /ifs/zone1/cdh/scripts
+cd /ifs/zone1/cdh/scripts
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
+wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+chmod u+x *
+bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
+bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
+
+
+##IF AD, chnage domain name to your domain
+isi zone zones modify --user-mapping-rules="hdfs=>root, foo\hdfs=>root, foo\* &= *[], foo\* += *[group], foo\* += *[groups]" --zone=zone1-cdh
+
+
+
+
+isi license list
+isi zone zones list --verbose
+isi network subnets list --verbose
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
+isi hdfs settings view --zone=zone1-cdh
+ls -al /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
+
+#################################################################################
+#################################################################################
