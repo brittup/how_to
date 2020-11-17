@@ -98,12 +98,6 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
 
-####HDFS Users & Group setup
-mkdir -p /ifs/zone1/cdh/scripts
-
-
-
-
 
 ###Create local users and groups
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
@@ -117,14 +111,29 @@ pipx install isilon_hadoop_tools
 isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.21                   
 isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  192.168.1.21 
 
-cd /ifs/zone1/cdh/scripts
+ls -al
+chmod +x xxxxxxxxxxxx-zone1-cdh-cdh.sh
+./xxxxxxxxxxxx-zone1-cdh-cdh.sh
 
+ls -al /home
+cat /etc/passwd
+cat /etc/group
+
+copy file to all hosts and repeat
+
+
+Go to Cloudera Install section below  -- >
 
 
 ###option2
 ###if not using the python method above then use the legcy branch in github
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
+
+
+####HDFS Users & Group setup
+mkdir -p /ifs/zone1/cdh/scripts
+cd /ifs/zone1/cdh/scripts
 
 create files:
 isilon_create_users.sh
@@ -142,8 +151,6 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 ####on Isilon
 cat zone1-cdh.passwd
 cat zone1-cdh.group
-
-
 
 ###go to HDFS01
 vi /etc/passwd
@@ -277,10 +284,11 @@ chmod 700 /home/sqoop2
 chmod 700 /home/zookeeper
 chmod 700 /home/anonymous
 chmod 700 /home/cmjobuser
-
-
 usermod -a -G sqoop sqoop2
 
+
+****************************************************************************
+****************************************************************************
 ****************************************************************************
 ###Cloudera Install
 ###Review versions of java install and they are compatible with Cloudera
