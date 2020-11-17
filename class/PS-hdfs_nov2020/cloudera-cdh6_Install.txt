@@ -48,7 +48,7 @@ isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
 add A record   ssip-isilon  192.168.1.100
 
 ###new delegation
-	cdh
+	cdh.demo.local
 ###Add
 	ssip-isilon.demo.local
 ###Resolve, comes back as 192.168.1.100
@@ -64,7 +64,8 @@ ping cdh.demo.local
 ###################################################################################################
 
 
-####Isilon HDFS Settings:
+###setup hdfs settings
+
 isi hdfs settings view --zone=zone1-cdh
 isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
 

@@ -58,6 +58,8 @@ ping hdp27.demo.local.demo.local
 
 ###################################################################################################
 
+###setup hdfs settings
+
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp-27.demo.local
 
