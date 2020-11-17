@@ -91,10 +91,10 @@ mkdir -p /ifs/zone1/cdh/scripts
 
 ###
 isi auth groups create cdpuser1 --zone=zone-cdh --provider local --gid 1000
-isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone-cdh --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/cdpuser1 --uid 1000
+isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdpuser1 --uid 1000
 isi zone zones list -v
-chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/hdpuser1 
-chmod 755 /ifs/zone1/cdh/hadoop-root/user/hdpuser1
+chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdpuser1 
+chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
 
 
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
