@@ -125,8 +125,8 @@ bash isilon_create_directories.sh --dist hwx --zone zone-hdp27  --fixperm
 
 
 
-ls -al /ifs/zone1/cdh/hadoop-root
-ls -al /ifs/zone1/cdh/hadoop-root/user
+ls -al /ifs/zone/hdp27/hadoop-root
+ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
 

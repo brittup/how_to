@@ -68,13 +68,15 @@ ping cdh.demo.local
 
 isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
 isi hdfs settings view --zone=zone1-cdh
+touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
+
 
 ###8.1.2 only
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 isi auth settings acls modify --group-owner-inheritance=parent
 
 
-###8.2 and 9.x +
+###8.2 and 9.x + setup RBAC based hdfs/run as root
 isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone1-cdh
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone1-cdh
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone1-cdh
@@ -84,12 +86,9 @@ isi_for_array "isi auth mapping flush --all"
 isi_for_array "isi auth cache flush --all"
 
 
-touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 
-####HDFS Users & Group setup
-mkdir -p /ifs/zone1/cdh/scripts
+###create a test user cdpuser1 
 
-###
 isi auth groups create cdpuser1 --zone=zone1-cdh --provider local --gid 1000
 isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdpuser1 --uid 1000
 isi zone zones list -v
@@ -99,10 +98,17 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
 
+####HDFS Users & Group setup
+mkdir -p /ifs/zone1/cdh/scripts
 
+
+
+
+
+###Create local users and groups
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
 
-option1
+###option1
 yum install python36 python36-pip
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
@@ -113,12 +119,15 @@ isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onef
 
 cd /ifs/zone1/cdh/scripts
 
-option2
+
+
+###option2
 ###if not using the python method above then use the legcy branch in github
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
 
-create isilon_create_users.sh
+create files:
+isilon_create_users.sh
 isilon_create_directories.sh
 copy contents in and use the script this way.
 chmod u+x *
