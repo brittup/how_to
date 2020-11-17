@@ -1,23 +1,92 @@
-﻿###isilon setup
+﻿###How to setup and configure Ambari HDP and Isilon
+###isilon setup - enable hdfs service
 
+###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
-
 Add hdfs & smartconnect advanced license
+
+isi license add --evaluation=SMARTCONNECT_ADVANCED
+q
+yes
+
+isi license add --evaluation=HDFS
+q
+yes
+
+isi services hdfs enable
+isi services -a
+
 
 ####
 
 isi zone zones create --name=zone-hdp27 --path=/ifs/zone/hdp27 --create-path
 mkdir -p /ifs/zone/hdp27/hadoop-root
 
+###do if not done already
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=192.168.1.60-192.168.1.80  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
 
 
-###setup SCZ in AD DNS
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=192.168.1.170-192.168.1.180  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
+
+
+
+
+###################################################################################################
+####SETUP windows DNS for SmartConnect Zone
+
+###connect to domain controller DC
+###admin tools DNS
+###select demo.local
+###do if not done already
+add A record   ssip-isilon  192.168.1.100
+
+###new delegation
+	hdp27.demo.local
+###Add
+	ssip-isilon.demo.local
+###Resolve, comes back as 192.168.1.100
+###complete
+
+
+
+###TEST SCZone
+ping hdp27.demo.local.demo.local
+
+####should resolve to 192.168.1.170-180
+
+###################################################################################################
 
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp-27.demo.local
 
+
+
+###8.1.2 only
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+###8.2 +
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-hdp27
+isi auth roles view hdfs_access --zone=zone-hdp27
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
+touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
+mkdir -p /ifs/zone/hdp27/scripts
+cd /ifs/zone/hdp27/scripts
+
+
+###
+isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
+isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
+isi zone zones list -v
+chown hdpuser1:hdpuser1 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
+chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
 
 
 ####HDFS Users & Group setup
@@ -58,31 +127,6 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
 
-###8.1.2 only
-isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
-isi auth settings acls modify --group-owner-inheritance=parent
-
-
-###8.2 +
-isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-hdp27
-isi auth roles view hdfs_access --zone=zone-hdp27
-isi_for_array "isi auth mapping flush --all"
-isi_for_array "isi auth cache flush --all"
-
-
-
-
-###
-isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
-isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
-isi zone zones list -v
-chown hdpuser1:hdpuser1 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
-chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
-
-
 cat zone-hdp27.passwd 
 cat zone-hdp27.group
 
@@ -92,9 +136,7 @@ isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-
 
 
 
-touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
-mkdir -p /ifs/zone/hdp27/scripts
-cd /ifs/zone/hdp27/scripts
+
 
 
 #### Linux Host Prep and user/group home dirs setup

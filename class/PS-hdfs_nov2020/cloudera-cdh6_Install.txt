@@ -1,9 +1,22 @@
 ###How to setup and configure Cloudera Manager CDH and Isilon
-####SETUP ISILON 
-
+####SETUP ISILON - enable hdfs service
 
 ###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
+Add hdfs & smartconnect advanced license
+
+isi license add --evaluation=SMARTCONNECT_ADVANCED
+q
+yes
+
+isi license add --evaluation=HDFS
+q
+yes
+
+isi services hdfs enable
+isi services -a
+
+
 
 isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
 isi zone zones list --verbose
@@ -11,13 +24,13 @@ isi zone zones list --verbose
 mkdir -p /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh
 
-
+###do if not done already
 isi network subnets list --verbose
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.158  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local  --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.160  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local  --description=hadoop
 
 
 isi network pools list --verbose
@@ -31,6 +44,7 @@ isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
 ###connect to domain controller DC
 ###admin tools DNS
 ###select demo.local
+###do if not done already
 add A record   ssip-isilon  192.168.1.100
 
 ###new delegation
@@ -45,7 +59,7 @@ add A record   ssip-isilon  192.168.1.100
 ###TEST SCZone
 ping isilonsczone-cdh.demo.local
 
-####should resolve to 192.168.1.60-68
+####should resolve to 192.168.1.60-70
 
 ###################################################################################################
 
