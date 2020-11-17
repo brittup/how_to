@@ -62,7 +62,7 @@ ping hdp27.demo.local.demo.local
 
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp27.demo.local
-isi hdfs settings view --zone=zone1-hdp27
+isi hdfs settings view --zone=zone-hdp27
 
 
 ###8.1.2 only
@@ -89,12 +89,11 @@ cd /ifs/zone/hdp27/scripts
 isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
 isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
 isi zone zones list -v
-chown hdpuser1:hdpuser1 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
+chown 1000:1000 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
 chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
 
 
-####HDFS Users & Group setup
-mkdir -p /ifs/zone1/cdh/scripts
+
 
 
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
