@@ -17,18 +17,20 @@ isi services hdfs enable
 isi services -a
 
 
-####
+####Make hdp access zone
 
 isi zone zones create --name=zone-hdp27 --path=/ifs/zone/hdp27 --create-path
 mkdir -p /ifs/zone/hdp27/hadoop-root
 
+
+
 ###do if not done already
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
-
 isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=192.168.1.170-192.168.1.180  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
 
-
+isi network pools list --verbose
+isi network pools view --id=groupnet0:subnet0:hadoop-pool-hdp27
 
 
 ###################################################################################################

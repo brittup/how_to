@@ -30,7 +30,7 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.160  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=cdh.demo.local  --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.160  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=cdh.demo.local  --description=cdh_hadoop_access_zone
 
 
 isi network pools list --verbose
