@@ -95,6 +95,9 @@ isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone-cdh --provid
 isi zone zones list -v
 chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdpuser1 
 chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
+
 
 
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD

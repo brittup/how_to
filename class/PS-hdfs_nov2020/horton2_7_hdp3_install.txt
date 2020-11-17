@@ -91,7 +91,7 @@ isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --prov
 isi zone zones list -v
 chown 1000:1000 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
 chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
-
+ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
 
