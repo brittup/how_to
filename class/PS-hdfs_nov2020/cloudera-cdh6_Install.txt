@@ -1,6 +1,6 @@
 ###How to setup and configure Cloudera Manager CDH and Isilon
 ####SETUP ISILON 
-(see bottom of file for just Cloudera install commands if Isilon is configured)
+
 
 ###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
@@ -17,7 +17,7 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 
 
 isi network pools list --verbose
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.158  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local    --description=hadoop
+isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.150-192.168.1.158  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=isilonsczone-cdh.demo.local  --description=hadoop
 
 
 isi network pools list --verbose
@@ -53,33 +53,54 @@ ping isilonsczone-cdh.demo.local
 ####Isilon HDFS Settings:
 isi hdfs settings view --zone=zone1-cdh
 isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
+
+
+###8.1.2 only
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+###8.2 and 9.x +
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone1-cdh
+isi auth roles view hdfs_access --zone=zone1-cdh
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
 
 
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
-
-isi auth settings acls modify --group-owner-inheritance=parent
-
 
 ####HDFS Users & Group setup
 mkdir -p /ifs/zone1/cdh/scripts
 
 
-#clone or download, as a zip, go find the download, unzip
-#winscp the isilon_create_users.sh & isilon_create_directories.sh  to /ifs/zone1/cdh/scripts
-#https://github.com/Isilon/isilon_hadoop_tools
+#https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
+
+option1
+yum install python36 python36-pip
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+pipx install isilon_hadoop_tools
+
+isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug <IP of cluster>                   
+isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  <IP of cluster>
 
 cd /ifs/zone1/cdh/scripts
 
-###wget removed from OneFS; need to download and copy scripts to Isilon via any means possible
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
+option2
+###if not using the python method above then use the legcy branch in github
+https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
+https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
 
+create isilon_create_users.sh
+isilon_create_directories.sh
+copy contents in and use the script this way.
 chmod u+x *
-
 bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
-
 bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
+
 
 ls -al /ifs/zone1/cdh/hadoop-root
 ls -al /ifs/zone1/cdh/hadoop-root/user

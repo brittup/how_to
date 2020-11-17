@@ -20,37 +20,42 @@ isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp-27.demo.local
 
 
 
-
-####
-isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
-touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
-mkdir -p /ifs/zone/hdp27/scripts
-cd /ifs/zone/hdp27/scripts
+####HDFS Users & Group setup
+mkdir -p /ifs/zone1/cdh/scripts
 
 
+#https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
 
-#### no wget 8.1.2, back in 8.2
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh --no-check-certificate
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh --no-check-certificate
+option1
+yum install python36 python36-pip
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+pipx install isilon_hadoop_tools
+
+isilon_create_users --zone=zone-hdp27 --no-verify --onefs-user=root --onefs-password=Password123! --dist=hdp --start-uid=500 --start-gid=500  --log-level=debug <IP of cluster>                   
+isilon_create_directories  --zone=zone-hdp27 --no-verify --onefs-user=root --onefs-password=Password123! --dist=hdp  <IP of cluster>
+
+cd /ifs/zone1/cdh/scripts
 
 
-download
-https://github.com/Isilon/isilon_hadoop_tools
-unzip
-copy files to scripts
+option2
+###if not using the python method above then use the legcy branch in github
+https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
+https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
 
+create isilon_create_users.sh
+isilon_create_directories.sh
+copy contents in and use the script this way.
 chmod u+x *
-
-
-
-
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone-hdp27
-
-
 bash isilon_create_directories.sh --dist hwx --zone zone-hdp27  --fixperm
 
-ls -al /ifs/zone/hdp27/hadoop-root
-ls -al /ifs/zone/hdp27/hadoop-root/user
+
+
+
+ls -al /ifs/zone1/cdh/hadoop-root
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
 
 
 ###8.1.2 only
@@ -58,7 +63,7 @@ isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
 isi auth settings acls modify --group-owner-inheritance=parent
 
 
-###8.2
+###8.2 +
 isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
@@ -74,7 +79,7 @@ isi_for_array "isi auth cache flush --all"
 isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
 isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
 isi zone zones list -v
-isi_run -z12 chown hdpuser1:hdpuser1 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
+chown hdpuser1:hdpuser1 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
 chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
 
 
@@ -82,10 +87,18 @@ cat zone-hdp27.passwd
 cat zone-hdp27.group
 
 
-
 ####
-go to linux host
+isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
 
+
+
+touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
+mkdir -p /ifs/zone/hdp27/scripts
+cd /ifs/zone/hdp27/scripts
+
+
+#### Linux Host Prep and user/group home dirs setup
+go to linux host
 adduser hdpuser1 -u 1000
 
 
@@ -93,13 +106,13 @@ adduser hdpuser1 -u 1000
 vi /etc/passwd
 #G
 #o
-#cut and paste content from zone1-cdh.passwd
+#cut and paste content from zone1-hdp.passwd
 esc :wq
 
 vi /etc/group
 #G
 #o
-#cut and paste content from zone1-cdh.group
+#cut and paste content from zone1-hdp.group
 
 esc :wq
 
@@ -118,7 +131,7 @@ mkdir /home/hive
 mkdir /home/hcat
 mkdir /home/hue
 mkdir /home/accumulo
-mkdir/home/mahout
+mkdir /home/mahout
 mkdir /home/flume
 mkdir /home/httpfs
 mkdir /home/apache
@@ -146,7 +159,7 @@ mkdir /home/ambari-server
 mkdir /home//admin
 mkdir /home/activity_explorer
 mkdir /home/druid
-mkdir/home/keyadmin
+mkdir /home/keyadmin
 mkdir /home/rangerlookup
 mkdir /home/gpadmin
 mkdir /home/anonymous
@@ -215,7 +228,7 @@ chmod 700 /home/hive
 chmod 700 /home/hcat
 chmod 700 /home/hue
 chmod 700 /home/accumulo
-chmod 700/home/mahout
+chmod 700 /home/mahout
 chmod 700 /home/flume
 chmod 700 /home/httpfs
 chmod 700 /home/apache
@@ -273,9 +286,6 @@ SELINUX=disabled
 reboot
 
 sestatus
-
-
-
 
 
 
