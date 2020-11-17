@@ -114,8 +114,8 @@ python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 pipx install isilon_hadoop_tools
 
-isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug <IP of cluster>                   
-isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  <IP of cluster>
+isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.21                   
+isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  192.168.1.21 
 
 cd /ifs/zone1/cdh/scripts
 
