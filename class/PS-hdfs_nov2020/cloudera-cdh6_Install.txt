@@ -303,6 +303,7 @@ isi_run -z 2 id mapred
 mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce
 mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce/mr-framework
 chown -R 518:518 /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce
+chmod -R 777 /ifs/zone1/cdh/hadoop-root/user/yarn
 ls -al /ifs/zone1/cdh/hadoop-root/user/yarn
 
 
