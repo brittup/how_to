@@ -168,9 +168,6 @@ o
 #cut and paste content from zone1-cdh.group
 esc :wq
 
-
-
-
 #go to HDFS03
 vi /etc/passwd
 shitft G
@@ -183,7 +180,6 @@ shitft G
 o
 ###cut and paste content from zone1-cdh.group
 esc :wq
-
 
 ###on all hosts add the folowing home
 
@@ -215,7 +211,6 @@ mkdir /home/zookeeper
 mkdir /home/anonymous
 mkdir /home/cmjobuser
 
-
 chown hdfs:hdfs /home/hdfs
 chown mapred:mapred /home/mapred
 chown yarn:yarn /home/yarn
@@ -243,7 +238,6 @@ chown sqoop2:sqoop2 /home/sqoop2
 chown zookeeper:zookeeper /home/zookeeper
 chown anonymous:anonymous /home/anonymous
 chown cmjobuser:cmjobuser /home/cmjobuser
-
 
 chmod 700 /home/hdfs
 chmod 700 /home/mapred
@@ -276,7 +270,6 @@ usermod -a -G sqoop sqoop2
 
 
 
-
 ###Complete Isilon User setup
 
 ###8.2 and 9.x + setup RBAC based hdfs/run as root
@@ -305,7 +298,6 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
 
-
 ****************************************************************************
 ****************************************************************************
 ****************************************************************************
@@ -321,8 +313,8 @@ rpm -qa | grep jdk
 
 
 ###Host setup
-###Change Hostname to lower case & update DNS
-
+###Change Hostname to lower case & update DNS if needed
+hostname -f
 vi /etc/sysconfig/network
 or
 nmutil
@@ -406,7 +398,7 @@ cat /sys/kernel/mm/transparent_hugepage/enabled
 *********************************************************************************************
 ###Install Clouder Manager
 ###install higher suported version initially, older version left only for legacy installs(these chnage all the time, use the website and support matrix to determine valid version to install)
-
+*********************************************************************************************
 
 cd /tmp
 wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
@@ -426,28 +418,31 @@ cd /tmp
 
 ###Accept and follow the installer
 
-
 ###cloudera manager service check
 service cloudera-scm-server status  
 service cloudera-scm-server-db status
 
-service cloudera-scm-server  restart
 service cloudera-scm-server-db restart
+service cloudera-scm-server  restart
+
 
 Or a reboot can sometimes fix this.
 
 
 ###with browser go to the CM installer site
-###host installed on port 7180 per the installer
+###host installed on port 7180 per the installer   - use IP of installed host
 http://192.168.1.40:7180
 
 admin/admin
 
+clustername - cdh1
+
 
 ### select host to deploy
-hdfs1.demo.local
-hdfs2.demo.local
-hdfs3.demo.local
+192.168.1.40
+(optional if prep complete)
+192.168.1.41
+192.168.1.42
 
 
 ###Select the version of CDH to install
@@ -466,7 +461,7 @@ https://www.dell.com/support/article/en-us/sln318813/using-hadoop-with-onefs-inf
 ###set isilon componets to configured isilon smartconnect name	
 	
 default_fs_name		hdfs://cdh.demo.local:8020
-webhdfs_url			http://cdh.demo.local:8082/webhdfs/v1
+webhdfs_url		    http://cdh.demo.local:8082/webhdfs/v1
 
 
 Continue installtion and complete--->

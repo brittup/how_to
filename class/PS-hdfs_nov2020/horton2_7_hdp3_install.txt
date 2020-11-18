@@ -151,7 +151,6 @@ vi /etc/group
 
 esc :wq
 
-
 mkdir /home/hdfs
 mkdir /home/mapred
 mkdir /home/yarn
@@ -199,8 +198,6 @@ mkdir /home/rangerlookup
 mkdir /home/gpadmin
 mkdir /home/anonymous
 
-
-
 chown hdfs:hdfs /home/hdfs
 chown mapred:mapred /home/mapred
 chown yarn:yarn /home/yarn
@@ -247,7 +244,6 @@ chown keyadmin:keyadmin /home/keyadmin
 chown rangerlookup:rangerlookup /home/rangerlookup
 chown gpadmin:gpadmin /home/gpadmin
 chown anonymous:anonymous /home/anonymous
-
 
 chmod 700 /home/hdfs
 chmod 700 /home/mapred
@@ -298,7 +294,6 @@ chmod 700 /home/anonymous
 
 ls -al /home
 
-
 ###Complete Isilon User setup
 
 ###8.1.2 only
@@ -325,10 +320,17 @@ chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
 ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
+
 ****************************************************************************
 ##Ambari  Preparation
 ****************************************************************************
 https://docs.cloudera.com/HDPDocuments/Ambari-2.7.5.0/bk_ambari-installation/content/ch_Getting_Ready.html
+
+###Change Hostname to lower case & update DNS if needed
+hostname -f
+vi /etc/sysconfig/network
+or
+nmutil
 
 yum -y install bind-utils wget ntp
 systemctl enable ntpd
