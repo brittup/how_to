@@ -95,7 +95,7 @@ ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
 
-
+###create the local users, groups and directories on onefs and hdfs linux hosts
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
 
 option1
@@ -112,11 +112,16 @@ isilon_create_directories  --zone=zone-hdp27 --no-verify --onefs-user=root --one
 ls -al
 chmod +x xxxxxxxxxxxx-zone-hdp27-hdp.sh
 ./xxxxxxxxxxxx-zone-hdp27-hdp.sh
+ls -al /home
+cat /etc/passwd
+cat /etc/group
+
 
 copy file to all hosts and repeat
 
 
-One Isilon isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
+####On Isilon 
+isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
 
 
 Go to Ambari Install section below  -- >
@@ -325,6 +330,11 @@ systemctl enable ntpd
 
 ssh-keygen
 ssh-copy-id root@X.X.X.X
+
+copy ssh key to all hosts in hadoop cluster using ssh-copy-id
+
+
+
 cat /root/.ssh/id_rsa  --- > copy to txt file for ambari install
 
 systemctl disable firewalld
@@ -389,16 +399,6 @@ ambari-server restart
 ambari-server status
 
 
-
-###continue with install_setup
-
-
-###isilon setup:     https://github.com/brittup/how_to/blob/master/hadoop/2.7/isilon_setup.txt
-
-or
-
-go to linux host  -- setup linux for isilon users uid/gid
-
 All hosts
 yum -y install krb5-workstation krb5-libs openldap-clients
 
@@ -414,14 +414,15 @@ yum -y install krb5-workstation krb5-libs openldap-clients
 Go to ambari server host:8080
 http://10.246.156.6:8080
 
+admin/admin
 
 ###Follow the installation Guide here:
 https://www.dell.com/support/article/en-us/sln318813/using-hadoop-with-onefs-info-hub?lang=en
 
 
-Use the guide to complete the installation of HDP
+###Use the guide to complete the installation of HDP
 
 
 
-use the OneFS tab to set the smartconnect zone name
+###use the OneFS tab to set the ambari metrics collector
 isi hdfs settings modify --zone=zone_name --ambari-metrics-collector=<FQDN_of_HDP client_running_Ambari_metrics_collector_service>
