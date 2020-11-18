@@ -84,12 +84,19 @@ touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
 
 ###option1
-yum install python36 python36-pip
+yum -y install python36 python36-pip
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
+
+log out/log back in
+
 pipx install isilon_hadoop_tools
 
-isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.21                   
+
+##run the following
+isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.21
+
+                   
 isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  192.168.1.21 
 
 ls -al
