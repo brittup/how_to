@@ -297,6 +297,14 @@ chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
 ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
+###fix CDH6 installer, get mapred id, create directory
+
+isi_run -z 2 id mapred   
+mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce
+mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce/mr-framework
+chown -R 518:518 mapreduce
+
+
 
 ****************************************************************************
 ****************************************************************************
