@@ -79,11 +79,6 @@ isi hdfs settings view --zone=zone1-cdh
 touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 
 
-###8.1.2 only
-isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
-isi auth settings acls modify --group-owner-inheritance=parent
-
-
 
 ###create the local users, groups and directories on onefs and hdfs linux hosts
 #https://github.com/Isilon/isilon_hadoop_tools - use the python tools - PREFERRED METHOD
@@ -286,6 +281,10 @@ isi auth roles view hdfs_access --zone=zone1-cdh
 isi_for_array "isi auth mapping flush --all"
 isi_for_array "isi auth cache flush --all"
 
+
+###8.1.2 only
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
+isi auth settings acls modify --group-owner-inheritance=parent
 
 
 ###create a test user cdpuser1 
