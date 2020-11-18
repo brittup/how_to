@@ -461,18 +461,18 @@ Continue installtion and complete--->
 
 
 ##Test:
-adduser cdhuser1 -u 10000
+adduser cdpuser1 -u 10000
 
 su - hdfs
 hadoop fs -ls /
 hadoop fs -ls /user
-hadoop fs -mkdir /user/cdhuser1
-hadoop fs -chown  cdhuser1:cdhuser1 /user/cdhuser1
-hadoop fs -chmod 700 /user/cdhuser1
+hadoop fs -mkdir /user/cdpuser1
+hadoop fs -chown  cdpuser1:cdpuser1 /user/cdpuser1
+hadoop fs -chmod 700 /user/cdpuser1
 hadoop fs -ls /user/hdfs/
 exit
 
-su - cdhuser1
+su - cdpuser1
 
 
 
@@ -485,8 +485,6 @@ Restart and Redploy Yarn config and services
 
 
 ###Review and surpress any warnings or set limits per CDH recommendations, you should be able to get all services green
-
-
 
 
 ###Test YARN & mapred; use the valid version of the examples: hadoop-mapreduce-examples-2.6.0-cdh5.X.X = hadoop-mapreduce-examples-2.6.0-cdh5.5.15.1.jar
@@ -533,7 +531,7 @@ bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zon
 bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
 
 
-##IF AD, chnage domain name to your domain
+##IF AD, change domain name to your domain
 isi zone zones modify --user-mapping-rules="hdfs=>root, foo\hdfs=>root, foo\* &= *[], foo\* += *[group], foo\* += *[groups]" --zone=zone1-cdh
 
 
