@@ -107,18 +107,19 @@ pipx install isilon_hadoop_tools
 isilon_create_users --zone=zone-hdp27 --no-verify --onefs-user=root --onefs-password=Password123! --dist=hdp --start-uid=500 --start-gid=500  --log-level=debug 192.168.1.21                    
 isilon_create_directories  --zone=zone-hdp27 --no-verify --onefs-user=root --onefs-password=Password123! --dist=hdp  192.168.1.21 
 
+
+
 ls -al
 chmod +x xxxxxxxxxxxx-zone-hdp27-hdp.sh
 ./xxxxxxxxxxxx-zone-hdp27-hdp.sh
 
-ls -al /home
-cat /etc/passwd
-cat /etc/group
-
 copy file to all hosts and repeat
 
 
-Go to Cloudera Install section below  -- >
+One Isilon isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
+
+
+Go to Ambari Install section below  -- >
 
 
 option2
@@ -133,24 +134,16 @@ chmod u+x *
 bash isilon_create_users.sh --dist hwx --startuid 501 --startgid 501  --zone zone-hdp27
 bash isilon_create_directories.sh --dist hwx --zone zone-hdp27  --fixperm
 
-
-
+isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
 
 ls -al /ifs/zone/hdp27/hadoop-root
 ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
-
 cat zone-hdp27.passwd 
 cat zone-hdp27.group
 
-
 ####
-isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
-
-
-
-
 
 
 #### Linux Host Prep and user/group home dirs setup
@@ -320,14 +313,15 @@ chmod 700 /home/anonymous
 ls -al /home
 
 
-https://docs.cloudera.com/HDPDocuments/Ambari-2.7.5.0/bk_ambari-installation/content/ch_Getting_Ready.html
 
 
-yum -y install bind-utils wget ntp
-systemctl enable ntpd
 ****************************************************************************
 ##Ambari  Preparation
 ****************************************************************************
+https://docs.cloudera.com/HDPDocuments/Ambari-2.7.5.0/bk_ambari-installation/content/ch_Getting_Ready.html
+
+yum -y install bind-utils wget ntp
+systemctl enable ntpd
 
 ssh-keygen
 ssh-copy-id root@X.X.X.X
