@@ -302,8 +302,8 @@ ls -al /ifs/zone1/cdh/hadoop-root/user
 isi_run -z 2 id mapred   
 mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce
 mkdir /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce/mr-framework
-chown -R 518:518 mapreduce
-
+chown -R 518:518 /ifs/zone1/cdh/hadoop-root/user/yarn/mapreduce
+ls -al /ifs/zone1/cdh/hadoop-root/user/yarn
 
 
 ****************************************************************************
