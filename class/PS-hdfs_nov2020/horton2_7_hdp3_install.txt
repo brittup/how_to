@@ -63,35 +63,8 @@ ping hdp27.demo.local.demo.local
 isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp27.demo.local
 isi hdfs settings view --zone=zone-hdp27
-
-
-###8.1.2 only
-isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
-isi auth settings acls modify --group-owner-inheritance=parent
-
-
-###8.2 +
-isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
-isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-hdp27
-isi auth roles view hdfs_access --zone=zone-hdp27
-isi_for_array "isi auth mapping flush --all"
-isi_for_array "isi auth cache flush --all"
-
-
 touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
-mkdir -p /ifs/zone/hdp27/scripts
-cd /ifs/zone/hdp27/scripts
 
-
-###
-isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
-isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
-isi zone zones list -v
-chown 1000:1000 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
-chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
-ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
 
@@ -124,13 +97,16 @@ copy file to all hosts and repeat
 isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
 
 
-Go to Ambari Install section below  -- >
+Go to Complete Isilon User setup  -- >  -- >
 
 
 option2
 ###if not using the python method above then use the legcy branch in github
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
+
+mkdir -p /ifs/zone/hdp27/scripts
+cd /ifs/zone/hdp27/scripts
 
 create isilon_create_users.sh
 isilon_create_directories.sh
@@ -318,6 +294,30 @@ chmod 700 /home/anonymous
 ls -al /home
 
 
+###Complete Isilon User setup
+
+###8.1.2 only
+isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone-hdp27
+isi auth settings acls modify --group-owner-inheritance=parent
+
+
+###8.2 +
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone-hdp27
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone-hdp27
+isi auth roles view hdfs_access --zone=zone-hdp27
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
+###
+isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
+isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
+isi zone zones list -v
+chown 1000:1000 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
+chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
+ls -al /ifs/zone/hdp27/hadoop-root/user
 
 
 ****************************************************************************

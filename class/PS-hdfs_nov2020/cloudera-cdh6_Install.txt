@@ -1,5 +1,7 @@
 ###How to setup and configure Cloudera Manager CDH and Isilon - nov2020
-####SETUP ISILON - enable hdfs service
+####SETUP ISILON - check the state of the cluster and enable hdfs service
+
+isi status
 
 ###Validate HDFS & SmartConnect Advanced are licensed
 isi license list
@@ -10,15 +12,16 @@ q
 yes
 
 
-
-
-###enable hdfs service now licensed 9.0+ only
 isi license add --evaluation=HDFS
 q
 yes
 
+
+isi license list
+
+###enable hdfs service now licensed 9.0+ only
 isi services hdfs enable
-isi services -a
+isi services -a | grep hdfs
 
 
 ###create cdh AZ
@@ -64,7 +67,7 @@ add A record   ssip-isilon  192.168.1.100
 ###TEST SCZone
 ping cdh.demo.local
 
-####should resolve to 192.168.1.60-70
+####should resolve to 192.168.1.150-160
 
 ###################################################################################################
 
@@ -79,28 +82,6 @@ touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
 ###8.1.2 only
 isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 isi auth settings acls modify --group-owner-inheritance=parent
-
-
-###8.2 and 9.x + setup RBAC based hdfs/run as root
-isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone1-cdh
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone1-cdh
-isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone1-cdh
-isi auth roles modify hdfs_access --add-user=hdfs --zone=zone1-cdh
-isi auth roles view hdfs_access --zone=zone1-cdh
-isi_for_array "isi auth mapping flush --all"
-isi_for_array "isi auth cache flush --all"
-
-
-
-###create a test user cdpuser1 
-
-isi auth groups create cdpuser1 --zone=zone1-cdh --provider local --gid 1000
-isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdpuser1 --uid 1000
-isi zone zones list -v
-chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdpuser1 
-chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
-ls -al /ifs/zone1/cdh/hadoop-root/user
-
 
 
 
@@ -127,7 +108,7 @@ cat /etc/group
 copy file to all hosts and repeat
 
 
-Go to Cloudera Install section below  -- >
+Go to Complete Isilon User setup  -- >
 
 
 ###option2
@@ -290,6 +271,33 @@ chmod 700 /home/zookeeper
 chmod 700 /home/anonymous
 chmod 700 /home/cmjobuser
 usermod -a -G sqoop sqoop2
+
+
+
+
+###Complete Isilon User setup
+
+###8.2 and 9.x + setup RBAC based hdfs/run as root
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=zone1-cdh
+isi auth roles modify hdfs_access --add-user=hdfs --zone=zone1-cdh
+isi auth roles view hdfs_access --zone=zone1-cdh
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
+
+###create a test user cdpuser1 
+
+isi auth groups create cdpuser1 --zone=zone1-cdh --provider local --gid 1000
+isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdpuser1 --uid 1000
+isi zone zones list -v
+chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdpuser1 
+chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
+ls -al /ifs/zone1/cdh/hadoop-root/user
+
+
 
 
 ****************************************************************************
