@@ -287,13 +287,13 @@ isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
 isi auth settings acls modify --group-owner-inheritance=parent
 
 
-###create a test user cdpuser1 
+###create a test user cdhuser1 
 
-isi auth groups create cdpuser1 --zone=zone1-cdh --provider local --gid 1000
-isi auth users create cdpuser1 --primary-group cdpuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdpuser1 --uid 1000
+isi auth groups create cdhuser1 --zone=zone1-cdh --provider local --gid 1000
+isi auth users create cdhuser1 --primary-group cdhuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdhuser1 --uid 1000
 isi zone zones list -v
-chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdpuser1 
-chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdpuser1
+chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdhuser1 
+chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdhuser1
 ls -al /ifs/zone1/cdh/hadoop-root/user
 
 
@@ -479,20 +479,16 @@ Continue installtion and complete--->
 
 
 ##Test:
-adduser cdpuser1 -u 10000
+adduser cdhuser1 -u 1000
 
 su - hdfs
 hadoop fs -ls /
 hadoop fs -ls /user
-hadoop fs -mkdir /user/cdpuser1
-hadoop fs -chown  cdpuser1:cdpuser1 /user/cdpuser1
-hadoop fs -chmod 700 /user/cdpuser1
-hadoop fs -ls /user/hdfs/
 exit
 
-su - cdpuser1
-
-
+su - cdhuser1
+hadoop fs -ls /
+hadoop fs -ls /user
 
 
 ### Modify the Yarn Memory limits for container size, default too small on these VM's
