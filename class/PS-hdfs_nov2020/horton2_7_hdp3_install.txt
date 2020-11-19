@@ -19,8 +19,8 @@ isi services -a
 
 ####Make hdp access zone
 
-isi zone zones create --name=zone-hdp27 --path=/ifs/zone/hdp27 --create-path
-mkdir -p /ifs/zone/hdp27/hadoop-root
+isi zone zones create --name=zone-hdp27 --path=/ifs/zone2/hdp27 --create-path
+mkdir -p /ifs/zone2/hdp27/hadoop-root
 
 
 
@@ -30,7 +30,6 @@ isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
 isi network pools create --id=groupnet0:subnet0:hadoop-pool-hdp27 --ranges=192.168.1.170-192.168.1.180  --access-zone=zone-hdp27  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=hdp27.demo.local   --description=hdp27_hadoop_access_zone
 
 isi network pools list --verbose
-isi network pools view --id=groupnet0:subnet0:hadoop-pool-hdp27
 
 
 ###################################################################################################
@@ -52,7 +51,7 @@ add A record   ssip-isilon  192.168.1.100
 
 
 ###TEST SCZone
-ping hdp27.demo.local.demo.local
+ping hdp27.demo.local
 
 ####should resolve to 192.168.1.170-180
 
@@ -60,10 +59,10 @@ ping hdp27.demo.local.demo.local
 
 ###setup hdfs settings
 
-isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone/hdp27/hadoop-root
+isi hdfs settings modify --zone=zone-hdp27 --root-directory=/ifs/zone2/hdp27/hadoop-root
 isi hdfs settings modify --zone=zone-hdp27 --ambari-namenode=hdp27.demo.local
 isi hdfs settings view --zone=zone-hdp27
-touch /ifs/zone/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
+touch /ifs/zone2/hdp27/hadoop-root/THIS_IS_ISILON_zone-hdp27.txt
 
 
 
@@ -88,8 +87,8 @@ isilon_create_directories  --zone=zone-hdp27 --no-verify --onefs-user=root --one
 
 
 ls -al
-chmod +x xxxxxxxxxxxx-zone-hdp27-hdp.sh
-./xxxxxxxxxxxx-zone-hdp27-hdp.sh
+chmod +x *-zone-hdp27-hdp.sh
+./*-zone-hdp27-hdp.sh
 ls -al /home
 cat /etc/passwd
 cat /etc/group
@@ -110,8 +109,8 @@ option2
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_users.sh
 https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/legacy/isilon_create_directories.sh
 
-mkdir -p /ifs/zone/hdp27/scripts
-cd /ifs/zone/hdp27/scripts
+mkdir -p /ifs/zone2/hdp27/scripts
+cd /ifs/zone2/hdp27/scripts
 
 create isilon_create_users.sh
 isilon_create_directories.sh
@@ -122,8 +121,8 @@ bash isilon_create_directories.sh --dist hwx --zone zone-hdp27  --fixperm
 
 isi zone modify --add-user-mapping-rules="yarn-ats-hbase=>yarn-ats" --zone=zone-hdp27
 
-ls -al /ifs/zone/hdp27/hadoop-root
-ls -al /ifs/zone/hdp27/hadoop-root/user
+ls -al /ifs/zone2/hdp27/hadoop-root
+ls -al /ifs/zone2/hdp27/hadoop-root/user
 
 
 cat zone-hdp27.passwd 
@@ -313,11 +312,11 @@ isi_for_array "isi auth cache flush --all"
 
 ###
 isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
-isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone/hdp27/hadoop-root/user/hdpuser1 --uid 1000
+isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 --uid 1000
 isi zone zones list -v
-chown 1000:1000 /ifs/zone/hdp27/hadoop-root/user/hdpuser1 
-chmod 755 /ifs/zone/hdp27/hadoop-root/user/hdpuser1
-ls -al /ifs/zone/hdp27/hadoop-root/user
+chown 1000:1000 /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 
+chmod 755 /ifs/zone2/hdp27/hadoop-root/user/hdpuser1
+ls -al /ifs/zone2/hdp27/hadoop-root/user
 
 
 
@@ -335,14 +334,23 @@ nmutil
 yum -y install bind-utils wget ntp
 systemctl enable ntpd
 
+
+###copy ssh key to all hosts in hadoop cluster using ssh-copy-id
+
 ssh-keygen
-ssh-copy-id root@X.X.X.X
+<accept defaults>
 
-copy ssh key to all hosts in hadoop cluster using ssh-copy-id
+ssh-copy-id root@192.168.1.40
+yes
+Password123!
 
+ssh-copy-id root@192.168.1.41
+ssh-copy-id root@192.168.1.42
 
+###test ssh 
+ssh root@192.168.1.41
 
-cat /root/.ssh/id_rsa  --- > copy to txt file for ambari install
+cat /root/.ssh/id_rsa  --- > copy to txt file on windows host for ambari install
 
 systemctl disable firewalld
 service firewalld stop
@@ -355,8 +363,9 @@ reboot
 sestatus
 
 
-
+#####################################################################
 ####Install Ambari
+#####################################################################
 
 wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.4.0/ambari.repo -O /etc/yum.repos.d/ambari.repo 
 
@@ -366,6 +375,12 @@ yum -y install ambari-server
 
 
 ambari-server setup
+n
+1
+y
+n
+n
+
 
 ambari-server start
 ambari-server status
@@ -406,7 +421,7 @@ ambari-server restart
 ambari-server status
 
 
-All hosts
+###All hosts
 yum -y install krb5-workstation krb5-libs openldap-clients
 
 
@@ -414,14 +429,16 @@ yum -y install krb5-workstation krb5-libs openldap-clients
 ###Do not continue unless Isilon and Linux user/group/base directory setup is complete
 
 
-
-
 ###Build HDP Cluster
 
 Go to ambari server host:8080
-http://10.246.156.6:8080
+http://192.168.1.40:8080
 
 admin/admin
+
+###build cluster
+cluster name - hdp1
+
 
 ###Follow the installation Guide here:
 https://www.dell.com/support/article/en-us/sln318813/using-hadoop-with-onefs-info-hub?lang=en

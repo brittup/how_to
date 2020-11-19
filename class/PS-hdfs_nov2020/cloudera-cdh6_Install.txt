@@ -100,8 +100,8 @@ isilon_create_users --zone=zone1-cdh --no-verify --onefs-user=root --onefs-passw
 isilon_create_directories  --zone=zone1-cdh --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdh  192.168.1.21 
 
 ls -al
-chmod +x xxxxxxxxxxxx-zone1-cdh-cdh.sh
-./xxxxxxxxxxxx-zone1-cdh-cdh.sh
+chmod +x *-zone1-cdh-cdh.sh
+./*-zone1-cdh-cdh.sh
 
 ls -al /home
 cat /etc/passwd
@@ -513,9 +513,13 @@ yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X
 yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X.jar teravalidate /user/hdfs/terasortOUT /user/hdfs/teravalidateOUT
 
 
+done!
 
 
 
+#########################################################################
+#########################################################################
+#########################################################################
 
 
 ###uninstall CM if needed
@@ -523,43 +527,3 @@ yarn jar /opt/cloudera/parcels/CDH/jars/hadoop-mapreduce-examples-2.6.0-cdh5.X.X
 
 
 
-Just the isilon commands in one block:
-#################################################################################
-#################################################################################
-
-
-isi zone zones create --name=zone1-cdh --path=/ifs/zone1/cdh --create-path
-mkdir -p /ifs/zone1/cdh/hadoop-root
-isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100
-isi network pools create --id=groupnet0:subnet0:hadoop-pool-cdh --ranges=192.168.1.160-192.168.1.161  --access-zone=zone1-cdh  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=cdh.demo.local    --description=cdh_hadoop_access_zone
-isi hdfs settings modify --zone=zone1-cdh --root-directory=/ifs/zone1/cdh/hadoop-root
-isi zone zones modify --user-mapping-rules="hdfs=>root" --zone=zone1-cdh
-touch /ifs/zone1/cdh/hadoop-root/THIS_IS_ISILON_zone1-cdh.txt
-isi auth settings acls modify --group-owner-inheritance=parent
-mkdir -p /ifs/zone1/cdh/scripts
-cd /ifs/zone1/cdh/scripts
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_users.sh --no-check-certificate
-wget https://raw.githubusercontent.com/Isilon/isilon_hadoop_tools/master/isilon_create_directories.sh --no-check-certificate
-chmod u+x *
-bash isilon_create_users.sh --dist cdh --startuid 501 --startgid 501  --zone zone1-cdh
-bash isilon_create_directories.sh --dist cdh --zone zone1-cdh  --fixperm
-
-
-##IF AD, change domain name to your domain
-isi zone zones modify --user-mapping-rules="hdfs=>root, foo\hdfs=>root, foo\* &= *[], foo\* += *[group], foo\* += *[groups]" --zone=zone1-cdh
-
-
-
-
-isi license list
-isi zone zones list --verbose
-isi network subnets list --verbose
-isi network pools list --verbose
-isi network pools view --id=groupnet0:subnet0:hadoop-pool-cdh
-isi hdfs settings view --zone=zone1-cdh
-ls -al /ifs/zone1/cdh/hadoop-root
-ls -al /ifs/zone1/cdh/hadoop-root/user
-
-
-#################################################################################
-#################################################################################
