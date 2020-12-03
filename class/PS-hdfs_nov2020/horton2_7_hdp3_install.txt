@@ -133,7 +133,7 @@ cat zone-hdp27.group
 
 #### Linux Host Prep and user/group home dirs setup
 go to linux host
-adduser hdpuser1 -u 1000
+adduser hdpuser1 -u 10000
 
 
 #go to host
@@ -311,10 +311,10 @@ isi_for_array "isi auth cache flush --all"
 
 
 ###
-isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 1000
-isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 --uid 1000
+isi auth groups create hdpuser1 --zone=zone-hdp27 --provider local --gid 10000
+isi auth users create hdpuser1 --primary-group hdpuser1 --zone=zone-hdp27 --provider local --home-directory /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 --uid 10000 --enable
 isi zone zones list -v
-chown 1000:1000 /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 
+chown 10000:10000 /ifs/zone2/hdp27/hadoop-root/user/hdpuser1 
 chmod 755 /ifs/zone2/hdp27/hadoop-root/user/hdpuser1
 ls -al /ifs/zone2/hdp27/hadoop-root/user
 

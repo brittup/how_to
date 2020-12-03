@@ -289,10 +289,10 @@ isi auth settings acls modify --group-owner-inheritance=parent
 
 ###create a test user cdhuser1 
 
-isi auth groups create cdhuser1 --zone=zone1-cdh --provider local --gid 1000
-isi auth users create cdhuser1 --primary-group cdhuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdhuser1 --uid 1000
+isi auth groups create cdhuser1 --zone=zone1-cdh --provider local --gid 10000
+isi auth users create cdhuser1 --primary-group cdhuser1 --zone=zone1-cdh --provider local --home-directory /ifs/zone1/cdh/hadoop-root/user/cdhuser1 --uid 10000 --enable
 isi zone zones list -v
-chown 1000:1000 /ifs/zone1/cdh/hadoop-root/user/cdhuser1 
+chown 10000:10000 /ifs/zone1/cdh/hadoop-root/user/cdhuser1 
 chmod 755 /ifs/zone1/cdh/hadoop-root/user/cdhuser1
 ls -al /ifs/zone1/cdh/hadoop-root/user
 
@@ -479,7 +479,7 @@ Continue installtion and complete--->
 
 
 ##Test:
-adduser cdhuser1 -u 1000
+adduser cdhuser1 -u 10000
 
 su - hdfs
 hadoop fs -ls /
