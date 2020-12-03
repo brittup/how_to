@@ -446,6 +446,8 @@ https://www.dell.com/support/article/en-us/sln318813/using-hadoop-with-onefs-inf
 
 ###Use the guide to complete the installation of HDP
 
+go to linux host
+adduser hdpuser1 -u 10000
 
 
 ###use the OneFS tab to set the ambari metrics collector
