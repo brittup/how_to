@@ -1,6 +1,5 @@
 ###Setup Isilon and client for NFSv4
 
-
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup, not included here
 -isilon.demo.local
