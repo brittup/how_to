@@ -46,7 +46,7 @@ Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "az1" -NameServer 
 
 -Test SCzone:
 -go to linux host and test
-nslookup az.demo.local 192.168.1.2
+nslookup az1.demo.local 192.168.1.2
 
 
 
@@ -54,15 +54,13 @@ nslookup az.demo.local 192.168.1.2
 ###3.create nfs export on Isilon for az1
 isi nfs exports create --path=/ifs/az1/data1 --map-root=root  --zone=az1 --description=az_test_export
 isi nfs exports list --zone=az1
-
-onefs 9.x
 isi nfs exports view --id=1 --zone=az1
 
+###mount nfs 
+mkdir /mnt/isilon-az/data1
+mount -t nfs az.demo.local:/ifs/az1/data1 /mnt/isilon-az/dat1
 
-mkdir /mnt/isilon-az
-mount -t nfs az.demo.local:/ifs/az1/data1 /mnt/isilon-az
-
-cd /mnt/isilon-az
+cd /mnt/isilon-az/data1
 ls -al
 
 ##test the nfs export
