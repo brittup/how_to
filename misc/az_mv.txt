@@ -70,7 +70,7 @@ isi nfs exports create --path=/ifs/az1/data3 --map-root=root  --zone=az1 --descr
 isi nfs exports list --zone=az1
 
 
-###create snapshots
+###create snapshots if needed
 isi license add --evaluation=SNAPSHOTIQ
 ###hit q and yes to accept eula
 
