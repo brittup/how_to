@@ -67,7 +67,7 @@ mount -t nfs az.demo.local:/ifs/mp /mnt/isilon-az
 cd /mnt/isilon-az
 ls -al
 
-##
+##test the nfs export
 - create a file nfs.txt 
 - open and edit the nfs.txt file
 - look at the permissions on nfs.txt 
