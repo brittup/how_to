@@ -11,7 +11,7 @@ isi license add --evaluation=SMARTCONNECT_ADVANCED
 mkdir -p /ifs/az1
 mkdir -p /ifs/az1/data1
 chmod -R  777 /ifs/az1
-touch /ifs/az1/this_is_isilon.txt
+touch /ifs/az1/az1_this_is_isilon.txt
 touch /ifs/az1/data1/az1.txt
 
 
@@ -65,6 +65,8 @@ isi smb share view ifs
 isi smb shares permission modify ifs --zone=System --permission-type=allow --permission=full --wellknown=Everyone
 isi smb shares permission modify ifs --zone=System --wellknown=Everyone --run-as-root
 
+###use winscp on desktop to copy test data to az1, from E:
+scpinfo: 192.168.1.21  - root - Password123!
 
 
 
@@ -80,4 +82,19 @@ isi nfs exports create --path=/ifs/az1/data3 --map-root=root  --zone=az1 --descr
 isi nfs exports list --zone=az1
 
 
+###create snapshots
+
+
+
+###create new zone
+mkdir -p /ifs/az2
+chmod -R  777 /ifs/az2
+touch /ifs/az2/az2_this_is_isilon.txt
+
+
+
+###make a new az
+isi zone create --name=az2 --path=/ifs/az1 
+isi zone zones modify az2 --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
+isi zone zones list -v
 
