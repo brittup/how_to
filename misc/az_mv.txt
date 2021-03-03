@@ -77,6 +77,6 @@ vi nfs.txt
 ls -al
 cat nfs.txt
 
-6XdNyjTkhBAndta
+
 
 
