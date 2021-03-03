@@ -1,28 +1,21 @@
-###Move an AZ
-
-
+###Move an AZ, setup test and validate
 isi license add --evaluation=SMARTCONNECT_ADVANCED
 
 ###hit q and yes to accept eula
 
-
 ###on isilon make base AZ directory
-
 mkdir -p /ifs/az1
 mkdir -p /ifs/az1/data1
 chmod -R  777 /ifs/az1
 touch /ifs/az1/az1_this_is_isilon.txt
 touch /ifs/az1/data1/az1.txt
 
-
 ###make an az
 isi zone create --name=az1 --path=/ifs/az1 
-
 
 ###1a.setup SmartConnect on Isilon
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=az1  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=az1.demo.local    --description=az_pool
-
 
 ###join AD
 isi auth ads create demo.local administrator --password=Password123!
@@ -39,7 +32,6 @@ Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "az1" -NameServer 
 -Test SCzone:
 -go to linux host and test
 nslookup az1.demo.local 192.168.1.2
-
 
 ###3.create nfs export on Isilon for az1
 isi nfs exports create --path=/ifs/az1/data1 --map-root=root  --zone=az1 --description=az_test_export
@@ -58,7 +50,6 @@ ls -al
 touch nfs.txt
 ls -al
 
-
 ###copy test data in
 isi smb shares create --zone=System --path=/ifs --name=ifs --description=ifs
 isi smb share view ifs
@@ -68,10 +59,7 @@ isi smb shares permission modify ifs --zone=System --wellknown=Everyone --run-as
 ###use winscp on desktop to copy test data to az1, from E:
 scpinfo: 192.168.1.21  - root - Password123!
 
-
-
-
-###create additional nfs exports for test
+###create additional nfs exports for test in az1
 mkdir /ifs/az1/data2
 mkdir /ifs/az1/data3
 touch /ifs/az1/data2/az1.txt
@@ -83,18 +71,21 @@ isi nfs exports list --zone=az1
 
 
 ###create snapshots
+isi license add --evaluation=SNAPSHOTIQ
+###hit q and yes to accept eula
 
 
 
-###create new zone
+
+
+
+###create new zone az2
 mkdir -p /ifs/az2
 chmod -R  777 /ifs/az2
 touch /ifs/az2/az2_this_is_isilon.txt
 
-
-
-###make a new az
-isi zone create --name=az2 --path=/ifs/az1 
+###make a new az3
+isi zone create --name=az2 --path=/ifs/az2 
 isi zone zones modify az2 --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
 isi zone zones list -v
 
