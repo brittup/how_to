@@ -11,7 +11,8 @@ isi license add --evaluation=SMARTCONNECT_ADVANCED
 ###on isilon make base AZ directory
 
 mkdir -p /ifs/az1
-chmod 777 /ifs/az1
+mkdir -p /ifs/az1/data1
+chmod -R  777 /ifs/az1
 touch /ifs/az1/this_is_isilon.txt
 chmod 777 /ifs/az1/this_is_isilon.txt
 
@@ -50,19 +51,16 @@ nslookup az.demo.local 192.168.1.2
 
 
 
-###3.create nfs export on Isilon for mp
-
-isi nfs exports create --path=/ifs/az1/ --map-root=root  --zone=az1 --description=az_test_export
-isi nfs exports list --zone=System
+###3.create nfs export on Isilon for az1
+isi nfs exports create --path=/ifs/az1/data1 --map-root=root  --zone=az1 --description=az_test_export
+isi nfs exports list --zone=az1
 
 onefs 9.x
-isi nfs exports view --id=1 --zone=System
+isi nfs exports view --id=1 --zone=az1
 
-
-###connect to nfs export from linux host vis  - use hdfs1 host
 
 mkdir /mnt/isilon-az
-mount -t nfs az.demo.local:/ifs/mp /mnt/isilon-az
+mount -t nfs az.demo.local:/ifs/az1/data1 /mnt/isilon-az
 
 cd /mnt/isilon-az
 ls -al
@@ -77,6 +75,16 @@ vi nfs.txt
 ls -al
 cat nfs.txt
 
+
+
+
+###create additional nfs exports for test
+mkdir /ifs/az1/data2
+mkdir /ifs/az1/data3
+
+isi nfs exports create --path=/ifs/az1/data2 --map-root=root  --zone=az1 --description=az_test_export
+isi nfs exports create --path=/ifs/az1/data3 --map-root=root  --zone=az1 --description=az_test_export
+isi nfs exports list --zone=az1
 
 
 
