@@ -1,4 +1,11 @@
 
+
+From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+docker run -it ubuntu bash
+
+
 yum -y install git 
 mkdir /git 
 cd /git 
