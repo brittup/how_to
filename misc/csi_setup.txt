@@ -39,7 +39,7 @@ sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=1
 repo_gpgcheck=0
@@ -51,9 +51,10 @@ cat /etc/yum.repos.d/kubernetes.repo
 
 
 
+#yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
+yum install  kubelet-1.14.1-0 kubeadm-1.14.1-0 kubectl-1.14.1-0 --disableexcludes=kubernetes
+yum install  kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
 
-yum install -y kubelet-1.14.1-0 kubeadm-1.14.1-0 kubectl-1.14.1-0 --disableexcludes=kubernetes]
-yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
 
 systemctl enable kubelet
 systemctl start kubelet
@@ -97,6 +98,95 @@ kubeadm reset
 
 
 
+
+###CSI driver install
+on isilon 
+mkdir /ifs/csi
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local
+(use Password123!)
+
+isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System
+isi auth roles view k8-csi --zone=System
+
+
+on linux:
+
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+
+yum install git
+mkdir git
+git clone https://github.com/dell/csi-isilon.git
+
+
+
+vi /etc/systemd/system/multi-user.target.wants/docker.service
+
+[Service]
+...
+MountFlags=shared
+
+
+systemctl daemon-reload
+systemctl restart docker
+
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.2/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.2/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+
+
+cd git/csi-isilon
+cp /helm/csi-isilon/values.yaml my-isilon-settings.yaml
+vi my-isilon-settings.yaml
+
+
+edit:
+isiIP: 10.246.156.13
+isiPath: "/ifs/csi"
+
+
+kubectl create namespace isilon
+
+
+
+echo -n 'k8' | base64
+azg=
+
+echo -n 'Password123!' | base64
+UGFzc3dvcmQxMjMh
+
+ vi helm/secret.yaml
+(copy user & password info)
+
+
+kubectl create -f secret.yaml
+
+
+kubectl create -f emptysecret.yaml
+
+cd dell-csi-helm-installer
+
+
+
+https://github.com/dell/csi-powerscale/blob/master/dell-csi-helm-installer/README.md
+
+
+
+
+ ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd
+
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd 
 
 
 
