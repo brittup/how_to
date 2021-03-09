@@ -49,7 +49,6 @@ ls -al
 ##test the nfs export
 touch nfs.txt
 ls -al
-pwd
 
 ###copy test data in
 isi smb shares create --zone=System --path=/ifs --name=ifs --description=ifs
