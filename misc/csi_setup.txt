@@ -112,7 +112,8 @@ kubeadm reset
 
 ###isilon setup 
 isi auth groups create --zone=System --name=k8 --provider=local
-isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k8
+
 (use Password123!)
 
 isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
@@ -208,10 +209,15 @@ cd dell-csi-helm-installer
 https://github.com/dell/csi-powerscale/blob/master/dell-csi-helm-installer/README.md
 
 
+kubectl describe node centos-11.foo.com | grep Taint
+    taints:             node-role.kubernetes.io/master:NoSchedule
+kubectl taint nodes centos-11.foo.com node-role.kubernetes.io/master-
+
+
+watch kubectl get pods -A  
 
 
  ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd
-
 
 
 
