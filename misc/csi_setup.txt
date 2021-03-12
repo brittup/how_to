@@ -5,14 +5,14 @@
 #sh get-docker.sh
 
 
-yum install -y yum-utils
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2
 yum-config-manager \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
  
 #yum list docker-ce --showduplicates | sort -r
 #yum list docker-ce-19.03.9 docker-ce-cli-19.03.9 containerd.io
-
+#yum install docker-ce docker-ce-cli containerd.io
 
 yum install docker-ce-19.03.9 docker-ce-cli-19.03.9 containerd.io
 
@@ -45,6 +45,9 @@ swapoff -a
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
+vi /etc/hosts
+
+Add IP - hostnames of k8 hosts
 
 
 cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
@@ -60,8 +63,9 @@ EOF
 
 cat /etc/yum.repos.d/kubernetes.repo
 
+#yum list kube* --showduplicates | sort -r
 #yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
-#yum install  kubelet-1.14.1-0 kubeadm-1.14.1-0 kubectl-1.14.1-0 --disableexcludes=kubernetes
+#yum install kubelet-1.14.1* kubeadm-1.14.1* kubectl-1.14.1* --disableexcludes=kubernetes
 yum install kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
 
 
@@ -74,11 +78,10 @@ kubeadm init --pod-network-cidr=10.244.0.0/16
 <see output for node info>
 
 
-
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
-cat .kube/config
+cat $HOME/.kube/config
 
 export KUBECONFIG=/etc/kubernetes/admin.conf 
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
@@ -91,12 +94,10 @@ docker ps --all
 ###https://kubernetes.io/docs/concepts/cluster-administration/addons/
 
 
-
 yum install -y wget
-wget https://cloud.weave.works/k8s/v1.13/net.yaml --no-check-certificate
-
-
-kubectl apply -f net.yaml
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+#wget https://cloud.weave.works/k8s/v1.13/net.yaml --no-check-certificate
+#kubectl apply -f net.yaml
 
 kubectl get nodes
 kubectl get pods -A
@@ -225,7 +226,7 @@ watch kubectl get pods -A
 
 
 
-./csi-uninstall.sh --namespace isilon
+# ./csi-uninstall.sh --namespace isilon
 
 
 
@@ -249,20 +250,72 @@ watch kubectl get pods -A
 
 
 
-###########################################
-###No root user
 
-useradd -u 50000-d /home/k8 -m k8 
-passwd k8
-vi /etc/sudoers
 
-add k8
-k8  ALL=(ALL)       ALL
 
-su - k8
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+
+
+
+
+cd test/helm
+kubectl create namespace test
+starttest.sh -n -t 2vols
+kubectl get pv
+kubectl get pvc
+
+
+
+
+
+
+
+kubectl get pv -ti -n test isilontest-0 bash
+
+
+
+
+
+
+
+
+
+kubectl apply -f secret.yaml
+kubectl get secrets -n isilon
+
+
+kubectl get namespace
+kubectl get sc
+kubectl get crd
+
+kubectl get nodes
+vi /var/lib/kubelet/config.yaml
+vi /etc/kubernetes/kubelet.conf
+vi /etc/kubernetes/manifests/kube-apiserver.yaml
+
+
+kubectl get pods -A
+kubectl get pods --namespace isilon
+kubectl describe pod isilon-controller-5f9595d8cb-qcclk --namespace isilon
+
+ kubectl logs isilon-controller-5f9595d8cb-mtsrq -n isilon -c driver
+
+
+cd helm
+./reveal_secret
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
