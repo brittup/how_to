@@ -1,3 +1,13 @@
+###csi driver setup
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2
+yum install -y nfs-utils nfs-utils-lib
+
+systemctl start rpcbind
+systemctl enable rpcbind
+systemctl status rpcbind
+
+
+
 
 ###install Docker
 ###From: https://docs.docker.com/engine/install/centos/
@@ -5,7 +15,7 @@
 #sh get-docker.sh
 
 
-yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2
+
 yum-config-manager \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
@@ -43,7 +53,7 @@ sysctl --system
 sed -i '/swap/d' /etc/fstab
 swapoff -a
 setenforce 0
-sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
 vi /etc/hosts
 
@@ -160,8 +170,8 @@ systemctl daemon-reload
 systemctl restart docker
 
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.2/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.2/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.3/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.3/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
 cd ~/git/csi-isilon
@@ -231,47 +241,15 @@ watch kubectl get pods -A
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 cd test/helm
 kubectl create namespace test
-starttest.sh -n -t 2vols
+./starttest.sh -n -t 2vols
 kubectl get pv
-kubectl get pvc
+kubectl get pvc -n test
+
+kubectl exec -ti -n test isilontest-0 bash
 
 
-
-
-
-
-
-kubectl get pv -ti -n test isilontest-0 bash
 
 
 
@@ -280,6 +258,7 @@ kubectl get pv -ti -n test isilontest-0 bash
 
 
 
+Misc:
 
 kubectl apply -f secret.yaml
 kubectl get secrets -n isilon
@@ -299,7 +278,7 @@ kubectl get pods -A
 kubectl get pods --namespace isilon
 kubectl describe pod isilon-controller-5f9595d8cb-qcclk --namespace isilon
 
- kubectl logs isilon-controller-5f9595d8cb-mtsrq -n isilon -c driver
+kubectl logs isilon-controller-5f9595d8cb-mtsrq -n isilon -c driver
 
 
 cd helm
