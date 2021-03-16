@@ -41,7 +41,7 @@ isi nfs exports view --id=1 --zone=az1
 ###mount nfs from linux host
 mkdir /mnt/isilon-az
 mkdir /mnt/isilon-az/data1
-mount -t nfs az.demo.local:/ifs/az1/data1 /mnt/isilon-az/data1
+mount -t nfs az1.demo.local:/ifs/az1/data1 /mnt/isilon-az/data1
 
 cd /mnt/isilon-az/data1
 ls -al
