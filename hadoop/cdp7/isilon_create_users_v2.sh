@@ -164,9 +164,8 @@ case "$DIST" in
     "cdh")
         SUPER_USERS="hdfs mapred yarn HTTP hbase"
         SUPER_GROUPS="hadoop supergroup"
-        REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka keytrustee kudu llama oozie solr spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez httpfs streamsrepmgr streamsmsgmgr"
-		  REQUIRED_USERS2="livy kms atlas schemaregistry phoenix druid ranger zeppelin knox superset solr rangerrms cruisecontrol rangerraz rpcuser nfsnobody knoxui rangeradmin rangerusersync rangertagsync"
-        REQUIRED_GROUPS="$REQUIRED_USERS $REQUIRED_USERS2 $SUPER_GROUPS"
+        REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka keytrustee kudu llama oozie spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez streamsrepmgr streamsmsgmgr livy kms atlas schemaregistry phoenix druid ranger zeppelin knox superset solr rangerrms cruisecontrol rangerraz rpcuser nfsnobody knoxui rangeradmin rangerusersync rangertagsync"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         PROXY_SUPER="impala flume hive hue oozie mapred"
         PROXY_USERONLY="HTTP"
         SMOKE_USER="cloudera-scm"
