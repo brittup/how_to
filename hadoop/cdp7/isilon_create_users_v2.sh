@@ -167,9 +167,12 @@ case "$DIST" in
         SUPER_USERS="hdfs mapred yarn HTTP hbase"
         SUPER_GROUPS="hadoop supergroup"
         #REQUIRED_USERS="$SUPER_USERS httpfs sqoop kafka streamsrepmgr spark streamsmsgmgr livy kms atlas schemaregistry hue zookeeper accumulo phoenix druid ranger zeppelin oozie kudu knox superset solr rangerrms hive cruisecontrol impala rangerraz rpcuser nfsnobody knoxui rangeradmin tez rangerusersync rangertagsync admin"
-        REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka kms keytrustee kudu llama oozie solr spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez httpfs sqoop kafka yarn hbase streamsrepmgr spark hdfs streamsmsgmgr livy kms atlas schemaregistry hue zookeeper accumulo phoenix mapred druid ranger zeppelin oozie kudu knox superset solr rangerrms hive cruisecontrol impala rangerraz rpcuser nfsnobody knoxui rangeradmin tez rangerusersync rangertagsync admin"
-        if [ "$ZONE" != "System" ]; then
-          REQUIRED_USERS="$REQUIRED_USERS admin"
+        REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka kms keytrustee kudu llama oozie solr spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez httpfs streamsrepmgr spark streamsmsgmgr"
+		REQUIRED_USERS2="livy kms atlas schemaregistry phoenix druid ranger zeppelin knox superset solr rangerrms cruisecontrol rangerraz rpcuser nfsnobody knoxui rangeradmin rangerusersync rangertagsync"
+
+		
+		if [ "$ZONE" != "System" ]; then
+          REQUIRED_USERS="$REQUIRED_USERS $REQUIRED_USERS2 admin"
         fi
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         PROXY_SUPER="impala flume hive hue oozie mapred"
