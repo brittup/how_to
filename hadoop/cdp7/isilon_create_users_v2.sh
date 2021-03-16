@@ -166,7 +166,6 @@ case "$DIST" in
     "cdh")
         SUPER_USERS="hdfs mapred yarn HTTP hbase"
         SUPER_GROUPS="hadoop supergroup"
-        #REQUIRED_USERS="$SUPER_USERS httpfs sqoop kafka streamsrepmgr spark streamsmsgmgr livy kms atlas schemaregistry hue zookeeper accumulo phoenix druid ranger zeppelin oozie kudu knox superset solr rangerrms hive cruisecontrol impala rangerraz rpcuser nfsnobody knoxui rangeradmin tez rangerusersync rangertagsync admin"
         REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka kms keytrustee kudu llama oozie solr spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez httpfs streamsrepmgr spark streamsmsgmgr"
 		  REQUIRED_USERS2="livy kms atlas schemaregistry phoenix druid ranger zeppelin knox superset solr rangerrms cruisecontrol rangerraz rpcuser nfsnobody knoxui rangeradmin rangerusersync rangertagsync"
 
@@ -190,6 +189,7 @@ case "$DIST" in
         PROXY_USERONLY="HTTP ambari-server knox"
         SMOKE_USER="ambari-qa"
         ;;
+        
     "bi")
         SUPER_USERS="hdfs mapred yarn yarn-ats-hbase hbase storm titan falcon tracer hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop spark mahout ranger kms atlas ams kafka zeppelin livy logsearch infra-solr activity_analyzer activity_explorer HTTP knox ambari-server uiuser dsmadmin bigsheets rrdcached bigsql tauser bigr solr bighome"
         SUPER_GROUPS="hadoop"
