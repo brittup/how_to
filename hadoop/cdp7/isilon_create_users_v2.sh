@@ -25,7 +25,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>] [--append-cluster-name <clustername>]"
+   echo "$0 --dist <cdp|hwx|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>] [--append-cluster-name <clustername>]"
    exit 1
 }
 
@@ -161,7 +161,7 @@ if [ "$VERBOSE" == "y" ] ; then
 fi
 
 case "$DIST" in
-    "cdh")
+    "cdp")
         SUPER_USERS="hdfs mapred yarn HTTP hbase"
         SUPER_GROUPS="hadoop supergroup"
         REQUIRED_USERS="$SUPER_USERS hive impala hue cloudera-scm accumulo flume httpfs apache kafka keytrustee kudu llama oozie spark sentry sqoop sqoop2 zookeeper anonymous cmjobuser tez streamsrepmgr streamsmsgmgr livy kms atlas schemaregistry phoenix druid ranger zeppelin knox superset solr rangerrms cruisecontrol rangerraz rpcuser nfsnobody knoxui rangeradmin rangerusersync rangertagsync"
@@ -282,7 +282,7 @@ done
 
 # Special cases
 case "$DIST" in
-    "cdh")
+    "cdp")
         #Deal with special cases on Isilon
         isi auth groups modify sqoop$CLUSTER_NAME --add-user sqoop2$CLUSTER_NAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2$CLUSTER_NAME to sqoop$CLUSTER_NAME group in zone $ZONE"
