@@ -1,19 +1,19 @@
 ###csi driver setup
-yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2
-yum install -y nfs-utils nfs-utils-lib
+#ensure dns is setup for all hosts
+#Add IP - hostnames of k8 hosts
+vi /etc/hosts
+vi /etc/resolv.conf
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
 
 systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
 
 
-
-
-###install Docker
+###install Docker, use a specific version
 ###From: https://docs.docker.com/engine/install/centos/
 #curl -fsSL https://get.docker.com -o get-docker.sh
 #sh get-docker.sh
-
 
 
 yum-config-manager \
@@ -28,10 +28,11 @@ yum install docker-ce-19.03.9 docker-ce-cli-19.03.9 containerd.io
 
 systemctl enable docker.service
 systemctl start docker
+systemctl status docker
 docker run -it --rm ubuntu /bin/bash
 
 docker ps --all
-
+docker images -a
 
 
 ###install Kubernetes
@@ -39,6 +40,7 @@ docker ps --all
 
 service firewalld stop
 systemctl disable firewalld
+systemctl status firewalld
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 br_netfilter
@@ -55,11 +57,11 @@ swapoff -a
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
-vi /etc/hosts
+reboot
 
-Add IP - hostnames of k8 hosts
+sestatus
 
-
+###install K8
 cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -73,14 +75,15 @@ EOF
 
 cat /etc/yum.repos.d/kubernetes.repo
 
-#yum list kube* --showduplicates | sort -r
+###check supported versions of k8s
+yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
+
 #yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
 #yum install kubelet-1.14.1* kubeadm-1.14.1* kubectl-1.14.1* --disableexcludes=kubernetes
+
 yum install kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
 
-
 systemctl enable kubelet
-systemctl start kubelet
 
 ###deploy kubernetes cluster
 kubeadm init --pod-network-cidr=10.244.0.0/16
@@ -92,9 +95,9 @@ mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 cat $HOME/.kube/config
-
 export KUBECONFIG=/etc/kubernetes/admin.conf 
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
+cat /root/.bash_profile
 docker ps --all
 
 
@@ -104,10 +107,10 @@ docker ps --all
 ###https://kubernetes.io/docs/concepts/cluster-administration/addons/
 
 
-yum install -y wget
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
-#wget https://cloud.weave.works/k8s/v1.13/net.yaml --no-check-certificate
-#kubectl apply -f net.yaml
+#kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+wget https://cloud.weave.works/k8s/v1.13/net.yaml --no-check-certificate
+kubectl apply -f net.yaml
+
 
 kubectl get nodes
 kubectl get pods -A
@@ -115,10 +118,7 @@ kubectl get pods -A
 
 ### if reset needed
 kubeadm reset
-
-
-
-
+###
 
 
 ###isilon setup 
@@ -152,7 +152,6 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 
-yum install -y git
 mkdir git
 cd git
 git clone https://github.com/dell/csi-isilon.git
@@ -164,7 +163,6 @@ vi /etc/systemd/system/multi-user.target.wants/docker.service
 [Service]
 
 MountFlags=shared
-
 
 systemctl daemon-reload
 systemctl restart docker
@@ -182,6 +180,9 @@ vi my-isilon-settings.yaml
 edit:
 isiIP: 10.246.156.13
 isiPath: "/ifs/csi"
+controllerCount: 1    - if only 1 host
+nfsV3: "true"         - force v3
+
 
 kubectl create namespace isilon
 
@@ -210,19 +211,18 @@ data:
 
 
 kubectl create -f helm/secret.yaml
-
 kubectl create -f helm/emptysecret.yaml
 
 cd dell-csi-helm-installer
 
 
-
 https://github.com/dell/csi-powerscale/blob/master/dell-csi-helm-installer/README.md
 
 
-kubectl describe node centos-11.foo.com | grep Taint
+Before we install the driver, we will take the NoSchedule taint away from the master node
+kubectl describe node hostname | grep Taint
     taints:             node-role.kubernetes.io/master:NoSchedule
-kubectl taint nodes centos-11.foo.com node-role.kubernetes.io/master-
+kubectl taint nodes hostname node-role.kubernetes.io/master-
 
 
 watch kubectl get pods -A  
@@ -230,24 +230,28 @@ watch kubectl get pods -A
 
  ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd
 
-
-
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd 
 
-
-
-# ./csi-uninstall.sh --namespace isilon
-
+###if needed
+ ./csi-uninstall.sh --namespace isilon
 
 
 
-cd test/helm
+###test driver, from csi-isilon
+cd ~/git/csi-isilon/test/helm
+
 kubectl create namespace test
-./starttest.sh -n -t 2vols
-kubectl get pv
-kubectl get pvc -n test
 
+./starttest.sh -t 2vols -n test
+kubectl get pv -A
+kubectl get pvc -A
+kubectl get pvc -n test
 kubectl exec -ti -n test isilontest-0 bash
+
+./stoptest.sh -t 2vols -n test
+
+
+
 
 
 
@@ -282,9 +286,16 @@ kubectl logs isilon-controller-5f9595d8cb-mtsrq -n isilon -c driver
 
 
 cd helm
+chmod u+x reveal_secret.sh
 ./reveal_secret
 
 
+kubectl get pvc -A
+kubectl delete pvc pvol0 -n test
+
+
+
+kubeadm reset
 
 
 
