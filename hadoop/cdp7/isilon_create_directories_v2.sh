@@ -27,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|bi> [--zone <ZONE>] [--fixperm] [--posix-only] [--verbose] [--append-cluster-name <clustername>] "
+   echo "$0 --dist <cdp|hwx|bi> [--zone <ZONE>] [--fixperm] [--posix-only] [--verbose] [--append-cluster-name <clustername>] "
    exit 1
 }
 
@@ -152,7 +152,7 @@ declare -a dirList
 
 # Per-distribution list of folders with permissions and owners
 case "$DIST" in
-    "cdh")
+    "cdp")
         # Format is: dirname#perm#owner#group
         dirList=(\
             "/hbase#755#hbase#hbase" \
