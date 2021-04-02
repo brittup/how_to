@@ -209,6 +209,7 @@ azg=
 echo -n 'Password123!' | base64
 UGFzc3dvcmQxMjMh
 
+##needs updates
 #######################################################
 vi helm/secret.yaml
 (copy user & password info)
