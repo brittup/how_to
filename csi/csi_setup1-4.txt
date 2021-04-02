@@ -201,6 +201,8 @@ nfsV3: "true"         - force v3
 
 kubectl create namespace isilon
 
+
+####create secrets
 #create user & password
 echo -n 'k8' | base64
 azg=
@@ -250,7 +252,8 @@ watch kubectl get pods -A
 ###if needed
  ./csi-uninstall.sh --namespace isilon
 
-
+####get the storage class
+kubectl get sc
 
 ###test driver, from csi-isilon
 cd ~/git/csi-isilon/test/helm
@@ -263,6 +266,9 @@ kubectl create namespace test
 kubectl get pv -A
 kubectl get pvc -A
 kubectl get pvc -n test
+kubectl get pods -n test
+kubectl describe pods -n test
+kubectl exec -ti -n test isilontest-0 bash
 kubectl exec -ti -n test isilontest-0 bash
 
 

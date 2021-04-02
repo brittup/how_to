@@ -201,6 +201,7 @@ nfsV3: "true"         - force v3
 
 kubectl create namespace isilon
 
+####create secrets
 #create user & password
 echo -n 'k8' | base64
 azg=
@@ -208,7 +209,7 @@ azg=
 echo -n 'Password123!' | base64
 UGFzc3dvcmQxMjMh
 
-
+#######################################################
 vi helm/secret.yaml
 (copy user & password info)
 apiVersion: v1
@@ -222,7 +223,7 @@ data:
   username: azg=
   # set password to the base64 encoded password
   password: UGFzc3dvcmQxMjMh
-
+#######################################################pwd
 
 
 kubectl create -f helm/secret.yaml
@@ -251,6 +252,9 @@ watch kubectl get pods -A
  ./csi-uninstall.sh --namespace isilon
 
 
+####get the storage class
+kubectl get sc
+
 
 ###test driver, from csi-isilon
 cd ~/git/csi-isilon/test/helm
@@ -263,10 +267,12 @@ kubectl create namespace test
 kubectl get pv -A
 kubectl get pvc -A
 kubectl get pvc -n test
+kubectl get pods -n test
+kubectl describe pods -n test
 kubectl exec -ti -n test isilontest-0 bash
 
 
-### stop the volumes
+### stop the volumes and cleanup
 ./stoptest.sh -t 2vols -n test
 
 
