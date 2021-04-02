@@ -9,8 +9,8 @@ systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
 
-
-###install Docker, use a specific version
+###################################################################################################################################################
+###install Docker Runtime, use a specific version
 ###From: https://docs.docker.com/engine/install/centos/
 #curl -fsSL https://get.docker.com -o get-docker.sh
 #sh get-docker.sh
@@ -34,7 +34,7 @@ docker run -it --rm ubuntu /bin/bash
 docker ps --all
 docker images -a
 
-
+###################################################################################################################################################
 ###install Kubernetes
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
@@ -142,16 +142,25 @@ mkdir /ifs/csi
 chmod 777 /ifs/csi
 
 
-
+###################################################################################################################################################
 ###CSI driver install
 ### On K8 linux:
 ####https://github.com/dell/csi-powerscale
+####https://dell.github.io/storage-plugin-docs/docs/installation/
 
+source <(kubectl completion bash) # setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
+
+#####
+
+
+
+###install helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
 
-
+###clone the powerscale csi repo
 mkdir git
 cd git
 git clone https://github.com/dell/csi-isilon.git
@@ -167,17 +176,23 @@ MountFlags=shared
 systemctl daemon-reload
 systemctl restart docker
 
-
+####install the snapshot controller
+####1.18 and 1.19, Snapshot controller versioned 3.0.3
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.3/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v3.0.3/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
+OR
+
+####1.20, Snapshot controller versioned 4.0.0
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 cd ~/git/csi-isilon
 cp helm/csi-isilon/values.yaml my-isilon-settings.yaml
 vi my-isilon-settings.yaml
 
 
-edit:
+edit my-isilon-settings.yaml:
 isiIP: 10.246.156.13
 isiPath: "/ifs/csi"
 controllerCount: 1    - if only 1 host
@@ -242,12 +257,16 @@ cd ~/git/csi-isilon/test/helm
 
 kubectl create namespace test
 
+
+### start the volumes
 ./starttest.sh -t 2vols -n test
 kubectl get pv -A
 kubectl get pvc -A
 kubectl get pvc -n test
 kubectl exec -ti -n test isilontest-0 bash
 
+
+### stop the volumes
 ./stoptest.sh -t 2vols -n test
 
 
@@ -262,6 +281,42 @@ kubectl exec -ti -n test isilontest-0 bash
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################################################################################################################################################
 Misc:
 
 kubectl apply -f secret.yaml

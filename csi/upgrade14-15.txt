@@ -1,0 +1,9 @@
+######Upgrade Driver from version v1.4.0 to v1.5.0
+
+git clone https://github.com/dell/csi-isilon.git
+
+
+kubectl get secrets -n isilon
+kubectl get secret isilon-creds -o jsonpath='{.data}' -n isilon
+kubectl get secret isilon-certs -o jsonpath='{.data}' -n isilon
+kubectl delete secret  
