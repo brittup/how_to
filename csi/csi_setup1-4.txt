@@ -3,6 +3,8 @@
 #Add IP - hostnames of k8 hosts
 vi /etc/hosts
 vi /etc/resolv.conf
+hostname -f
+nslookup <hostname>
 yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
 
 systemctl start rpcbind
@@ -14,7 +16,6 @@ systemctl status rpcbind
 ###From: https://docs.docker.com/engine/install/centos/
 #curl -fsSL https://get.docker.com -o get-docker.sh
 #sh get-docker.sh
-
 
 yum-config-manager \
     --add-repo \
@@ -30,6 +31,7 @@ systemctl enable docker.service
 systemctl start docker
 systemctl status docker
 docker run -it --rm ubuntu /bin/bash
+  exit
 
 docker ps --all
 docker images -a
@@ -120,7 +122,7 @@ kubectl get pods -A
 kubeadm reset
 ###
 
-
+###################################################################################################################################################
 ###isilon setup 
 isi auth groups create --zone=System --name=k8 --provider=local
 isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k8
@@ -161,9 +163,13 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 ###clone the powerscale csi repo
+##git clone https://github.com/dell/csi-isilon.git
+
+###version 1.4
 mkdir git
 cd git
-git clone https://github.com/dell/csi-isilon.git
+git clone -b release-1.4.0 https://github.com/dell/csi-isilon.git
+
 
 
 ###add the following
@@ -194,7 +200,7 @@ vi my-isilon-settings.yaml
 
 edit my-isilon-settings.yaml:
 isiIP: 10.246.156.13
-isiPath: "/ifs/csi"
+isiPath: "/ifs/data/csi"
 controllerCount: 1    - if only 1 host
 nfsV3: "true"         - force v3
 
@@ -212,7 +218,8 @@ UGFzc3dvcmQxMjMh
 
 
 vi helm/secret.yaml
-(copy user & password info)
+###(copy user & password info)
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -238,8 +245,8 @@ https://github.com/dell/csi-powerscale/blob/master/dell-csi-helm-installer/READM
 
 Before we install the driver, we will take the NoSchedule taint away from the master node
 kubectl describe node hostname | grep Taint
-    taints:             node-role.kubernetes.io/master:NoSchedule
-kubectl taint nodes hostname node-role.kubernetes.io/master-
+### taints:             node-role.kubernetes.io/master:NoSchedule
+kubectl taint nodes <hostname> node-role.kubernetes.io/master-
 
 
 watch kubectl get pods -A  
@@ -248,6 +255,9 @@ watch kubectl get pods -A
  ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd
 
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  --snapshot-crd 
+
+
+
 
 ###if needed
  ./csi-uninstall.sh --namespace isilon
@@ -269,7 +279,7 @@ kubectl get pvc -n test
 kubectl get pods -n test
 kubectl describe pods -n test
 kubectl exec -ti -n test isilontest-0 bash
-kubectl exec -ti -n test isilontest-0 bash
+
 
 
 ### stop the volumes
@@ -341,8 +351,9 @@ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 
 kubectl get pods -A
 kubectl get pods --namespace isilon
+kubectl describe pod     -n isilon
 kubectl describe pod isilon-controller-5f9595d8cb-qcclk --namespace isilon
-
+kubectl logs   -n isilon -c driver
 kubectl logs isilon-controller-5f9595d8cb-mtsrq -n isilon -c driver
 
 
