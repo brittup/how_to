@@ -79,6 +79,7 @@ kubectl logs   -n isilon -c driver
 
 
 ### start the volumes
+kubectl create namespace test    --- if needed
 ./starttest.sh -t 2vols -n test
 kubectl get pv -A
 kubectl get pvc -A
