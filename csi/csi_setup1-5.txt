@@ -224,10 +224,13 @@ vi secret.json
 ###create isilon-creds secret
 kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.json
 
+kubectl get secret isilon-creds -o yaml -n isilon
+
 ###since we are using isiInsecure = 'true"
 kubectl create -f emptysecret.yaml
 
 kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon
 
 
 
