@@ -271,16 +271,61 @@ kubectl logs  <pod> -n isilon -c driver
 Steps to create storage class: 
 There are samples storage class yaml files available under helm/samples/storageclass
 
+###Sample storage classes:  helm/samples/storageclass
+
+cp ~/git/csi-isilon/helm/samples/storageclass/isilon.yaml  ~/git/csi-isilon/~/git/csi-isilon/my-isilon-sc.yamll
+cd ~/git/csi-isilon
+
+vi my-isilon-sc.yaml
+# Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
+mountOptions: []
+
+
+kubectl create -f my-isilon-sc.yaml
 
 ####get the storage class
 kubectl get sc
+kubectl describe sc isilon
+
+
+### /csi-isilon/test/sample_files
+kubectl create namespace test
+kubectl create -f pvc.yaml -n test
+kubectl get pvc -n test
+kubectl describe pvc testvolclaim1 -n test
+kubectl create -f nginx.yaml -n test
+kubectl get pods -n test
+kubectl get pv
+kubectl exec -ti -n test ngnix-pv-pod bash
+
+cd /usr/share/nginx/html/
+ls -al
+
+
+
+kubectl get pods -n test
+kubectl delete -f nginx.yaml -n test
+
+kubectl get pvc  -n test
+kubectl delete pvc testvolclaim1 -n test
+
+kubectl get pv
+kubectl delete pv <k8s-ec5c9fec46>
+
+kubectl get pv k8s-56da61f45b
+kubectl describe  pv k8s-56da61f45b
+kubectl get volumeattachment -n test
+kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
 
 
 
 
 
-
-
+###useful
+kubectl get pods -A
+kubectl get pods --namespace isilon
+kubectl describe pod     -n isilon
+kubectl logs   -n isilon -c driver
 
 
 
