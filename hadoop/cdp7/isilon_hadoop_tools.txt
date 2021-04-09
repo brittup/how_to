@@ -1,0 +1,20 @@
+###create users and directories CDP - via linux host
+https://github.com/Isilon/isilon_hadoop_tools
+
+
+
+yum install python3 python3-pip python3-virtualenv
+python3 -m venv ./iht
+source iht/bin/activate
+pip install isilon_hadoop_tools
+
+isilon_create_users --help
+isilon_create_directories --help 
+
+isilon_create_users --zone=<zone>--no-verify --onefs-user=root --onefs-password=a --dist=cdp --start-uid=500 --start-gid=500  --log-level=debug x.x.x.x                   
+isilon_create_directories  --zone=<zone> --no-verify --onefs-user=root --onefs-password=a --dist=cdp  x.x.x.x
+
+
+deactivate
+rm --recursive iht/
+
