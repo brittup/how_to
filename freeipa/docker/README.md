@@ -9,7 +9,6 @@
 
 ## :rocket: USE
 
-```
 
 You need to edit the file `.env` at the source folder to modify the value of the OS
 
