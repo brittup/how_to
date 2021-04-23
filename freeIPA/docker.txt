@@ -8,7 +8,7 @@ docker pull freeipa/freeipa-server:centos-7
 
 mkdir /var/lib/ipa-data
 
-ADD DNS entry
+ADD DNS entry for freeipa server to host IP
 
 docker run --name freeipa-server-container -ti \
     -h ipa.example.test --read-only \
@@ -23,6 +23,11 @@ docker run --name freeipa-server-container -ti \
 
 
 
+
+
+
+
+#####
 docker run --name freeipa-server-container -ti \
     -h ipa.example.test --read-only \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
@@ -30,6 +35,6 @@ docker run --name freeipa-server-container -ti \
     -v /var/lib/ipa-data:/data:Z freeipa/freeipa-server:centos-7
 
 
-docker run -d -e IPA_SERVER_IP=10.246.156.50 -p 53:53/udp -p 53:53 \
+docker run -d -e IPA_SERVER_IP=X.X.X.X -p 53:53/udp -p 53:53 \
     -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464 \
     -p 88:88/udp -p 464:464/udp -p 123:123/udp
