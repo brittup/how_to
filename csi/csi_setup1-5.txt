@@ -226,13 +226,18 @@ vi my-isilon-settings.yaml
 
 ###edit my-isilon-settings.yaml: modify any values as needed
 
+allowedNetworks: [10.246.156.0/24]
+
 controllerCount: 1    - if only 1 host
 
 
+
+
+###create a namespace
 kubectl create namespace isilon
 
 ####create secrets
-cd csi-isilon/helm
+cd ~/git/csi-isilon/helm
 vi secret.json
 
 {
@@ -243,7 +248,7 @@ vi secret.json
       "password": "Password123!",
       "isiIP": "10.246.156.13",
       "isDefaultCluster": true
-    },
+    }
   ]
 }
 
@@ -294,13 +299,16 @@ kubectl logs  <pod> -n isilon -c driver
  ./csi-uninstall.sh --namespace isilon
 
 
+
+
+
 ##################################
 Steps to create storage class: 
 There are samples storage class yaml files available under helm/samples/storageclass
 
 ###Sample storage classes:  helm/samples/storageclass
 
-cp ~/git/csi-isilon/helm/samples/storageclass/isilon.yaml  ~/git/csi-isilon/~/git/csi-isilon/my-isilon-sc.yamll
+cp ~/git/csi-isilon/helm/samples/storageclass/isilon.yaml  ~/git/csi-isilon/my-isilon-sc.yaml
 cd ~/git/csi-isilon
 
 vi my-isilon-sc.yaml
