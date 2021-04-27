@@ -208,15 +208,14 @@ systemctl restart docker
 
 ####Install Snapshot CRD
 
-kubectl apply -f https://github.com/kubernetes-csi/external-snapshotter/blob/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://github.com/kubernetes-csi/external-snapshotter/blob/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://github.com/kubernetes-csi/external-snapshotter/blob/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
-
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 
 ###Install Snapshot Controller               
 
-kubectl apply -f https://github.com/kubernetes-csi/external-snapshotter/blob/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://github.com/kubernetes-csi/external-snapshotter/blob/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
 kubectl get crd
