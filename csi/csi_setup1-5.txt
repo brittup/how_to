@@ -133,7 +133,6 @@ kubectl get nodes
 
 
 kubectl get pods --all-namespaces
-kubectl get nodes
 kubectl get pods -A
 
 
@@ -185,7 +184,12 @@ mkdir git
 cd git
 git clone https://github.com/dell/csi-isilon.git
 
+cd ~/git/csi-isilon
+cat ReleaseNotes.md
 
+
+
+###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
 ###add the following
 vi /etc/systemd/system/multi-user.target.wants/docker.service
 
