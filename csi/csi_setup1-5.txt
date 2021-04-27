@@ -86,12 +86,14 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
 
-yum install kubelet-1.20.6-0 kubeadm-1.20.6-0 kubectl-1.20.6-0 --disableexcludes=kubernetes
+yum install kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disableexcludes=kubernetes
 
 
 systemctl enable kubelet
 
-###deploy kubernetes cluster
+###Complete up to here for all nodes going into cluster!
+
+###deploy kubernetes cluster on master node
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
 <see output for node info>
