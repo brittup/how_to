@@ -23,6 +23,8 @@ sh get-docker.sh
 systemctl enable docker.service
 systemctl start docker
 systemctl status docker
+
+docker login
 docker run -it --rm ubuntu /bin/bash
     exit
 docker ps --all
