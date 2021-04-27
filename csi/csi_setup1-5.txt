@@ -96,7 +96,7 @@ systemctl enable kubelet
 ###deploy kubernetes cluster on master node
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
-<see output for node info>
+<see output for node info and joining nodes to cluster>
 
 
 mkdir -p $HOME/.kube
@@ -120,6 +120,16 @@ docker ps --all
 wget https://cloud.weave.works/k8s/v1.16/net.yaml --no-check-certificate
 kubectl apply -f net.yaml
 
+
+###join nodes to cluster here per the kubeadm init
+
+##eg:
+kubeadm join 10.246.156.18:6443 --token 2bxzot.jiamo9pjlikgwmty \
+    --discovery-token-ca-cert-hash sha256:7fdc56687d8b1ab6a04eddebd4e741ee7ba4f1b751179fee48b83c6449d5d08a
+
+
+#on master node
+kubectl get nodes
 
 
 kubectl get pods --all-namespaces
