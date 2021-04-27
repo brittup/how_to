@@ -27,6 +27,8 @@ systemctl status docker
 docker login
 docker run -it --rm ubuntu /bin/bash
     exit
+
+
 docker ps --all
 docker images -a
 
@@ -76,11 +78,15 @@ cat /etc/yum.repos.d/kubernetes.repo
 ###check supported versions of k8s with CSI
 yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 
+#yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
 #yum install kubelet-1.14.1* kubeadm-1.14.1* kubectl-1.14.1* --disableexcludes=kubernetes
 #yum install kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
 
+#install a supported version
+#yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
-yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+yum install kubelet-1.20.6-0 kubeadm-1.20.6-0 kubectl-1.20.6-0 --disableexcludes=kubernetes
 
 
 systemctl enable kubelet
