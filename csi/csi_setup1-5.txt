@@ -312,6 +312,8 @@ cp ~/git/csi-isilon/helm/samples/storageclass/isilon.yaml  ~/git/csi-isilon/my-i
 cd ~/git/csi-isilon
 
 vi my-isilon-sc.yaml
+
+
 # Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
 mountOptions: []
 
@@ -320,18 +322,31 @@ kubectl create -f my-isilon-sc.yaml
 
 ####get the storage class
 kubectl get sc
-kubectl describe sc isilon
+kubectl describe sc 
 
 
+###create a testing namespace
 ### /csi-isilon/test/sample_files
+
+
 kubectl create namespace test
+
+
+docker login
+
+
+###create a pvc
 kubectl create -f pvc.yaml -n test
-kubectl get pvc -n test
-kubectl describe pvc testvolclaim1 -n test
+kubectl get pvc  -n test
+kubectl describe pvc testvolclaim1  -n test
+
+
 kubectl create -f nginx.yaml -n test
 kubectl get pods -n test
-kubectl get pv
-kubectl exec -ti -n test ngnix-pv-pod bash
+kubectl describe pods ngnix-pv-pod -n test
+
+kubectl get pv -n test
+kubectl exec ngnix-pv-pod -i -t -n test -- bash 
 
 cd /usr/share/nginx/html/
 ls -al
@@ -348,7 +363,7 @@ kubectl get pv
 kubectl delete pv <k8s-ec5c9fec46>
 
 kubectl get pv k8s-56da61f45b
-kubectl describe  pv k8s-56da61f45b
+kubectl describe pv k8s-56da61f45b
 kubectl get volumeattachment -n test
 kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
 
