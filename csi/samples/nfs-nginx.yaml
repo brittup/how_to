@@ -1,0 +1,20 @@
+# This pod mounts the nfs volume claim into /usr/share/nginx/html and
+# serves a simple web page.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pv-pod
+spec:
+  containers:
+  - name: task-pv-container
+    image: nginx
+    ports:
+    - containerPort: 80
+      name: "http-server"
+    volumeMounts:
+    - name: nfs
+      mountPath: "/usr/share/nginx/html"
+  volumes:
+  - name: nfs
+    persistentVolumeClaim:
+      claimName: nfs
