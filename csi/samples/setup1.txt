@@ -21,3 +21,6 @@ ls -al /usr/share/nginx/html/
 cd /usr/share/nginx/html/
 touch test1.txt
 ls -al
+
+
+kubectl delete pod nginx-pv-pod 
