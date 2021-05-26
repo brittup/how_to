@@ -1,0 +1,104 @@
+###Setup kerberos on client if not done
+
+yum -y install krb5-workstation krb5-libs openldap-clients
+
+###Modify krb5.conf   - Realm = VLABKDC.LOCAL, DNS = demo.local
+vi /etc/krb5.conf
+
+
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = VLABKDC.LOCAL
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+
+[realms]
+ VLABKDC.LOCAL = {
+  kdc = ldap-kdc.demo.local
+  admin_server = ldap-kdc.demo.local
+  default_domain = demo.local
+ }
+
+[domain_realm]
+  .demo.local = VLABKDC.LOCAL
+  demo.local = VLABKDC.LOCAL
+
+ 
+ 
+###add user if needed to local machine - test on KDC host initially
+useradd -u 50000 -d /home/kduser1 -m kdcuser1
+su - kdcuser1
+  
+###Test Kerberos for user principal created during kdc setup
+kinit kdcuser1@VLABKDC.LOCAL
+Password123!
+
+klist -e
+
+
+
+###Manual Kerberized nfs setup - create client SPN & keytab on KDC Server
+###
+###on KDC
+kadmin.local
+listprincs
+
+###add SPNs
+addprinc -randkey nfs/<hostname>.demo.local
+addprinc -randkey host/<hostname>.demo.local
+
+eg: 
+addprinc -randkey nfs/hdfs1.demo.local
+addprinc -randkey host/hdfs1.demo.local
+listprincs
+
+
+###create keytab for SPNs
+ktadd -k /root/nfs-krb5.keytab nfs/<hostname>.demo.local
+ktadd -k /root/host-krb5.keytab host/<hostname>.demo.local
+
+eg:
+ktadd -k /root/nfs-krb5.keytab nfs/hdfs1.demo.local
+ktadd -k /root/host-krb5.keytab host/hdfs1.demo.local
+
+exit
+
+###review keytab file are created
+ls -al /root
+
+
+
+##copy keytabs to nfs host, something like...
+scp /root/*.keytab root@X.X.X.Y:/root/
+
+
+###import the keytabs on the host
+###ssh to the hostname, review keytabs copied over 
+cd /root
+ls -al   
+
+
+ktutil
+ktutil:  list
+
+ktutil:  rkt /root/nfs-krb5.keytab
+ktutil:  rkt /root/host-krb5.keytab
+ktutil:  list
+ktutil:  wkt /etc/krb5.keytab
+ktutil:  exit
+
+ktutil
+ktutil: rkt /etc/krb5.keytab
+ktutil: list
+exit
+
+
+
+https://raw.githubusercontent.com/brittup/how_to/master/krb5/nfs4KRB_KDC_IsilonSetup.txt
