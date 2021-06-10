@@ -2,18 +2,17 @@
 yum update
 yum groupinstall "Development tools"
 
-
 systemctl disable firewalld
 systemctl stop firewalld
 
 vi /etc/sysconfig/network
-	HOSTNAME=centos-10.foo.com
+	HOSTNAME=<FDQN>
 vi /etc/hosts
-	10.246.156.21   centos-10.foo.com centos-10
+	X.X.X.X   FQDN shortname
 
 vi /etc/selinux/config
 
-set to disable
+#set to disable
 
 yum install ntp
 
@@ -22,7 +21,6 @@ systemctl start ntpd
 systemctl enable ntpd
 
 ntpdate -u time.isilon.com
-
 
 
 #Cloudera Host inspector fixes
@@ -43,15 +41,25 @@ fi
 
 cat /proc/sys/vm/swappiness
 vi /etc/sysctl.conf 
-	(Add at the end) G, o - esc:wq
+#(Add at the end) G, o - esc:wq
 	
-
 vm.swappiness=10
 
-
 yum -y install krb5-workstation krb5-libs openldap-clients
+
+
+reboot
+
 
 
 wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
 chmod u+x cloudera-manager-installer.bin
 ./cloudera-manager-installer.bin
+
+http://X.X.X.X:7180
+admin | admin
+
+
+
+
+
