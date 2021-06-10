@@ -1,6 +1,6 @@
 
-yum update
-yum groupinstall "Development tools"
+yum -y update
+yum -y groupinstall "Development tools"
 
 systemctl disable firewalld
 systemctl stop firewalld
@@ -14,7 +14,7 @@ vi /etc/selinux/config
 
 #set to disable
 
-yum install ntp
+yum -y install ntp
 
 vi /etc/ntp.conf
 systemctl start ntpd
@@ -40,6 +40,9 @@ fi
 
 
 cat /proc/sys/vm/swappiness
+
+sysctl -w  vm.swappiness=10
+
 vi /etc/sysctl.conf 
 #(Add at the end) G, o - esc:wq
 	
