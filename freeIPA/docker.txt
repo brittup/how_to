@@ -1,5 +1,29 @@
 ###Assumes docker installed and running
 
+or
+
+###################################################################################################################################################
+###install Docker Runtime, use a specific version
+###From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+
+systemctl enable docker.service
+systemctl start docker
+systemctl status docker
+
+docker login
+docker run -it --rm ubuntu /bin/bash
+    exit
+
+
+docker ps --all
+docker images -a
+###################################################################################################################################################
+
+
+
 https://hub.docker.com/r/freeipa/freeipa-server
 
 docker login
