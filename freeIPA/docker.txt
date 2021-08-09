@@ -34,8 +34,8 @@ mkdir /var/lib/ipa-data
 
 
 
-docker run --name freeipa-server-container \
-    -h ipa.example.test --read-only \
+docker run -d --name freeipa-server-container \
+    -h ipa.example.test \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     --sysctl net.ipv6.conf.all.disable_ipv6=0 \
     -p 53:53/udp -p 53:53 \
@@ -53,3 +53,28 @@ docker exec -it freeipa-server-container bash
 
 
 The log file for this installation can be found in /var/log/ipaserver-install.log
+
+
+
+
+
+
+
+
+
+###
+docker ps -a
+docker stop c298341a86e5
+rm c298341a86e5
+docker ps -a
+
+docker run -d --name freeipa-server-container /     
+-h ipa.example.test /
+-v /sys/fs/cgroup:/sys/fs/cgroup:ro / 
+--sysctl net.ipv6.conf.all.disable_ipv6=0 /  
+-p 53:53/udp -p 53:53 -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464  -p 88:88/udp -p 464:464/udp -p 123:123/udp /    
+-v /var/lib/ipa-data:/data:Z freeipa/freeipa-server:centos-7
+
+docker ps -a
+docker exec -it freeipa-server-container bash
+
