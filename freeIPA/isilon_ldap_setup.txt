@@ -1,0 +1,30 @@
+### underdevlopment
+###create an LDAP provider against FreeIPA
+kinit admin@EXAMPLE.TEST
+
+ipa user-add ldapbrowser --random
+
+Login as the user to activate 
+
+
+Kdestroy
+#use password from user add
+kinit ldapbrowser
+
+#reset new password
+kinit ldapbrowser
+
+
+Configure the LDAP Provider to use RFC2307bis:
+isi auth ldap create --server-uris=ldap://ipa.example.test --base-dn=cn=users,cn=accounts,dc=example,dc=test --template=rfc2307bis --member-of-attribute=memberOf freeipa
+
+
+
+Find a way to filter OneFS‘ LDAP queries to get to all the information needed:  
+Result: 
+groupfilter: 
+	(&(objectClass=ipaOverrideTarget)\
+	(objectClass=posixGroup))
+
+user-filter: 
+	(objectClass=inetuser)

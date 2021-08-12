@@ -1,0 +1,86 @@
+### underdevlopment
+
+
+docker exec -it freeipa-server-container bash
+
+
+
+kinit admin@EXAMPLE.TEST
+
+ipa host-add empire.example.test
+ipa service-add HTTP/empire.example.test@EXAMPLE.TEST
+ipa service-add hdfs/empire.example.test@EXAMPLE.TEST
+ipa service-add nfs/empire.example.test@EXAMPLE.TEST
+
+ipa-getkeytab -p host/empire.example.test -k /data/new.keytab
+ipa-getkeytab -p HTTP/empire.example.test@EXAMPLE.TEST -k /data/new.keytab
+ipa-getkeytab -p hdfs/empire.example.test@EXAMPLE.TEST -k /data/new.keytab
+ipa-getkeytab -p nfs/empire.example.test@EXAMPLE.TEST -k /data/new.keytab
+
+###exit out of the ipa container
+exit
+
+scp new.keytab root@10.246.156.33:/ifs/
+
+
+/usr/bin/ktutil
+read_kt new.keytab
+list
+
+
+
+
+isi auth krb5 realm create --realm=EXAMPLE.TEST --kdc=ipa.example.test --admin-server=ipa.example.test --default-domain=example.test
+
+isi auth krb5 domain create --realm=EXAMPLE.TEST --domain=.example.test
+isi auth krb5 domain create --realm=EXAMPLE.TEST --domain=example.test
+
+isi auth krb5 create EXAMPLE.TEST  --groupnet=groupnet0 --keytab-file=/ifs/new.keytab
+
+
+ isi auth krb5 domain list
+ isi auth krb5 list
+ isi auth krb spn list EXAMPLE.TEST
+
+
+
+
+
+pipe1-1#  isi auth krb5 domain list
+Domain        Realm
+--------------------------
+example.test  EXAMPLE.TEST
+.example.test EXAMPLE.TEST
+--------------------------
+Total: 2
+
+
+pipe1-1#  isi auth krb5 list
+Realm        Groupnet
+----------------------
+EXAMPLE.TEST groupnet0
+----------------------
+Total: 1
+
+
+pipe1-1#  isi auth krb spn list EXAMPLE.TEST
+SPN                                   Kvno
+-------------------------------------------
+HTTP/empire.example.test@EXAMPLE.TEST 2
+hdfs/empire.example.test@EXAMPLE.TEST 2
+host/empire.example.test@EXAMPLE.TEST 2
+nfs/empire.example.test@EXAMPLE.TEST  2
+-------------------------------------------
+Total: 4
+Note that this Kerberos realm has SPNs and keys managed manually.
+
+
+pipe1-1# kinit admin@EXAMPLE.TEST
+Password for admin@EXAMPLE.TEST:
+pipe1-1# klist
+Ticket cache: FILE:/tmp/krb5cc_0
+Default principal: admin@EXAMPLE.TEST
+
+Valid starting     Expires            Service principal
+08/09/21 18:58:42  08/10/21 18:58:37  krbtgt/EXAMPLE.TEST@EXAMPLE.TEST
+
