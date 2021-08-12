@@ -1,4 +1,4 @@
-### underdevlopment
+### under devlopment
 ###Assumes docker installed and running
 
 or
