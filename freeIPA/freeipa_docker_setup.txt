@@ -14,7 +14,6 @@ systemctl enable docker.service
 systemctl start docker
 systemctl status docker
 
-docker login
 docker run -it --rm ubuntu /bin/bash
     exit
 
@@ -23,17 +22,12 @@ docker ps --all
 docker images -a
 ###################################################################################################################################################
 
-
-
 https://hub.docker.com/r/freeipa/freeipa-server
-
-docker login
 
 docker pull freeipa/freeipa-server:centos-7
 
+###mkdir to store the FeeIPA data outside of docker container
 mkdir /var/lib/ipa-data
-
-
 
 docker run -d --name freeipa-server-container \
     -h ipa.example.test \
@@ -50,13 +44,19 @@ docker container ls -a
 docker container inspect  freeipa-server-container
 docker exec -it freeipa-server-container bash
 
-#ADD DNS entry for freeipa server to host IP
+###once in the FreeIPAcontainer run 
+ipa-server-install
 
+
+#ADD DNS entry for freeipa server to host IP
+e.g.:
+create zone example.txt
+add host ipa.example.test 192.168.1.40
 
 The log file for this installation can be found in /var/log/ipaserver-install.log
 
 
-
+open http://ipa.example.test
 
 
 
@@ -64,10 +64,15 @@ The log file for this installation can be found in /var/log/ipaserver-install.lo
 
 
 ###
+manual or reinstall if needed
+docker ps -all
+docker stop <c298341a86e5>
+docker rm <c298341a86e5>
 docker ps -a
-docker stop c298341a86e5
-rm c298341a86e5
-docker ps -a
+
+rm -rf  /var/lib/ipa-data
+mkdir /var/lib/ipa-data
+
 
 docker run -d --name freeipa-server-container /     
 -h ipa.example.test /
@@ -78,4 +83,5 @@ docker run -d --name freeipa-server-container /
 
 docker ps -a
 docker exec -it freeipa-server-container bash
+ipa-server-install
 
