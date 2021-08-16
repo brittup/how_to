@@ -52,11 +52,13 @@ docker exec -it freeipa-server-container bash
 ###once in the FreeIPAcontainer run 
 ipa-server-install
 
+###use all the default of example.test dns & EXAMPLE.TEST KRB or do whatever you need
+
 
 
 #ADD DNS entry for freeipa server to host IP
 e.g.:
-create zone example.txt
+create zone example.test on the AD DNS Servers
 add host ipa.example.test 192.168.1.40
 
 The log file for this installation can be found in /var/log/ipaserver-install.log
