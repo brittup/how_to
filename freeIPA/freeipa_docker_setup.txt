@@ -21,13 +21,18 @@ docker run -it --rm ubuntu /bin/bash
 docker ps --all
 docker images -a
 ###################################################################################################################################################
-
+###Use this FreeIPA container
 https://hub.docker.com/r/freeipa/freeipa-server
+
 
 docker pull freeipa/freeipa-server:centos-7
 
+
 ###mkdir to store the FeeIPA data outside of docker container
 mkdir /var/lib/ipa-data
+
+### in democenter ctrl+d will not work, so we do this in two steps; run the container detached, connect and install
+
 
 docker run -d --name freeipa-server-container \
     -h ipa.example.test \
@@ -48,6 +53,7 @@ docker exec -it freeipa-server-container bash
 ipa-server-install
 
 
+
 #ADD DNS entry for freeipa server to host IP
 e.g.:
 create zone example.txt
@@ -57,6 +63,10 @@ The log file for this installation can be found in /var/log/ipaserver-install.lo
 
 
 open http://ipa.example.test
+
+ignore the popup and get to web page login
+
+
 
 
 

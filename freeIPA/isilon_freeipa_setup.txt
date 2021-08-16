@@ -1,12 +1,14 @@
-### underdevlopment
+### under devlopment
 
-
+###log into the freeipa container
 docker exec -it freeipa-server-container bash
 
 
-
+###get a krb ticket for the admin user
 kinit admin@EXAMPLE.TEST
 
+
+#add the SPN's for isilon
 ipa host-add empire.example.test
 ipa service-add HTTP/empire.example.test@EXAMPLE.TEST
 ipa service-add hdfs/empire.example.test@EXAMPLE.TEST
