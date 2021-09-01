@@ -19,12 +19,101 @@ Configure the LDAP Provider to use RFC2307bis:
 isi auth ldap create --server-uris=ldap://ipa.example.test --base-dn=cn=users,cn=accounts,dc=example,dc=test --template=rfc2307bis --member-of-attribute=memberOf freeipa
 
 
+Modify the following filters on the LDAP provider
 
-Find a way to filter OneFS‘ LDAP queries to get to all the information needed:  
-Result: 
 groupfilter: 
-	(&(objectClass=ipaOverrideTarget)\
-	(objectClass=posixGroup))
+	(&(objectClass=ipaOverrideTarget)(objectClass=posixGroup))
 
 user-filter: 
 	(objectClass=inetuser)
+
+
+-Create and add to Access Zone
+
+
+### test users
+isi auth users list --provider=lsa-ldap-provider:freeipa --zone=freeipa
+isi auth  groups list --provider=lsa-ldap-provider:freeipa --zone=freeipa
+isi auth mapping token --user=user1 --zone=freeipa
+
+
+
+
+
+
+
+isi auth ldap view freeipa
+                                   Name: freeipa
+                                Base DN: cn=accounts,dc=example,dc=test
+                            Server Uris: ldap://ipa.example.test
+                                 Status: online
+Alternate Security Identities Attribute: altSecurityIdentities
+                         Authentication: Yes
+                        Balance Servers: Yes
+                                Bind DN: uid=ldapbrowser,cn=users,cn=accounts,dc=example,dc=test
+                           Bind Timeout: 10
+             Certificate Authority File:
+                       TLS Protocol Min: 1.2
+                  Check Online Interval: 3m
+                           CN Attribute: cn
+                  Create Home Directory: No
+               Crypt Password Attribute:
+                        Email Attribute: mail
+                                Enabled: Yes
+                       Enumerate Groups: Yes
+                        Enumerate Users: Yes
+                        Findable Groups: -
+                         Findable Users: -
+                        GECOS Attribute: gecos
+                          GID Attribute: gidNumber
+                          Group Base DN:
+                           Group Domain: LDAP_GROUPS
+                           Group Filter: (&(objectclass=ipaobject)(objectclass=posixgroup))
+                Group Members Attribute: member
+                     Group Search Scope: default
+                               Groupnet: groupnet0
+                Home Directory Template:
+                      Homedir Attribute: homeDirectory
+                      Ignore TLS Errors: No
+                        Listable Groups: -
+                         Listable Users: -
+                            Login Shell:
+                   Member Lookup Method: rfc2307bis
+                    Member Of Attribute: memberOf
+                         Name Attribute: uid
+                       Netgroup Base DN:
+                        Netgroup Filter: (objectClass=nisNetgroup)
+             Netgroup Members Attribute: memberNisNetgroup
+                  Netgroup Search Scope: default
+              Netgroup Triple Attribute: nisNetgroupTriple
+                       Normalize Groups: No
+                        Normalize Users: No
+                  NT Password Attribute:
+                           NTLM Support: all
+                        Provider Domain:
+              Require Secure Connection: No
+                      Restrict Findable: Yes
+                      Restrict Listable: No
+                           Search Scope: subtree
+                         Search Timeout: 100
+                     Shadow User Filter: (objectClass=shadowAccount)
+                Shadow Expire Attribute: shadowExpire
+                  Shadow Flag Attribute: shadowFlag
+              Shadow Inactive Attribute: shadowInactive
+           Shadow Last Change Attribute: shadowLastChange
+                   Shadow Max Attribute: shadowMax
+                   Shadow Min Attribute: shadowMin
+               Shadow Warning Attribute: shadowWarning
+                        Shell Attribute: loginShell
+               SSH Public Key Attribute: sshPublicKey
+                          UID Attribute: uidNumber
+                      Unfindable Groups: wheel, 0, insightiq, 15, isdmgmt, 16
+                       Unfindable Users: root, 0, insightiq, 15, isdmgmt, 16
+         Unique Group Members Attribute:
+                      Unlistable Groups: -
+                       Unlistable Users: -
+                           User Base DN:
+                            User Domain: LDAP_USERS
+                            User Filter: (objectClass=inetuser)
+                      User Search Scope: default
+                           Creator Zone: System
