@@ -71,7 +71,10 @@ ignore the popup and get to web page login
 
 
 
-
+###POST REBOOT
+docker ps -a
+docker container start freeipa-server-container
+docker exec -it freeipa-server-container bash
 
 
 
