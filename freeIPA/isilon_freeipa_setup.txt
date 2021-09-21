@@ -22,21 +22,25 @@ ipa-getkeytab -p nfs/empire.example.test@EXAMPLE.TEST -k /data/new.keytab
 ###exit out of the ipa container
 exit
 
-scp new.keytab root@10.246.156.33:/ifs/
 
+###copy the keytab file to OneFS
+scp /data/new.keytab root@10.246.156.33:/ifs/
 
+###view the keytab file
 /usr/bin/ktutil
 read_kt new.keytab
 list
 
 
-
-
+###on OneFS
+###create the REALM
 isi auth krb5 realm create --realm=EXAMPLE.TEST --kdc=ipa.example.test --admin-server=ipa.example.test --default-domain=example.test
 
+###create the domain
 isi auth krb5 domain create --realm=EXAMPLE.TEST --domain=.example.test
 isi auth krb5 domain create --realm=EXAMPLE.TEST --domain=example.test
 
+###create the KRB5 provider and import the keytab file
 isi auth krb5 create EXAMPLE.TEST  --groupnet=groupnet0 --keytab-file=/ifs/new.keytab
 
 
