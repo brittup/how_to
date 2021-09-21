@@ -28,7 +28,13 @@ user-filter:
 	(objectClass=inetuser)
 
 
+
 -Create and add to Access Zone
+
+##add the zone and add the auth providers as required
+isi zone create freeipa /ifs/freeipa --create-path
+isi zone modify freeipa --add-auth-providers=lsa-krb5-provider:EXAMPLE.TEST
+isi zone modify freeipa --add-auth-providers=lsa-ldap-provider:freeipa
 
 
 ### test users

@@ -1,0 +1,14 @@
+###create an LDAP provider to AD
+
+isi auth ldap create  --name=ad-ldap --template=ad-idmu --base-dn=DC=foo,DC=com --server-uris=ldap://hop-russ-win201.foo.com --bind-dn=ldapbind@foo.com --bind-password=Password123!
+
+
+
+##add the zone and add the auth providers as required
+isi zone create ad-ldap /ifs/ad-ldap --create-path
+isi zone modify ad-ldap --add-auth-providers=lsa-ldap-provider:ad-ldap
+
+###
+This creates the base provider: manage and update as needed
+-Add additional server-uris
+-configure certificate behavior
