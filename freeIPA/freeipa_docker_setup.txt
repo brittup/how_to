@@ -36,7 +36,6 @@ mkdir /var/lib/ipa-data
 
 docker run -d --name freeipa-server-container \
     -h ipa.example.test \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     --sysctl net.ipv6.conf.all.disable_ipv6=0 \
     -p 53:53/udp -p 53:53 \
     -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464 \
@@ -78,6 +77,7 @@ docker exec -it freeipa-server-container bash
 
 
 
+
 ###
 manual or reinstall if needed
 docker ps -all
@@ -89,14 +89,49 @@ rm -rf  /var/lib/ipa-data
 mkdir /var/lib/ipa-data
 
 
-docker run -d --name freeipa-server-container /     
--h ipa.example.test /
--v /sys/fs/cgroup:/sys/fs/cgroup:ro / 
---sysctl net.ipv6.conf.all.disable_ipv6=0 /  
--p 53:53/udp -p 53:53 -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464  -p 88:88/udp -p 464:464/udp -p 123:123/udp /    
+docker run -d --name freeipa-server-container \    
+-h ipa.example.test \
+--sysctl net.ipv6.conf.all.disable_ipv6=0 \  
+-p 53:53/udp -p 53:53 -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464  -p 88:88/udp -p 464:464/udp -p 123:123/udp \    
 -v /var/lib/ipa-data:/data:Z freeipa/freeipa-server:centos-7
 
 docker ps -a
 docker exec -it freeipa-server-container bash
 ipa-server-install
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####
+#v1.0
+docker run -d --name freeipa-server-container \
+    -h ipa.example.test \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    --sysctl net.ipv6.conf.all.disable_ipv6=0 \
+    -p 53:53/udp -p 53:53 \
+    -p 80:80 -p 443:443 -p 389:389 -p 636:636 -p 88:88 -p 464:464 \
+    -p 88:88/udp -p 464:464/udp -p 123:123/udp \
+    -v /var/lib/ipa-data:/data:Z freeipa/freeipa-server:centos-7
+
 
