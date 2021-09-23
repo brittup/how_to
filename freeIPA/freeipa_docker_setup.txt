@@ -49,7 +49,7 @@ docker container inspect  freeipa-server-container
 docker exec -it freeipa-server-container bash
 
 ###once in the FreeIPAcontainer run 
-ipa-server-install
+ipa-server-install --no-ntp
 
 ###use all the default of example.test dns & EXAMPLE.TEST KRB or do whatever you need
 
@@ -97,7 +97,7 @@ docker run -d --name freeipa-server-container \
 
 docker ps -a
 docker exec -it freeipa-server-container bash
-ipa-server-install
+ipa-server-install --no-ntp
 
 
 
