@@ -23,19 +23,15 @@ isi nfs settings zone view --zone=System
 isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
 isi nfs settings zone view --zone=System
 
-### remove default /ifs export
-isi nfs exports list
-isi nfs exports delete --id=1
-isi nfs exports list
+
 
 ###simple export setup, modify as needed, add 777 to make things easy
 mkdir /ifs/mp
 mkdir /ifs/mp/nfsv4
-chmod -R 777 /ifs/mp/nfsv4
+chmod -R 777 /ifs/mp/
 isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
 isi nfs exports list --zone=System
-isi nfs exports view --id=2 --zone=System
-
+isi nfs exports view --id=1 --zone=System
 
 
 
