@@ -40,17 +40,15 @@ umount
 yum -y install sssd rpcbind nfs-utils nfs4-acl-tools realmd samba-common-tools krb5-workstation krb5-libs openldap-clients
 
 ###join demo.local AD with realm -- Disable ID management and let AD provide UID/GID
-realm join demo.lab -U administrator --automatic-id-mapping=no
+realm join demo.local -U administrator --automatic-id-mapping=no
 realm list
 
 
 ###list host SPN
 klist -k
 
-###review test user
-id testuser1@demo.lab
-
-
+###review test user, assumes testuser exists in AD
+id testuser1@demo.local
 
 
 ###setup linux host for nfsv4
@@ -59,7 +57,7 @@ vi /etc/idmapd.conf
 
 
 [General]
-Domain = demo.lab
+Domain = demo.local
 
 add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
 [Translation]
@@ -117,11 +115,11 @@ mount -t nfs4 -o sec=krb5p isidemo.demo.lab:/ifs/mp/ /mnt/isilon
 
 mountstats
 
-1. logon as testuser1@demo.lab
+1. logon as testuser1@demo.local
 klist -e
 or
 
-2. su - testuser1@demo.lab
+2. su - testuser1@demo.local
 kinit
 klist -e
 
@@ -129,7 +127,7 @@ klist -e
 
 
 ##################
-logon to host using testuser1@demo.lab
+logon to host using testuser1@demo.local
 
 test and validate /mnt/isilon 
 
