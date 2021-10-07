@@ -32,3 +32,10 @@ chmod -R 777 /ifs/mp/
 isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
 isi nfs exports list --zone=System
 isi nfs exports view --id=1 --zone=System
+
+
+
+###join Isilon to AD, make sure all spn are present
+isi auth ads join check demo.local --user=administrator --password=Password123!
+isi auth ads spn check demo.local
+isi auth ads spn list demo.local
