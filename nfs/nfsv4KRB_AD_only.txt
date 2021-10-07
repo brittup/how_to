@@ -1,0 +1,34 @@
+###Setup Isilon and client for NFSv4
+
+###On Isilon
+###Setup smartconnect for isilon  --- standard isilon SC setup and network setup
+-isilon.demo.local
+test ssip & sc, forward and reverse DNS on smartconnect
+###1a.setup SmartConnect on Isilon
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
+
+-open PowerShell prompt from Start Menu
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
+###
+
+
+isi nfs settings global view
+isi nfs settings global modify --nfsv4-enabled=yes
+isi nfs settings global view
+
+
+###Review and Config nfs per Access Zone (assumes System zone here)
+isi nfs settings zone view --zone=System
+isi nfs settings zone modify --nfsv4-domain=demo.local --zone=System
+isi nfs settings zone view --zone=System
+
+
+
+###simple export setup, modify as needed, add 777 to make things easy
+mkdir /ifs/mp
+mkdir /ifs/mp/nfsv4
+chmod -R 777 /ifs/mp/
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
+isi nfs exports list --zone=System
+isi nfs exports view --id=1 --zone=System
