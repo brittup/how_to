@@ -1,4 +1,7 @@
-###Setup Isilon and client for NFSv4
+###Setup Isilon and client for NFSv4 KRB5
+###This demo illustrates AD SID only KRB5v4 can be used
+
+
 
 ###On Isilon
 ###Setup smartconnect for isilon  --- standard isilon SC setup and network setup
@@ -94,11 +97,12 @@ ls -al
 
 
 
-## setup linux for  AD KRB integration  
-yum -y install sssd rpcbind realmd samba-common-tools krb5-workstation krb5-libs openldap-clients
+### setup Linux for  AD KRB integration  
+yum -y install sssd realmd samba-common-tools krb5-workstation krb5-libs openldap-clients
 
 ###join demo.local AD with realm -- SSSD will provide UID/GID
 realm join demo.local -U administrator 
+
 realm list
 
 
@@ -108,18 +112,7 @@ klist -k
 ###review test user, assumes testuser exists in AD, if not go add it
 id testuser1@demo.local
 
-
-###setup linux host for nfsv4
-
-vi /etc/idmapd.conf
-
-
-[General]
-Domain = demo.local
-
-add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
-[Translation]
-Method=nsswitch,sss
+###review uid & gid as autocreated
 
 
 ###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
@@ -141,27 +134,14 @@ systemctl restart rpcgssd
 
 
 ###centos7
-systemctl enable rpcbind.service
-systemctl enable rpcidmapd.service
-systemctl enable nfs-server
-systemctl enable nfs-lock
-systemctl enable nfs-idmap
-systemctl enable nfs-secure
+systemctl restart rpcbind.service
+systemctl restart rpcidmapd.service
+systemctl restart nfs-server
+systemctl restart nfs-lock
+systemctl restart nfs-idmap
+systemctl restart nfs-secure
 
 
-systemctl start rpcbind.service
-systemctl start rpcidmapd.service
-systemctl start nfs-server
-systemctl start nfs-lock
-systemctl start nfs-idmap
-systemctl start nfs-secure
-
-systemctl status rpcbind.service
-systemctl status rpcidmapd.service
-systemctl status nfs-server
-systemctl status nfs-lock
-systemctl status nfs-idmap
-systemctl status nfs-secure
 
 
 Test different export options
