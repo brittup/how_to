@@ -32,7 +32,12 @@ isi nfs settings zone view --zone=System
 mkdir /ifs/mp
 mkdir /ifs/mp/nfsv4
 chmod -R 777 /ifs/mp/
-isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4
+isi nfs exports create --path=/ifs/mp/nfsv4 --map-root=root  --zone=System --description=nfsv4 --security-flavors=unix,krb5,krb5i,krb5p --map-lookup-uid=yes
+
+###
+--security-flavors=unix,krb5,krb5i,krb5p   -- define the security allowed on the export
+--map-lookup-uid=yes                       -- force id lookups
+
 isi nfs exports list --zone=System
 isi nfs exports view --id=1 --zone=System
 
@@ -109,11 +114,6 @@ realm list
 ###list host SPN
 klist -k
 
-###review test user, assumes testuser exists in AD, if not go add it
-id testuser1@demo.local
-
-###review uid & gid as autocreated
-
 
 ###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
 ###To configure the modules, using these commands:
@@ -144,20 +144,32 @@ systemctl restart nfs-secure
 
 
 
-Test different export options
+###review test user, assumes testuser exists in AD, if not go add it
+id testuser1@DEMO.LOCAL
 
-mount -t nfs4 -o sec=sys isidemo.demo.lab:/ifs/mp/ /mnt/isilon
-mount -t nfs4 -o sec=krb5 isidemo.demo.lab:/ifs/mp/ /mnt/isilon
-mount -t nfs4 -o sec=krb5i isidemo.demo.lab:/ifs/mp/ /mnt/isilon
-mount -t nfs4 -o sec=krb5p isidemo.demo.lab:/ifs/mp/ /mnt/isilon
+###review uid & gid as autocreated
+
+kinit testuser1@DEMO.LOCAL
+Password123!
+
+klist -e
+
+
+
+Test different export options:
+mkdir /mnt/mp-krb
+
+mount -t nfs4 -o sec=krb5 isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5i isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5p isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
 
 mountstats
 
-1. logon as testuser1@demo.local
+1. logon as testuser@demo.local
 klist -e
 or
 
-2. su - testuser1@demo.local
+2. su - testuser@demo.local
 kinit
 klist -e
 
