@@ -157,7 +157,20 @@ Password123!
 
 klist -e
 
-###Review ticket
+###Review KRB ticket
+
+
+
+###on Isilon modify the export
+isi nfs exports list --zone=System
+isi nfs exports modify <id>  --security-flavors=krb5,krb5i,krb5p 
+isi nfs exports view <id>
+
+
+
+###on Linux
+umount /mnt/nfsv4
+
 
 Test different export options:
 mkdir /mnt/nfsv4krb5
@@ -187,6 +200,9 @@ id
 
 cd /mnt
 ls -al
+cd /nfsv4krb5
+touch test.txt
+
 
 
 
