@@ -129,6 +129,9 @@ vi /etc/sysconfig/nfs
 SECURE_NFS="yes" 
 
 
+cat /etc/krb5.conf
+###review rdns = false
+
 ###And restart the rpcgssd service using commands
 systemctl restart rpcgssd
 
@@ -154,22 +157,26 @@ Password123!
 
 klist -e
 
-
+###Review ticket
 
 Test different export options:
 mkdir /mnt/mp-krb
 
-mount -t nfs4 -o sec=krb5 isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
-mount -t nfs4 -o sec=krb5i isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
-mount -t nfs4 -o sec=krb5p isidemo.demo.lab:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5 mp.demo.local:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5i mp.demo.local:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5p mp.demo.local:/ifs/mp/ /mnt/mp-krb
 
 mountstats
 
-1. logon as testuser@demo.local
+
+run PuTTY: C:\Program Files\PuTTY from windows host
+
+1. logon as testuser@DEMO.LOCAL
 klist -e
+id
 or
 
 2. su - testuser@demo.local
 kinit
 klist -e
-
+id
