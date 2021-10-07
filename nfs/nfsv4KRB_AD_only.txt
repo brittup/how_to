@@ -160,11 +160,11 @@ klist -e
 ###Review ticket
 
 Test different export options:
-mkdir /mnt/nfsvrkrb5
+mkdir /mnt/nfsv4krb5
 
-mount -t nfs4 -o sec=krb5 mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
-mount -t nfs4 -o sec=krb5i mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
-mount -t nfs4 -o sec=krb5p mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
+mount -t nfs4 -o sec=krb5  mp.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4krb5
+mount -t nfs4 -o sec=krb5i mp.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4krb5
+mount -t nfs4 -o sec=krb5p mp.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4krb5
 
 mountstats
 
