@@ -47,12 +47,16 @@ isi auth ads spn list demo.local
 
 yum install rpcbind nfs-utils nfs4-acl-tools -y
 
-### setp client for nfsv4 - domain needs setup for dns namespace to match isilon
+### setup client for nfsv4 - set v4 domain to match isilon
 
 vim /etc/idmapd.conf
+
 [General]
 Domain = demo.local
 
+### setup client for nfsv4 - add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
+[Translation]
+Method=nsswitch,sss
 
 
 ###centos7
@@ -75,11 +79,6 @@ systemctl status nfs-lock
 systemctl status nfs-idmap
 
 
-
-
-
-
-###on isilon:  isi network pools list     -- get sczone name to list export on
 
 ###get mount info from Isilon
 showmount -e mp.demo.local or IP
