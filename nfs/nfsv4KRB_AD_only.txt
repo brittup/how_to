@@ -42,7 +42,7 @@ isi auth ads spn list demo.local
 
 
 
-###On LInux Client
+###On Linux Client setup and test v4 and validate 
 ###setup client for nfsv4
 
 yum install rpcbind nfs-utils nfs4-acl-tools -y
@@ -83,9 +83,8 @@ systemctl status nfs-idmap
 ###get mount info from Isilon
 showmount -e mp.demo.local or IP
 
-
+###test the v4 mount
 mkdir /mnt/nfsv4
-
 mount -t nfs4 -o sec=sys mp.demo.local:/ifs/mp/nfsv4 /mnt/nfsv4
 mountstats
 
@@ -93,6 +92,92 @@ cd /mnt/nfsv4
 touch 1.txt
 ls -al
 
-###on isilon
-cd /ifs/mp/nfsv4
-ls -al
+
+
+## setup linux for  AD KRB integration  
+yum -y install sssd rpcbind realmd samba-common-tools krb5-workstation krb5-libs openldap-clients
+
+###join demo.local AD with realm -- SSSD will provide UID/GID
+realm join demo.local -U administrator 
+realm list
+
+
+###list host SPN
+klist -k
+
+###review test user, assumes testuser exists in AD, if not go add it
+id testuser1@demo.local
+
+
+###setup linux host for nfsv4
+
+vi /etc/idmapd.conf
+
+
+[General]
+Domain = demo.local
+
+add SSSD as the method of NFSv4 user ID <=> Name mapper also into idmap.conf
+[Translation]
+Method=nsswitch,sss
+
+
+###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
+###To configure the modules, using these commands:
+
+modprobe auth_rpcgss
+modprobe rpcsec_gss_krb5
+depmod -a   
+
+
+### add to SECURE_NFS="yes"   at the end
+vi /etc/sysconfig/nfs
+
+SECURE_NFS="yes" 
+
+
+###And restart the rpcgssd service using commands
+systemctl restart rpcgssd
+
+
+###centos7
+systemctl enable rpcbind.service
+systemctl enable rpcidmapd.service
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+systemctl enable nfs-secure
+
+
+systemctl start rpcbind.service
+systemctl start rpcidmapd.service
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+systemctl start nfs-secure
+
+systemctl status rpcbind.service
+systemctl status rpcidmapd.service
+systemctl status nfs-server
+systemctl status nfs-lock
+systemctl status nfs-idmap
+systemctl status nfs-secure
+
+
+Test different export options
+
+mount -t nfs4 -o sec=sys isidemo.demo.lab:/ifs/mp/ /mnt/isilon
+mount -t nfs4 -o sec=krb5 isidemo.demo.lab:/ifs/mp/ /mnt/isilon
+mount -t nfs4 -o sec=krb5i isidemo.demo.lab:/ifs/mp/ /mnt/isilon
+mount -t nfs4 -o sec=krb5p isidemo.demo.lab:/ifs/mp/ /mnt/isilon
+
+mountstats
+
+1. logon as testuser1@demo.local
+klist -e
+or
+
+2. su - testuser1@demo.local
+kinit
+klist -e
+
