@@ -160,23 +160,33 @@ klist -e
 ###Review ticket
 
 Test different export options:
-mkdir /mnt/mp-krb
+mkdir /mnt/nfsvrkrb5
 
-mount -t nfs4 -o sec=krb5 mp.demo.local:/ifs/mp/ /mnt/mp-krb
-mount -t nfs4 -o sec=krb5i mp.demo.local:/ifs/mp/ /mnt/mp-krb
-mount -t nfs4 -o sec=krb5p mp.demo.local:/ifs/mp/ /mnt/mp-krb
+mount -t nfs4 -o sec=krb5 mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
+mount -t nfs4 -o sec=krb5i mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
+mount -t nfs4 -o sec=krb5p mp.demo.local:/ifs/mp/ /mnt/nfsvrkrb5
 
 mountstats
 
 
 run PuTTY: C:\Program Files\PuTTY from windows host
 
-1. logon as testuser@DEMO.LOCAL
+connect to 192.168.1.40
+
+1. logon as testuser@demo.local
 klist -e
 id
+
 or
 
 2. su - testuser@demo.local
 kinit
 klist -e
 id
+
+
+cd /mnt
+ls -al
+
+
+
