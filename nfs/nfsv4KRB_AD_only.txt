@@ -166,6 +166,10 @@ isi nfs exports list --zone=System
 isi nfs exports modify <id>  --security-flavors=krb5,krb5i,krb5p 
 isi nfs exports view <id>
 
+isi_gconfig registry.Services.lwio.Parameters.Drivers.nfs.NFSV4FetchIoFhOnFillAttr=1
+
+isi_for_array /usr/likewise/bin/lwsm restart nfs
+
 
 
 ###on Linux
@@ -202,6 +206,19 @@ cd /mnt
 ls -al
 cd /nfsv4krb5
 touch test.txt
+
+
+###it can be very useful to set a SMB share up to view and modify ACE's on these files also
+
+
+###View the NFSv4 acl
+nfs4_getfacl  <filename.txt>
+
+###examples of using nfs4_setfacl
+nfs4_setfacl -a A::jwick@demo.local:RWX
+
+
+
 
 
 
