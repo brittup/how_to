@@ -48,7 +48,9 @@ isi auth ads create demo.local --user=administrator --password=Password123!
 isi auth ads spn check demo.local
 isi auth ads spn list demo.local
 
-
+###Needed to AD name resolution
+isi auth ads modify DEMO.LOCAL --assume-default-domain=yes
+isi auth ads view DEMO.LOCAL -v
 
 ###On Linux Client setup and test v4 and validate 
 ###setup client for nfsv4
@@ -215,7 +217,7 @@ touch test.txt
 nfs4_getfacl  <filename.txt>
 
 ###examples of using nfs4_setfacl
-nfs4_setfacl -a A::jwick@demo.local:RWX
+nfs4_setfacl -a A::jwick@demo.local:RWX  <filename.txt>
 
 
 
