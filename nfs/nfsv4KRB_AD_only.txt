@@ -219,6 +219,7 @@ nfs4_getfacl  <filename.txt>
 ###examples of using nfs4_setfacl
 nfs4_setfacl -a A::jwick@demo.local:RWX  <filename.txt>
 
+nfs4_getfacl  <filename.txt>
 
 
 
