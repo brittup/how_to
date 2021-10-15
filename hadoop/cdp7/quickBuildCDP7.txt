@@ -134,7 +134,17 @@ Assign AD role on OU
 
 Kerberize CDP7
 
-demo.local
+DEMO.LOCAL
 launchpad.demo.local
+launchpad.demo.local
+demo.local
 ou=CDP7,DC=demo,DC=local
+
+-let cdp manage krb5.conf
+
+-user added to AD and delegated
+
+Install!
+
+
 
