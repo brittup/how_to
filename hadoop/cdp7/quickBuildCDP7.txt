@@ -110,14 +110,31 @@ yum -y install krb5-workstation krb5-libs openldap-clients
 
 reboot
 
-
-
 cat /proc/sys/vm/swappiness
+
+###install CM and CDP
 
 ###wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
 wget https://archive.cloudera.com/cm7/7.4.4/cloudera-manager-installer.bin
 chmod u+x cloudera-manager-installer.bin
 ./cloudera-manager-installer.bin
 
+systemctl status cloudera-scm-server
+systemctl status cloudera-scm-server-db
+systemctl status cloudera-scm-agent
+
+
 http://X.X.X.X:7180
 admin | admin
+
+
+Create OU
+Create AD cdp account
+Assign AD role on OU
+
+Kerberize CDP7
+
+demo.local
+launchpad.demo.local
+ou=CDP7,DC=demo,DC=local
+
