@@ -1,0 +1,102 @@
+mkdir /ifs/cdp7
+mkdir /ifs/cdp7/hadoop-root
+cd hadoop-root
+touch system.txt
+touch cascade-system-foo-com.txt
+
+isi hdfs settings modify --zone=zone-System --root-directory=/ifs/cdp7/hadoop-root
+
+create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
+
+cd environments
+virtualenv isilon_hadoop_tools
+cd environments/isilon_hadoop_tools/
+source bin/activate
+pip install isilon_hadoop_tools
+ls
+bin/isilon_create_users --help
+
+isilon_create_users --zone=System  --onefs-user=root --onefs-password=a --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
+
+isilon_create_directories  --zone=System --no-verify --onefs-user=root --onefs-password=a --dist=cdp  X.X.X.X
+
+
+chmod 777 xxxxxxxxxxx-zone-cdh6-cdh.sh
+./xxxxxxxxxxx-zone-cdh6-cdh.sh
+cat /etc/passwd
+
+###Onefs
+isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=System
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
+isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=System
+
+
+isi auth roles modify hdfs_access --add-user=hdfs --zone=System
+isi auth roles view hdfs_access --zone=System
+isi_for_array "isi auth mapping flush --all"
+isi_for_array "isi auth cache flush --all"
+
+
+
+yum -y update
+yum -y groupinstall "Development tools"
+
+systemctl disable firewalld
+systemctl stop firewalld
+
+vi /etc/sysconfig/network
+	HOSTNAME=<FDQN>
+vi /etc/hosts
+	X.X.X.X   FQDN shortname
+
+vi /etc/selinux/config
+
+#set to disable
+
+yum -y install ntp
+
+vi /etc/ntp.conf
+systemctl start ntpd
+systemctl enable ntpd
+
+ntpdate -u time.isilon.com
+
+
+#Cloudera Host inspector fixes
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
+
+vi /etc/rc.local
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never > /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+
+
+cat /proc/sys/vm/swappiness
+
+sysctl -w  vm.swappiness=10
+
+vi /etc/sysctl.conf 
+#(Add at the end) G, o - esc:wq
+	
+vm.swappiness=10
+
+yum -y install krb5-workstation krb5-libs openldap-clients
+
+
+reboot
+
+
+
+wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
+chmod u+x cloudera-manager-installer.bin
+./cloudera-manager-installer.bin
+
+http://X.X.X.X:7180
+admin | admin
