@@ -144,6 +144,16 @@ ou=CDP7,DC=demo,DC=local
 
 -user added to AD and delegated
 
+-Modify OneFS Access Zone to use Kerberos only
+-Join AD and Zone to AD 
+-Check SPN's on isilon
+
+
+If using PowerScale CSD, 
+
+copy csd jar to:
+/opt/cloudera/cm/csd
+
 Install!
 
 
