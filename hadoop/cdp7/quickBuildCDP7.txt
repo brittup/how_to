@@ -1,3 +1,21 @@
+###Setup Isilon and client for CDP7
+
+
+
+###On Isilon
+###Setup smartconnect for isilon  --- standard isilon SC setup and network setup
+-isilon.demo.local
+test ssip & sc, forward and reverse DNS on smartconnect
+###1a.setup SmartConnect on Isilon
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
+
+-open PowerShell prompt from Start Menu
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
+###
+
+
+###Hadoop root setup
 mkdir /ifs/cdp7
 mkdir /ifs/cdp7/hadoop-root
 cd /ifs/cdp7/hadoop-root
@@ -6,29 +24,32 @@ touch <smartconnectname>.txt
 
 isi hdfs settings modify --zone=System --root-directory=/ifs/cdp7/hadoop-root
 
+
+###Linux
 create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
 
-cyum install install python3-pip
+yum install install python3-pip
 yum install python3-virtualenv
 
 cd /root
 mkdir virtualenv
- cd virtualenv/
- virtualenv isilon_hadoop_tools
+cd virtualenv/
 
-virtualenv isilon_hadoop_tools
+virtualenv-v3 isilon_hadoop_tools
 cd isilon_hadoop_tools/
 source bin/activate
- pip install isilon_hadoop_tools
+pip install isilon_hadoop_tools
 
-isilon_create_users --zone=System  --onefs-user=root --onefs-password=a --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
+isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
 
-isilon_create_directories  --zone=System --no-verify --onefs-user=root --onefs-password=a --dist=cdp  X.X.X.X
+isilon_create_directories  --zone=System --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdp  X.X.X.X
 
 
-chmod 777 xxxxxxxxxxx-zone-cdh6-cdh.sh
+chmod 777 xxxxxxxxxxx-System-cdp.sh
 ./xxxxxxxxxxx-zone-cdh6-cdh.sh
 cat /etc/passwd
+
+#copy script to any other hosts and run
 
 ###Onefs
 isi auth roles create --name=hdfs_access --description="Bypass FS permissions" --zone=System
@@ -42,7 +63,7 @@ isi_for_array "isi auth mapping flush --all"
 isi_for_array "isi auth cache flush --all"
 
 
-
+###Linux
 yum -y update
 yum -y groupinstall "Development tools"
 
