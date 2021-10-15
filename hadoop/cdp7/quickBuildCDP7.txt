@@ -1,20 +1,25 @@
 mkdir /ifs/cdp7
 mkdir /ifs/cdp7/hadoop-root
-cd hadoop-root
+cd /ifs/cdp7/hadoop-root
 touch system.txt
-touch cascade-system-foo-com.txt
+touch <smartconnectname>.txt
 
-isi hdfs settings modify --zone=zone-System --root-directory=/ifs/cdp7/hadoop-root
+isi hdfs settings modify --zone=System --root-directory=/ifs/cdp7/hadoop-root
 
 create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
 
-cd environments
+cyum install install python3-pip
+yum install python3-virtualenv
+
+cd /root
+mkdir virtualenv
+ cd virtualenv/
+ virtualenv isilon_hadoop_tools
+
 virtualenv isilon_hadoop_tools
-cd environments/isilon_hadoop_tools/
+cd isilon_hadoop_tools/
 source bin/activate
-pip install isilon_hadoop_tools
-ls
-bin/isilon_create_users --help
+ pip install isilon_hadoop_tools
 
 isilon_create_users --zone=System  --onefs-user=root --onefs-password=a --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
 
