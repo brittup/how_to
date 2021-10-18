@@ -18,6 +18,8 @@ Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "mp" -NameServer "
 ###Hadoop root setup
 mkdir /ifs/cdp7
 mkdir /ifs/cdp7/hadoop-root
+chmod 755 /ifs/cdp7
+chmod 755 /ifs/cdp7/hadoop-root
 cd /ifs/cdp7/hadoop-root
 touch system.txt
 touch <smartconnectname>.txt
@@ -151,10 +153,13 @@ ou=CDP7,DC=demo,DC=local
 
 If using PowerScale CSD, 
 
-copy csd jar to:
+copy powerscale csd jar to:
 /opt/cloudera/cm/csd
 
-Install!
+Deploy & Install!
+
+
+
 
 
 
