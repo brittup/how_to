@@ -1,0 +1,84 @@
+######Upgrade Driver from version v1.4.0 to v1.5.0
+
+ git clone -b release-1.6.1 https://github.com/dell/csi-powerscale.git
+
+###move old csi-isilon to csi-isilon-vX
+
+####edit secrets.json
+cd ~/git/csi-isilon-1.6/helm
+vi secret.json
+
+{
+  "isilonClusters": [
+    {
+      "clusterName": "cluster1",
+      "username": "k8",
+      "password": "Password123!",
+      "isiIP": "10.246.156.13",
+      "isDefaultCluster": true
+    }
+  ],
+  "logLevel": "debug"
+}
+
+
+
+###copy the helm/csi-isilon/values.yaml into a new location with a custom name say my-isilon-settings.yaml, '
+###to customize settings for installation. Edit my-isilon-settings.yaml 
+
+<see the older>
+
+###delete existing secrets
+kubectl get secret -n isilon
+kubectl delete secret isilon-certs-0 -n isilon
+kubectl delete secret isilon-creds -n isilon
+kubectl get secret -n isilon
+
+
+###create isilon-creds secret
+kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.json
+kubectl create -f emptysecret.yaml
+
+kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon
+
+
+
+./verify.sh --namespace isilon --values ~/git/csi-isilon-1.6/my-isilon-settings.yaml
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon-1.6/my-isilon-settings.yaml --upgrade 
+
+kubectl get pods --namespace isilon
+
+
+
+
+Upgrade using Dell CSI Operator
+cd ~/git
+git clone https://github.com/dell/dell-csi-operator.git
+cd dell-csi-operator/
+cd scripts/
+ls -al
+./verify.sh
+./install.sh --upgrade
+
+
+
+###
+
+kubectl get pods --namespace isilon
+kubectl get pods -A
+
+
+kubectl describe pod <name> -n test
+
+kubectl get pv -A
+kubectl get pvc -A
+
+kubectl get pv -n test
+kubectl get pvc -n test
+kubectl get pods -n test
+kubectl describe pods <name> -n test
+
+
+kubectl exec -ti -n test isilontest-0 bash
+
