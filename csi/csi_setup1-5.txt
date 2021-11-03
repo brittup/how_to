@@ -1,6 +1,6 @@
 ###csi driver setup
 
-https://dell.github.io/storage-plugin-docs/docs/installation/helm/isilon/#install-csi-driver-for-powerscale
+https://dell.github.io/csm-docs/docs/
 
 
 #ensure dns is setup for all hosts
@@ -320,9 +320,7 @@ mountOptions: []
 
 kubectl create -f my-isilon-sc.yaml
 
-####get the storage class
-kubectl get sc
-kubectl describe sc 
+kubectl get sc 
 
 
 ###create a testing namespace

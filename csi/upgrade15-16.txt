@@ -43,6 +43,13 @@ kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
+###copy the storage class to the new installation
+cp  ~/git/csi-isilon-1.5/my-isilon-sc.yaml /root/git/csi-isilon/my-isilon-sc.yaml
+cat ~/git/csi-isilon/my-isilon-sc.yaml
+kubectl get sc
+
+
+
 
 ./verify.sh --namespace isilon --values ~/git/csi-isilon-1.6/my-isilon-settings.yaml
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon-1.6/my-isilon-settings.yaml --upgrade 
@@ -82,3 +89,23 @@ kubectl describe pods <name> -n test
 
 kubectl exec -ti -n test isilontest-0 bash
 
+
+
+cd /root/git/csi-isilon/test/sample_files
+cat pvc.yaml
+cat nginx.yaml
+
+kubectl create -f pvc.yaml
+kubectl get pvc
+
+cat nginx.yaml
+kubectl create -f nginx.yaml
+
+kubectl get pvc
+kubectl get pv
+
+kubectl get pods -n default
+kubectl exec -ti -n default ngnix-pv-pod bash
+
+#drop a file here 
+ls -al /usr/share/nginx/html
