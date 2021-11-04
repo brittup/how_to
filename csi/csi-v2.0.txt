@@ -380,20 +380,19 @@ vi ~/git/csi-isilon/my-isilon-sc.yaml
 mountOptions: []
 
 
-kubectl create -f my-isilon-sc.yaml
+kubectl create -f ~/git/csi-isilon/my-isilon-sc.yaml
 
 kubectl get sc 
 
 
 ###create a testing namespace
-### /csi-isilon/test/sample_files
-
 
 kubectl create namespace test
 
-
+###this maybe required
 docker login
 
+###sample test files:  ~/git/csi-isilon/samples
 
 ###create a pvc
 kubectl create -f pvc.yaml -n test
