@@ -4,7 +4,8 @@ https://dell.github.io/csm-docs/docs/
 
 
 #ensure dns is setup for all hosts
-#Add IP - hostnames of k8 hosts
+#Add IP - hostnames of k8 hosts, fqdn and shortname
+
 vi /etc/hosts
 vi /etc/resolv.conf
 yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
@@ -38,7 +39,7 @@ docker images -a
 ###install Kubernetes
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
-service firewalld stop
+systemctl stop firewalld
 systemctl disable firewalld
 systemctl status firewalld
 
@@ -97,6 +98,7 @@ systemctl enable kubelet
 ###Complete up to here for all nodes going into cluster!
 
 ###deploy kubernetes cluster on master node
+#kubeadm init --pod-network-cidr=X.X.X.X/X
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
 <see output for node info and joining nodes to cluster>
