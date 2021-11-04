@@ -259,16 +259,14 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
-
+cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
-cd ./external-snapshotter
-git checkout release-<your-version>
+cd ~/git/external-snapshotter
+git checkout release-4.2                < -- 4.2 current
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
-
-
-
 kubectl get crd
+
 
 cd ~/git/csi-isilon
 cp helm/csi-isilon/values.yaml my-isilon-settings.yaml
