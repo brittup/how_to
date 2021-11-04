@@ -117,11 +117,17 @@ systemctl enable kubelet
 
 ###Complete up to here for all nodes going into cluster!
 
-###deploy kubernetes cluster on master node
+
+###deploy kubernetes cluster on master node only, use output to join other nodes
 #kubeadm init --pod-network-cidr=X.X.X.X/X
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
+
+
+
 <see output for node info and joining nodes to cluster>
+
+##join additional nodes
 
 
 mkdir -p $HOME/.kube
