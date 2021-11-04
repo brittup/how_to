@@ -290,46 +290,58 @@ kubectl create namespace isilon
 cd ~/git/csi-isilon/samples/secret
 vi secret.yaml
 
-{
-  "isilonClusters": [
-    {
-      "clusterName": "cluster1",
-      "username": "k8",
-      "password": "Password123!",
-      "isiIP": "10.246.156.13",
-      "isDefaultCluster": true
-    }
-  ]
-}
+
+  
+      - clusterName: "ps1"
+      
+      username: "k8"
+
+      password: "Password123!"
+
+      endpoint: "10.246.156.13"
+
+      isDefault: true
+
+      skipCertificateValidation: true
+
+      isiPath: "/ifs/csi"
+
+
+  
 
 
 ###create isilon-creds secret
-kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.json
-
-kubectl get secret isilon-creds -o yaml -n isilon
+kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml
 
 ###since we are using isiInsecure = 'true"
-kubectl create -f emptysecret.yaml
+kubectl create -f empty-secret.yaml
 
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
 
-####Before we install the driver, we will take the NoSchedule taint away from the master node
+####Before we install the driver, we will take the NoSchedule taint away from the master node, use shortname
 kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
+
 kubectl taint nodes <hostname> node-role.kubernetes.io/master-
 
+kubectl describe node <hostname> | grep Taint
 
-cd csi-isilon/dell-csi-helm-installer
 
+cd ~/git/csi-isilon/dell-csi-helm-installer
+
+###add another session 
 watch kubectl get pods -A  
 
 
  ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  
 
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml 
+
+
+###watch the pods in the other session
 
 
 ####if you hit rate limit issue - logon to dockerhub
