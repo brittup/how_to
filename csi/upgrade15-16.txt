@@ -90,7 +90,7 @@ kubectl describe pods <name> -n test
 kubectl exec -ti -n test isilontest-0 bash
 
 
-
+###test new volume
 cd /root/git/csi-isilon/test/sample_files
 cat pvc.yaml
 cat nginx.yaml

@@ -24,7 +24,9 @@ systemctl enable docker.service
 systemctl start docker
 systemctl status docker
 
+###if dockerhub login is required
 docker login
+
 docker run -it --rm ubuntu /bin/bash
     exit
 
@@ -81,12 +83,14 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
 #yum install kubelet-1.14.1* kubeadm-1.14.1* kubectl-1.14.1* --disableexcludes=kubernetes
 #yum install kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
+#yum install kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
 
 #install a supported version
 #yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
+yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
 
-yum install kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disableexcludes=kubernetes
 
 systemctl enable kubelet
 
