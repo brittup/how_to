@@ -125,9 +125,8 @@ kubeadm init --pod-network-cidr=10.244.0.0/16
 
 
 
-<see output for node info and joining nodes to cluster>
+<see output for node info and joining nodes to cluster - DO NOT JOIN YET>
 
-##join additional nodes
 
 
 mkdir -p $HOME/.kube
@@ -152,7 +151,7 @@ wget https://cloud.weave.works/k8s/v1.16/net.yaml --no-check-certificate
 kubectl apply -f net.yaml
 
 
-###join nodes to cluster here per the kubeadm init
+###join nodes to cluster here per the kubeadm init###
 
 ##eg:
 kubeadm join 10.246.156.18:6443 --token 2bxzot.jiamo9pjlikgwmty \
@@ -212,9 +211,11 @@ chmod 777 /ifs/csi
 ####https://dell.github.io/storage-plugin-docs/docs/installation/
 ####https://dell.github.io/storage-plugin-docs/docs/installation/helm/isilon/
 
+# setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+source <(kubectl completion bash) 
 
-source <(kubectl completion bash) # setup autocomplete in bash into the current shell, bash-completion package should be installed first.
-echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
+# add autocomplete permanently to your bash shell.
+echo "source <(kubectl completion bash)" >> ~/.bashrc 
 
 
 ###install helm
@@ -249,16 +250,22 @@ systemctl restart docker
 ###https://github.com/kubernetes-csi/external-snapshotter/tree/v4.0.0/client/config/crd
 
 
-####Install Snapshot CRD
-
+####Install Snapshot CRD'smanually, this is the older method
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
-
 ###Install Snapshot Controller               
-
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+
+
+
+git clone https://github.com/kubernetes-csi/external-snapshotter/
+cd ./external-snapshotter
+git checkout release-<your-version>
+kubectl create -f client/config/crd
+kubectl create -f deploy/kubernetes/snapshot-controller
+
 
 
 kubectl get crd
