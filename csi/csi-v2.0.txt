@@ -90,7 +90,27 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #install a supported version
 #yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
+yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
+
+
+###with 1.22
 yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
+
+mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+systemctl enable docker
+systemctl daemon-reload
+systemctl restart docker
 
 
 systemctl enable kubelet
