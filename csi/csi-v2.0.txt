@@ -368,12 +368,12 @@ kubectl logs  <pod> -n isilon -c driver
 Steps to create storage class: 
 There are samples storage class yaml files available under helm/samples/storageclass
 
-###Sample storage classes:  helm/samples/storageclass
+###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-isilon/helm/samples/storageclass/isilon.yaml  ~/git/csi-isilon/my-isilon-sc.yaml
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/my-isilon-sc.yaml
 cd ~/git/csi-isilon
 
-vi my-isilon-sc.yaml
+vi ~/git/csi-isilon/my-isilon-sc.yaml
 
 
 # Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
