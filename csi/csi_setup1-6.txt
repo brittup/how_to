@@ -436,12 +436,19 @@ vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 isiPath: "/ifs/csi"
 
+
+###create the volumesnapshotclass in the namespace as the pvc and the pod
+
 kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 
 kubectl get Volumesnapshotclass -n test
 
 
 ###create the snapshot
+
+vi volumesnapshot/snapshot-of-test-pvc.yaml
+-review and set the namespace
+
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
 kubectl get volumesnapshot
