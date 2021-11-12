@@ -422,6 +422,7 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 
 cd /usr/share/nginx/html/
 ls -al
+touch test1.txt
 
 ###from isilon cli, browse to the directory mounted by the pod
 
@@ -435,7 +436,16 @@ vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 isiPath: "/ifs/csi"
 
-kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
+kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml 
+
+kubectl get Volumesnapshotclass -n isilon
+
+
+###create the snapshot
+
+kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
+kubectl get volumesnapshot
+
 
 
 
