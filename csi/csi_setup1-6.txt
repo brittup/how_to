@@ -436,9 +436,9 @@ vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 isiPath: "/ifs/csi"
 
-kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml 
+kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 
-kubectl get Volumesnapshotclass -n isilon
+kubectl get Volumesnapshotclass -n test
 
 
 ###create the snapshot
@@ -446,7 +446,16 @@ kubectl get Volumesnapshotclass -n isilon
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
 kubectl get volumesnapshot
 
+###view snapshot
+kubectl exec ngnix-pv-pod -i -t -n test -- bash
+cd /usr/share/nginx/html/.snapshot
+cd <snapshot-id>
+ls -al
 
+
+###deletethe snapshot
+kubectl get volumesnapshot
+kubectl delete volumesnapshot snapshot-of-test-pvc
 
 
 
