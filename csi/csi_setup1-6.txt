@@ -388,6 +388,8 @@ kubectl create -f ~/git/csi-isilon/my-isilon-sc.yaml
 kubectl get sc 
 
 
+
+
 ###create a testing namespace
 
 kubectl create namespace test
@@ -395,9 +397,15 @@ kubectl create namespace test
 ###this maybe required
 docker login
 
+
+
+
+###
+Testing
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
+
 
 ###create a pvc
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
@@ -417,8 +425,22 @@ ls -al
 
 ###from isilon cli, browse to the directory mounted by the pod
 
+###snapshots
+###VolumeSnapshotClass is needed for creating the volume snapshots
+
+cd ~/git/csi-isilon/samples
+vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
+
+###modify path as needed
+
+isiPath: "/ifs/csi"
+
+kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 
+
+
+###cleanup
 kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
 
@@ -432,7 +454,6 @@ kubectl get pv k8s-56da61f45b
 kubectl describe pv k8s-56da61f45b
 kubectl get volumeattachment -n test
 kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
-
 
 
 
