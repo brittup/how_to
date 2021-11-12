@@ -1,0 +1,27 @@
+
+###K9S
+Install k9s on CentOS using the Snap Store | Snapcraft
+
+yum install epel-release
+yum install snapd
+systemctl enable --now snapd.socket
+ln -s /var/lib/snapd/snap /snap
+
+reboot
+
+snap install k9s
+
+k9s
+
+
+
+###rancher
+
+
+Rancher Docs: Installing Rancher on a Single Node Using Docker
+
+docker run -d --restart=unless-stopped \
+  -p 80:80 -p 443:443 \
+  --privileged \
+  rancher/rancher:latest
+
