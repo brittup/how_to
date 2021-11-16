@@ -447,6 +447,7 @@ kubectl get Volumesnapshotclass -n test
 ###create the snapshot
 
 vi volumesnapshot/snapshot-of-test-pvc.yaml
+-review api version and change v1beta -- v1
 -review and set the namespace
 
 

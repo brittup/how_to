@@ -55,7 +55,7 @@ vi volumesnapshot/snapshot-of-test-pvc.yaml
 -review and set the namespace = test
 
 
-kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
+kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
 kubectl get volumesnapshot -n test
 
 
@@ -70,8 +70,8 @@ ls -al
 
 
 ###deletethe snapshot
-kubectl get volumesnapshot
-kubectl delete volumesnapshot snapshot-of-test-pvc
+kubectl get volumesnapshot -n test
+kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 
 
 ###cleanup
