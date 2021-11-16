@@ -65,7 +65,7 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/.snapshot
 cd <snapshot-id>
 ls -al
-
+exit
 
 
 
@@ -77,12 +77,14 @@ kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 ###cleanup
 kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
+kubectl get pods -n test
 
-kubectl get pvc  -n test
-kubectl delete pvc tets-pvc -n test
 
-kubectl get pv
-kubectl delete pv <k8s-ec5c9fec46>
+kubectl get pvc -n test
+kubectl delete pvc test-pvc -n test
+kubectl get pvc -n test
+kubectl get pv -n test
+
 
 
 
