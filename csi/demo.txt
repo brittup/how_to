@@ -1,22 +1,29 @@
 
 ###
-testing
+testing 1.6
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
 
 
+###
+look at nfs exports isilon
+
 ###create a pvc
+vi persistentvolumeclaim/pvc.yaml
+
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
+kubectl get pvc -n test
 
 
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
 kubectl describe pods ngnix-pv-pod -n test
 
-kubectl get pv -n test
+
+###access the pod
 kubectl exec ngnix-pv-pod -i -t -n test -- bash 
 
 cd /usr/share/nginx/html/
@@ -37,20 +44,21 @@ isiPath: "/ifs/csi"
 
 
 ###create the volumesnapshotclass in the namespace as the pvc and the pod
-
 kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
-
 kubectl get Volumesnapshotclass -n test
 
 
 ###create the snapshot
 
 vi volumesnapshot/snapshot-of-test-pvc.yaml
--review and set the namespace
+-review api version and change v1beta -- v1
+-review and set the namespace = test
 
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
-kubectl get volumesnapshot
+kubectl get volumesnapshot -n test
+
+
 
 ###view snapshot
 kubectl exec ngnix-pv-pod -i -t -n test -- bash
@@ -66,17 +74,34 @@ kubectl get volumesnapshot
 kubectl delete volumesnapshot snapshot-of-test-pvc
 
 
-
 ###cleanup
 kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
 
 kubectl get pvc  -n test
-kubectl delete pvc persistentvolumeclaim/pvc.yaml -n test
+kubectl delete pvc tets-pvc -n test
 
 kubectl get pv
 kubectl delete pv <k8s-ec5c9fec46>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####misc useful sometimes
 kubectl get pv k8s-56da61f45b
 kubectl describe pv k8s-56da61f45b
 kubectl get volumeattachment -n test
