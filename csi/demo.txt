@@ -15,9 +15,11 @@ vi persistentvolumeclaim/pvc.yaml
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
-kubectl get pvc -n test
+kubectl get pv -n test
 
 
+
+vi pod/nginx.yaml
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
 kubectl describe pods ngnix-pv-pod -n test
@@ -76,7 +78,7 @@ kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 
 ###cleanup
 kubectl get pods -n test
-kubectl delete -f pod/nginx.yaml -n test
+kubectl delete -f pod/ngnix.yaml -n test
 kubectl get pods -n test
 
 
