@@ -25,3 +25,92 @@ docker run -d --restart=unless-stopped \
   --privileged \
   rancher/rancher:latest
 
+
+
+
+
+
+
+
+
+####k3d   installation
+
+
+#ensure dns is setup for all hosts
+#Add IP - hostnames of k8 hosts, fqdn and shortname
+
+vi /etc/hosts
+vi /etc/resolv.conf
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
+
+systemctl start rpcbind
+systemctl enable rpcbind
+systemctl status rpcbind
+
+###################################################################################################################################################
+###install Docker Runtime, use a specific version
+###From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+
+systemctl enable docker.service
+systemctl start docker
+systemctl status docker
+
+###if dockerhub login is required
+docker login
+
+docker run -it --rm ubuntu /bin/bash
+    exit
+
+
+docker ps --all
+docker images -a
+
+
+
+
+
+wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | /bin/bash
+
+
+k3d cluster create mycluster1
+
+
+Use the new cluster with kubectl, e.g.:
+
+
+kubectl get nodes
+
+kubectl cluster-info
+
+k3d cluster create mycluster1
+INFO[0000] Prep: Network                                
+INFO[0000] Created network 'k3d-mycluster1'             
+INFO[0000] Created volume 'k3d-mycluster1-images'       
+INFO[0000] Starting new tools node...                   
+INFO[0001] Creating node 'k3d-mycluster1-server-0'      
+INFO[0003] Pulling image 'docker.io/rancher/k3d-tools:5.1.0' 
+INFO[0003] Pulling image 'docker.io/rancher/k3s:v1.21.5-k3s2' 
+INFO[0010] Starting Node 'k3d-mycluster1-tools'         
+INFO[0027] Creating LoadBalancer 'k3d-mycluster1-serverlb' 
+INFO[0029] Pulling image 'docker.io/rancher/k3d-proxy:5.1.0' 
+INFO[0035] Using the k3d-tools node to gather environment information 
+WARN[0037] failed to resolve 'host.docker.internal' from inside the k3d-tools node: Failed to read address for 'host.docker.internal' from command output 
+INFO[0037] HostIP: using network gateway...             
+INFO[0037] Starting cluster 'mycluster1'                
+INFO[0037] Starting servers...                          
+INFO[0037] Starting Node 'k3d-mycluster1-server-0'      
+INFO[0046] Starting agents...                           
+INFO[0046] Starting helpers...                          
+INFO[0046] Starting Node 'k3d-mycluster1-serverlb'      
+INFO[0054] Injecting '172.18.0.1 host.k3d.internal' into /etc/hosts of all nodes... 
+INFO[0054] Injecting records for host.k3d.internal and for 2 network members into CoreDNS configmap... 
+INFO[0055] Cluster 'mycluster1' created successfully!   
+INFO[0055] You can now use
+
+
+Then install single node 
+
+
