@@ -77,14 +77,6 @@ wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | /
 
 k3d cluster create mycluster1
 
-
-Use the new cluster with kubectl, e.g.:
-
-
-kubectl get nodes
-
-kubectl cluster-info
-
 k3d cluster create mycluster1
 INFO[0000] Prep: Network                                
 INFO[0000] Created network 'k3d-mycluster1'             
@@ -111,6 +103,13 @@ INFO[0055] Cluster 'mycluster1' created successfully!
 INFO[0055] You can now use
 
 
-Then install single node 
 
+docker ps -a
 
+docker exec -it <container id> /bin/sh
+
+Use the new cluster with kubectl, e.g.:
+
+kubectl get nodes
+
+kubectl cluster-info
