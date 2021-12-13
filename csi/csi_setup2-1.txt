@@ -3,11 +3,16 @@
 https://dell.github.io/csm-docs/docs/
 
 
-#ensure dns is setup for all hosts
+#ensure dns is setup for all hosts, do not skip this step
 #Add IP - hostnames of k8 hosts, fqdn and shortname
 
 vi /etc/hosts
 vi /etc/resolv.conf
+
+hostnamectl set-hostname fqdn
+hostnamectl
+
+
 yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
 
 systemctl start rpcbind
@@ -190,6 +195,8 @@ isi license list
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=mp_pool
+isi network pools list
+isi network pools view groupnet0:subnet0:pool1
 
 ###Run the following PowerShell command:
 
@@ -218,10 +225,6 @@ isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
 mkdir /ifs/csi
 chmod 777 /ifs/csi
-
-
-
-
 
 
 
