@@ -331,7 +331,7 @@ vi secret.yaml
 
       isDefault: true
 
- ###delete the cluster2 controllerCount
+ ###delete/comment out the cluster2 controllerCount
 
 
 
