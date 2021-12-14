@@ -170,10 +170,7 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 #on master node
 kubectl get nodes
 
-
 kubectl get pods --all-namespaces
-kubectl get pods -A
-
 
 ### if reset needed
 kubeadm reset
@@ -184,9 +181,7 @@ kubeadm reset
 
 ###hit q and yes to accept eula
 
-isi license add --evaluation=SMARTCONNECT_ADVANCED
-isi license add --evaluation=SMARTQUOTAS
-isi license add --evaluation=SNAPSHOTIQ
+isi license add --evaluation=SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
 isi license list
 
 
@@ -194,7 +189,7 @@ isi license list
 ###setup SmartConnect on Isilon
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
-isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=mp_pool
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=csi_pool
 isi network pools list
 isi network pools view groupnet0:subnet0:pool1
 
@@ -317,6 +312,9 @@ isiPath: /ifs/csi
 ###create a K8 namespace 
 kubectl create namespace isilon
 
+
+
+
 ####create secrets
 cd ~/git/csi-isilon/samples/secret/
 vi secret.yaml
@@ -333,7 +331,9 @@ vi secret.yaml
 
       isDefault: true
 
-    
+ ###delete the cluster2 controllerCount
+
+
 
 ###create isilon-creds secret
 kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
@@ -436,6 +436,14 @@ cd ~/git/csi-isilon/samples
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
+kubectl get pv -n test
+kubectl describe pv <pv name> -n test
+
+
+go to isilon, review
+nfs
+quota
+add a file from cli
 
 
 kubectl create -f pod/nginx.yaml -n test
@@ -448,6 +456,9 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/
 ls -al
 touch test1.txt
+
+
+
 
 ###from isilon cli, browse to the directory mounted by the pod
 
@@ -469,6 +480,7 @@ kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 kubectl get Volumesnapshotclass -n test
 
 
+
 ###create the snapshot
 
 vi volumesnapshot/snapshot-of-test-pvc.yaml
@@ -476,10 +488,16 @@ vi volumesnapshot/snapshot-of-test-pvc.yaml
 -review and set the namespace
 
 
-kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml
+kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
 kubectl get volumesnapshot
 
-###view snapshot
+
+
+###view snapshot from isilon
+
+
+
+###view snapshot from nginxpod
 kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/.snapshot
 cd <snapshot-id>
@@ -497,7 +515,7 @@ kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
 
 kubectl get pvc  -n test
-kubectl delete pvc persistentvolumeclaim/pvc.yaml -n test
+kubectl delete pvc test-pvc -n test
 
 kubectl get pv
 kubectl delete pv <k8s-ec5c9fec46>

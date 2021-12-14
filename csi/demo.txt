@@ -1,27 +1,86 @@
 
 ###
-testing 1.6
+testing 2.1
+
+###review driver config
+
+vi ~/git/csi-isilon/my-isilon-settings.yaml
+
+###review pods
+kubectl get pods -A 
+
+kubectl get pods -n isilon
+
+watch kubectl get pods -A 
+
+
+kubectl describe pod -n isilon <controller-id> 
+
+
+
+vi ~/git/csi-isilon/my-isilon-sc.yaml
+kubectl get sc
+
+
+kubectl get pods -n test
+
+
+
+
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
 
 
 ###
-look at nfs exports isilon
+look at isilon config
+-network
+-nfs
+-quotas
+-snapshot
+
+
+pod -- > pv --> pvc --> sc   
+
 
 ###create a pvc
 vi persistentvolumeclaim/pvc.yaml
 
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
+
+
 kubectl get pvc -n test
+
+
 kubectl describe pvc test-pvc -n test
+
+
 kubectl get pv -n test
 
 
+kubectl describe pv <pv name> -n test
 
+
+go to isilon, review
+nfs
+quota
+add a file from cli
+
+
+###look a simple pod definition 
 vi pod/nginx.yaml
+
+###review volumes, 
+claim name = test-pvc  we just created
+mount point in the 
+
+
 kubectl create -f pod/nginx.yaml -n test
+
+
 kubectl get pods -n test
+
+
 kubectl describe pods ngnix-pv-pod -n test
 
 
@@ -32,7 +91,13 @@ cd /usr/share/nginx/html/
 ls -al
 touch test1.txt
 
+
 ###from isilon cli, browse to the directory mounted by the pod
+
+
+
+
+
 
 ###snapshots
 ###VolumeSnapshotClass is needed for creating the volume snapshots
