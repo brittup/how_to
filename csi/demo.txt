@@ -124,15 +124,24 @@ kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 kubectl get Volumesnapshotclass -n test
 
 
-###create the snapshot
+kubectl get volumesnapshotclasses.snapshot.storage.k8s.io -n test
+kubectl describe volumesnapshotclasses.snapshot.storage.k8s.io isilon-snapclass -n test
 
+
+
+
+###create the snapshot
+cd ~/git/csi-isilon/samples
 vi volumesnapshot/snapshot-of-test-pvc.yaml
+
 -review api version and change v1beta -- v1
 -review and set the namespace = test
 
 
+###
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
-kubectl get volumesnapshot -n test
+
+
 
 Review onefs for snapshot
 
@@ -193,3 +202,8 @@ kubectl get pv k8s-56da61f45b
 kubectl describe pv k8s-56da61f45b
 kubectl get volumeattachment -n test
 kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
+
+kubectl edit pv|pvc|pod|snap <name> -n test
+
+##comment out the finalizer line, should delete resource
+

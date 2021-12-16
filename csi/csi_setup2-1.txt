@@ -282,14 +282,26 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 ###
 
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+###Install Snapshot Controller               
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
+
+
+OR
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
-cd ~/git/external-snapshotter
-git checkout release-4.2                < -- 4.2 current, check the docs
+cd ./external-snapshotter
+git checkout release-<your-version>
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
+
+
+
 
 
 ###install the csi driver
@@ -535,6 +547,11 @@ kubectl describe pod     -n isilon
 kubectl logs   -n isilon -c driver
 
 
+
+cd ~/git/csi-isilon/dell-csi-helm-installer
+
+
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml --uninstall
 
 
 
