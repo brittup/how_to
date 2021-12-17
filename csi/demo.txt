@@ -17,7 +17,7 @@ watch kubectl get pods -A
 kubectl describe pod -n isilon <controller-id> 
 
 
-###review the driver configuration
+###review the storage class configuration
 vi ~/git/csi-isilon/my-isilon-sc.yaml
 kubectl get sc
 
