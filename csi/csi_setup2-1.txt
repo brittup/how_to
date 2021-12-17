@@ -339,7 +339,7 @@ vi secret.yaml
 
       password: "Password123!"
 
-      endpoint: "csi.demo.local"
+      endpoint: "https://csi.demo.local"
 
       isDefault: true
 

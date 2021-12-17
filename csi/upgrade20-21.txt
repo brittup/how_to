@@ -29,7 +29,7 @@ isilonClusters:
     # if authorization is enabled, the endpont should be the localhost address of the csm-authorization-sidecar
     # Default value: None
     # Examples: "1.2.3.4", "https://1.2.3.4", "https://abc.myonefs.com"
-    endpoint: "cascade-system.foo.com"
+    endpoint: "https://cascade-system.foo.com"
 
     # endpointPort: Specify the HTTPs port number of the PowerScale OneFS API server
     # Formerly this attribute was named as "isiPort"
