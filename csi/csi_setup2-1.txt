@@ -101,6 +101,7 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 ###with 1.22
 yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
 
+
 mkdir /etc/docker
 cat <<EOF | sudo tee /etc/docker/daemon.json
 {
@@ -182,6 +183,7 @@ kubeadm reset
 ###hit q and yes to accept eula
 
 isi license add --evaluation=SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
+
 isi license list
 
 
@@ -295,7 +297,8 @@ OR
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout release-<your-version>
+git checkout <release-version>
+git checkout v4.2.0
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
@@ -395,6 +398,16 @@ kubectl get pods --namespace isilon
 kubectl describe pod   <pod>  -n isilon
 kubectl logs  <pod> -n isilon -c driver
 
+###K9S is very useful
+mkdir ~/git/k9s
+cd ~/git/k9s
+wget https://github.com/derailed/k9s/releases/download/v0.25.12/k9s_Linux_x86_64.tar.gz
+gunzip k9s_Linux_x86_64.tar.gz
+tar -xvf k9s_Linux_x86_64.tar
+ls -al
+./k9s
+
+https://k9scli.io/topics/commands/
 
 
 ###if needed
@@ -501,12 +514,12 @@ vi volumesnapshot/snapshot-of-test-pvc.yaml
 
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
-kubectl get volumesnapshot
+kubectl get volumesnapshot -n test
 
 
 
 ###view snapshot from isilon
-
+ls -al /ifs/.snapshot/snapshot-<id_created>/csi/<volume_name>
 
 
 ###view snapshot from nginxpod

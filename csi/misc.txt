@@ -15,9 +15,13 @@ k9s
 
 
 OR
-
+mkdir ~/git/k9s
+cd k9s
 wget https://github.com/derailed/k9s/releases/download/v0.25.12/k9s_Linux_x86_64.tar.gz
-gunzip 
+gunzip k9s_Linux_x86_64.tar.gz
+tar -xvf k9s_Linux_x86_64.tar
+ls -al
+./k9s
 
 
 https://k9scli.io/topics/commands/
