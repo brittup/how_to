@@ -1,6 +1,6 @@
 ###Kerberize Isilon
 
-isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldap-kdc.demo.local --admin-server=ldap-kdc.demo.local --default-domain=demo.local 
+isi auth krb5 realm create --realm=VLABKDC.LOCAL --kdc=ldapkdc.demo.local --admin-server=ldapkdc.demo.local --default-domain=demo.local 
 isi auth krb5 realm list -v
 
 
