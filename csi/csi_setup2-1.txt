@@ -275,12 +275,12 @@ systemctl restart docker
 
 
 ####Install Snapshot CRD'smanually, this is the older method, use method below
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 ###
 
 
@@ -293,7 +293,8 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 
 
 
-OR
+OR - one shot install
+
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
@@ -322,12 +323,8 @@ controllerCount: 2    - if only 1 host, 2 is 2
 isiPath: /ifs/csi
 
 
-
-
 ###create a K8 namespace 
 kubectl create namespace isilon
-
-
 
 
 ####create secrets
@@ -458,6 +455,7 @@ cd ~/git/csi-isilon/samples
 
 
 ###create a pvc
+cat persistentvolumeclaim/pvc.yaml
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
@@ -530,8 +528,8 @@ ls -al
 
 
 ###deletethe snapshot
-kubectl get volumesnapshot
-kubectl delete volumesnapshot snapshot-of-test-pvc
+kubectl get volumesnapshot -n test
+kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 
 
 
