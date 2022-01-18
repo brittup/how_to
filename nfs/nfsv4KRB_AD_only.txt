@@ -204,10 +204,10 @@ klist -e
 id
 
 
-cd /mnt
+cd /mnt/nfsv4krb5
 ls -al
-cd /nfsv4krb5
-touch test.txt
+touch testuser.txt
+ls -al
 
 
 ###it can be very useful to set a SMB share up to view and modify ACE's on these files also
