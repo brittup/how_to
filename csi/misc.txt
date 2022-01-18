@@ -2,21 +2,9 @@
 ###K9S
 Install k9s on CentOS using the Snap Store | Snapcraft
 
-yum install epel-release
-yum install snapd
-systemctl enable --now snapd.socket
-ln -s /var/lib/snapd/snap /snap
 
-reboot
-
-snap install k9s
-
-k9s
-
-
-OR
 mkdir ~/git/k9s
-cd k9s
+cd ~/git/k9s
 wget https://github.com/derailed/k9s/releases/download/v0.25.12/k9s_Linux_x86_64.tar.gz
 gunzip k9s_Linux_x86_64.tar.gz
 tar -xvf k9s_Linux_x86_64.tar
@@ -28,7 +16,7 @@ https://k9scli.io/topics/commands/
 
 
 
-###rancher
+###rancher - check the version of K8 you are using vs rancher support
 
 
 Rancher Docs: Installing Rancher on a Single Node Using Docker
@@ -88,7 +76,7 @@ docker images -a
 
 
 
-wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | /bin/bash
+wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | /bin/bash
 
 
 k3d cluster create mycluster1
@@ -129,3 +117,50 @@ Use the new cluster with kubectl, e.g.:
 kubectl get nodes
 
 kubectl cluster-info
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##########
+old stuff
+##########
+yum install epel-release
+yum install snapd
+systemctl enable --now snapd.socket
+ln -s /var/lib/snapd/snap /snap
+
+reboot
+
+snap install k9s
+
+k9s
+
+
+OR
