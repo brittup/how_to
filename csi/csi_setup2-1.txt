@@ -2,7 +2,6 @@
 
 https://dell.github.io/csm-docs/docs/
 
-
 #ensure dns is setup for all hosts, do not skip this step
 #Add IP - hostnames of k8 hosts, fqdn and shortname
 
