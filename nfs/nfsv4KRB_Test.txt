@@ -1,32 +1,31 @@
 ###Test and Validate Kerberos nfsv4 to Isilon
 
-Test NFSv4 no KRB  - get this working
+###Test nfsv4
+Test NFSv4 no KRB  - get this working, see:  https://github.com/brittup/how_to/blob/master/nfs/nfsv4_Setup.txt#L82
 
 
-###Isilon
-Validate Auth Provider
+###Isilon Review
 Review Networking
 Review Access Zone
 Review SmartConnect
+Validate Auth Provider
 
 Validate SPN's for the Auth Provider
 
 Validate DNS from Isilon
-Validate Reverse DNS from Isilon
+Validate Reverse DNS from Isilon (or use rdns=false)
 
 
 Review Export Isilon
--check settings here
+-check settings for krb5
 
 
 ###Review Client
 Review krb5.conf
 
-
 Test Kerberos
-kinit
+kinit <testuser>
 klist -ek
-
 
 Review SPN's on client
 
@@ -37,16 +36,46 @@ Validate Reverse DNS from client
 Test SmartConnect
 
 
+###To use NFS Kerberos authentication, the kernel needs to load the rpcsec_gss_krb5 and auth_rpcgss modules. 
+###To configure the modules, using these commands:
 
-Test nfsv4krb
--mount  - use vers=4.0
+modprobe auth_rpcgss
+modprobe rpcsec_gss_krb5
+depmod -a   
 
 
+### add to SECURE_NFS="yes"   at the end
+vi /etc/sysconfig/nfs
+
+SECURE_NFS="yes" 
+
+systemctl restart nfs-config
+systemctl restart rpcgssd
+
+
+### Test nfsv4 krb
+### mount -vvvv -t nfs4 -o sec=krb5
+mkdir /mnt/pathkrb
+
+mount -vvv -t nfs -o sec=krb5 smartconnect:/ifs/path/ /mnt/path/
+
+ls -al /mnt/path
+mountstats
+
+
+
+
+
+
+
+
+
+
+#####troubleshooting
+cat /proc/mounts
 mountstats
 modprobe rpcsec_gss_krb5
 pcaps
-
-
 
 
 ####Review nfs utils
@@ -70,8 +99,6 @@ ktadd -k /home/user/krb5.keytab nfs/nfsclient.domain.com
 addprinc -pw Password123! kdcuser1@VLABKDC.LOCAL
 kinit <as user>
 klist -e
-
-
 
 
 

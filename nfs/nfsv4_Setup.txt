@@ -78,6 +78,8 @@ chkconfig netfs on
 
 ###on isilon:  isi network pools list     -- get sczone name to list export on
 
+
+###Test the nfsv4 mount from linux client
 ###get mount info from Isilon
 showmount -e <smartconnectname> or IP
 

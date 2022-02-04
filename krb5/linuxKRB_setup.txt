@@ -86,18 +86,22 @@ ls -al
 
 
 ktutil
-ktutil:  list
+list
 
-ktutil:  rkt /root/nfs-krb5.keytab
-ktutil:  rkt /root/host-krb5.keytab
-ktutil:  list
-ktutil:  wkt /etc/krb5.keytab
-ktutil:  exit
+rkt /root/nfs-krb5.keytab
+rkt /root/host-krb5.keytab
+list
+wkt /etc/krb5.keytab
+exit
 
 ktutil
-ktutil: rkt /etc/krb5.keytab
-ktutil: list
+
+rkt /etc/krb5.keytab
+list
 exit
+
+
+klist -ek /etc/krb5.keytab
 
 
 
