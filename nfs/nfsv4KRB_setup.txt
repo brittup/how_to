@@ -6,11 +6,14 @@ Test NFSv4 no KRB  - get this working, see:  https://github.com/brittup/how_to/b
 
 ###Isilon Review
 Review Networking
-Review Access Zone
-Review SmartConnect
-Validate Auth Provider
+Review Access Zone; Providers added
+Review SmartConnect;smartconnect valid
+Validate Auth Provider;review config
 
-Validate SPN's for the Auth Provider
+Validate SPN's for the Auth Provider:
+
+#isi auth ads spn list <PROVIDER>
+#isi auth krb5 spn list <PROVIDER>
 
 Validate DNS from Isilon
 Validate Reverse DNS from Isilon (or use rdns=false)
