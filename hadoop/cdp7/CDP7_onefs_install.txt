@@ -1,5 +1,8 @@
 ###Setup Isilon and client for CDP7
 
+CM 7.4
+CDP 7.1.7
+
 -setup System zone for SmartConnect
 -build hdfs root
 -setup hdfs configuration
@@ -178,24 +181,27 @@ ou=cdp7,DC=demo,DC=local
 
 If using PowerScale CSD:
 
-wget https://github.com/brittup/how_to/blob/a4eede3d36a9a780f504e7405dbde1a6796091be/hadoop/cdp7/PowerScale-1.1.0.jar
+wget https://github.com/brittup/how_to/blob/master/hadoop/cdp7/PowerScale-1.1.0.jar
 
-copy powerscale csd jar to: /opt/cloudera/cm/csd
-
+copy powerscale csd jar
+cp PowerScale-1.1.0.jar /opt/cloudera/cm/csd 
+ls -al /opt/cloudera/cm/csd
 reboot
 
-
-Deploy & Install!
-
+tail -f /var/log/cloudera/cloudera-scm-server
 
 
+###Deploy & Install CDP
+
+Not in this doc
 
 
+###add test users to host and to AD
 useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1 
 useradd -u 654654 -d /home/cdp7-user2 -m cdp7-user2
 
 
-#
+#status of agent
 systemctl status cloudera-scm-agent
 
 
