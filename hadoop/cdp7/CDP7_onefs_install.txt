@@ -67,6 +67,16 @@ isi_for_array "isi auth mapping flush --all"
 isi_for_array "isi auth cache flush --all"
 
 
+
+###join AD
+isi auth ads create demo.local administrator --password=Password123!
+isi auth ads list
+isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
+isi zone zones list -v
+isi hdfs settings modify --zone=System --authentication-mode=kerberos_only
+
+
+
 ###Linux Client Prep
 yum -y update
 yum -y groupinstall "Development tools"
@@ -130,15 +140,15 @@ chmod u+x cloudera-manager-installer.bin
 
 systemctl status cloudera-scm-server
 systemctl status cloudera-scm-server-db
-systemctl status cloudera-scm-agent
+
 
 
 http://X.X.X.X:7180
 admin | admin
 
 
-Create OU
-Create AD cdp account
+Create OU - cdp7
+Create AD cdp account - cdp7-admin
 Assign AD role on OU
 
 Kerberize CDP7
@@ -147,7 +157,7 @@ DEMO.LOCAL
 launchpad.demo.local
 launchpad.demo.local
 demo.local
-ou=CDP7,DC=demo,DC=local
+ou=cdp7,DC=demo,DC=local
 
 -let cdp manage krb5.conf
 
@@ -158,12 +168,25 @@ ou=CDP7,DC=demo,DC=local
 -Check SPN's on isilon
 
 
-If using PowerScale CSD, 
+If using PowerScale CSD
 
 copy powerscale csd jar to:
+
+
 /opt/cloudera/cm/csd
 
 Deploy & Install!
+
+
+
+
+
+useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1 
+useradd -u 654654 -d /home/cdp7-user2 -m cdp7-user2
+
+
+#
+systemctl status cloudera-scm-agent
 
 
 
