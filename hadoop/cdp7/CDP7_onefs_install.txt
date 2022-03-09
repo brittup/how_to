@@ -1,5 +1,14 @@
 ###Setup Isilon and client for CDP7
 
+-setup System zone for SmartConnect
+-build hdfs root
+-setup hdfs configuration
+-install iht and create users/group & dirs
+-setup linux for cdp
+-install CM
+-setup kerberos on OneFS & CM 
+-
+
 
 
 ###On Isilon
@@ -68,6 +77,7 @@ isi_for_array "isi auth cache flush --all"
 
 
 
+
 ###join AD
 isi auth ads create demo.local administrator --password=Password123!
 isi auth ads list
@@ -123,10 +133,8 @@ yum -y install krb5-workstation krb5-libs openldap-clients
 
 reboot
 
+###review host
 cat /proc/sys/vm/swappiness
-
-
-
 
 
 ###install CM and CDP
@@ -168,12 +176,14 @@ ou=cdp7,DC=demo,DC=local
 -Check SPN's on isilon
 
 
-If using PowerScale CSD
+If using PowerScale CSD:
 
-copy powerscale csd jar to:
+wget https://github.com/brittup/how_to/blob/a4eede3d36a9a780f504e7405dbde1a6796091be/hadoop/cdp7/PowerScale-1.1.0.jar
 
+copy powerscale csd jar to: /opt/cloudera/cm/csd
 
-/opt/cloudera/cm/csd
+reboot
+
 
 Deploy & Install!
 
