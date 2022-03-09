@@ -181,9 +181,9 @@ ou=cdp7,DC=demo,DC=local
 
 If using PowerScale CSD:
 
-wget https://github.com/brittup/how_to/blob/master/hadoop/cdp7/PowerScale-1.1.0.jar
 
-copy powerscale csd jar
+download and copy powerscale csd jar from: https://github.com/brittup/how_to/tree/master/hadoop/cdp7
+
 cp PowerScale-1.1.0.jar /opt/cloudera/cm/csd 
 ls -al /opt/cloudera/cm/csd
 reboot
