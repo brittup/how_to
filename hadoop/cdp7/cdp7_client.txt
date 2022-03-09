@@ -5,10 +5,8 @@ yum -y groupinstall "Development tools"
 systemctl disable firewalld
 systemctl stop firewalld
 
-vi /etc/sysconfig/network
-	HOSTNAME=<FDQN>
-vi /etc/hosts
-	X.X.X.X   FQDN shortname
+hostnamectl set-hostname fqdn
+hostnamectl
 
 vi /etc/selinux/config
 
