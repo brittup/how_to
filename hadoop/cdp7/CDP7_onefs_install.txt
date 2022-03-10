@@ -95,9 +95,9 @@ isi zone zones list -v
 isi hdfs settings modify --zone=System --authentication-mode=kerberos_only
 
 isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
-isi auth ads modify CASCADE-AZ4 --store-sfu-mappings=true
-isi auth ads modify CASCADE-AZ4 --allocate-uids=false
-isi auth ads modify CASCADE-AZ4 --allocate-gids=false
+isi auth ads modify DEMO.LOCAL --store-sfu-mappings=true
+isi auth ads modify DEMO.LOCAL --allocate-uids=false
+isi auth ads modify DEMO.LOCAL --allocate-gids=false
 
 ###Linux Client Prep
 yum -y update
