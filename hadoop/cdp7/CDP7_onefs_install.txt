@@ -19,6 +19,12 @@ CDP 7.1.7
 test ssip & sc, forward and reverse DNS on smartconnect
 ###setup SmartConnect on Isilon
 
+isi license add --evaluation=SMARTCONNECT_ADVANCED
+isi license add --evaluation=HDFS
+
+isi services enable hdfs
+isi services -a | grep hdfs
+
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
 isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.99  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=cdp.demo.local    --description=cdp_pool
 
@@ -88,7 +94,10 @@ isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:D
 isi zone zones list -v
 isi hdfs settings modify --zone=System --authentication-mode=kerberos_only
 
-
+isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
+isi auth ads modify CASCADE-AZ4 --store-sfu-mappings=true
+isi auth ads modify CASCADE-AZ4 --allocate-uids=false
+isi auth ads modify CASCADE-AZ4 --allocate-gids=false
 
 ###Linux Client Prep
 yum -y update
@@ -196,9 +205,21 @@ tail -f /var/log/cloudera/cloudera-scm-server
 Not in this doc
 
 
-###add test users to host and to AD
+
+hdfs://pipe1.foo.com:8020
+
+
+###add test users to host
 useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1 
 useradd -u 654654 -d /home/cdp7-user2 -m cdp7-user2
+
+###add users to AD + rfc2307 atribs
+create AD grp cdp7-grp1
+create AD user cdp7-user1
+Add rfc2307 attribs: uidnumber, loginShell, gidNumber, homeDirectory
+
+
+###
 
 
 #status of agent
