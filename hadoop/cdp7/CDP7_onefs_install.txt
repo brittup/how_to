@@ -48,15 +48,14 @@ isi hdfs settings modify --zone=System --root-directory=/ifs/cdp7/hadoop-root
 ###Linux
 create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
 
-yum install install python3-pip
+yum install python3 python3-pip
 yum install python3-virtualenv
 
 cd /root
 mkdir virtualenv
 cd virtualenv/
 
-virtualenv-v3 isilon_hadoop_tools
-cd isilon_hadoop_tools/
+python3 -m venv isilon_hadoop_tools
 source isilon_hadoop_tools/bin/activate
 pip install isilon_hadoop_tools
 
