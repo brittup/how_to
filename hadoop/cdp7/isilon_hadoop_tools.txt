@@ -29,5 +29,4 @@ chmod 777 xxxxxxxxxxx-System-cdp.sh
 cat /etc/passwd
 
 deactivate
-rm -rf iht/
 
