@@ -87,7 +87,7 @@ isi_for_array "isi auth cache flush --all"
 
 
 
-###join AD
+###join AD & setup for rfc2307
 isi auth ads create demo.local administrator --password=Password123!
 isi auth ads list
 isi zone zones modify System --add-auth-providers=lsa-activedirectory-provider:DEMO.LOCAL
@@ -98,6 +98,7 @@ isi auth ads modify DEMO.LOCAL --sfu-support=rfc2307
 isi auth ads modify DEMO.LOCAL --store-sfu-mappings=true
 isi auth ads modify DEMO.LOCAL --allocate-uids=false
 isi auth ads modify DEMO.LOCAL --allocate-gids=false
+isi auth ads modify DEMO.LOCAL --assume-default-domain=true
 
 ###Linux Client Prep
 yum -y update
@@ -205,18 +206,36 @@ tail -f /var/log/cloudera/cloudera-scm-server
 Not in this doc
 
 
-
-hdfs://pipe1.foo.com:8020
+hdfs://cdp7.demo.local:8020
 
 
 ###add test users to host
 useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1 
-useradd -u 654654 -d /home/cdp7-user2 -m cdp7-user2
 
 ###add users to AD + rfc2307 atribs
 create AD grp cdp7-grp1
 create AD user cdp7-user1
 Add rfc2307 attribs: uidnumber, loginShell, gidNumber, homeDirectory
+
+###make hdfs home
+cd /ifs/cdp7/hadoop-root/user
+mkdir cdp7-user1
+chown cdp7-user1:cdp7-grp1 cdp7-user1
+chmod 700 cdp7-user1
+
+
+###test hdfs
+su - cdp7-user1
+kinit
+klist -e
+hdfs dfs -ls /
+
+
+yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar pi 10 100
+
+  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teragen 10000 /user/cdp7-user1/gen
+  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar terasort /user/cdp7-user1/gen /user/cdp7-user1/sort
+  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teravalidate /user/cdp7-user1/sort /user/cdp7-user1/validate
 
 
 ###
