@@ -41,8 +41,6 @@ Isilon log:
 2016-04-25T17:23:17-04:00 <30.6> rip1-1 hdfs[93963]: [hdfs] RPC V9  user: hdpuser3@FOO.COM exception: java.lang.SecurityException cause: 
 User hive/hdp6.foo.com cannot impersonate User hdpuser3@FOO.COM Reason: Proxyuser "hive" Members do not intersect
 
- 
-
 
 Adding a Proxy User; hive and adding hdpuser3 to that proxy user will resolve this issue.
 

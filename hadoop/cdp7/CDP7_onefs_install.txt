@@ -57,7 +57,7 @@ cd virtualenv/
 
 virtualenv-v3 isilon_hadoop_tools
 cd isilon_hadoop_tools/
-source bin/activate
+source isilon_hadoop_tools/bin/activate
 pip install isilon_hadoop_tools
 
 isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
@@ -203,10 +203,19 @@ tail -f /var/log/cloudera/cloudera-scm-server
 
 ###Deploy & Install CDP
 
-Not in this doc
+Not in this doc:
 
-
+powerscale csd:
 hdfs://cdp7.demo.local:8020
+hdfs://cdp7.demo.local:8082/webhdfs/v1
+
+
+
+known issues:
+-fix solr
+-add keyadmin user
+-add hue to hive proxy user
+-add hue to hue proxy user
 
 
 ###add test users to host
@@ -240,14 +249,19 @@ yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-example
 
 ###Ranger
 isi_for_array isi hdfs log-level modify --set=verbose
-isi hdfs ranger-plugin settings modify --policy-manager-url=http://<ranger sever FQDN>:6182
+isi hdfs ranger-plugin settings modify --policy-manager-url=https://<ranger sever FQDN>:6182
 isi hdfs ranger-plugin settings modify --repository-name=cm_hdfs
 isi hdfs ranger-plugin settings modify --enabled=true
 
 isi_for_array tail -f /var/log/hdfs.log
 
+
+-add hive, hue to Ranger
+
 #status of agent
 systemctl status cloudera-scm-agent
+
+
 
 
 

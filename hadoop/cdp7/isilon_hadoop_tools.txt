@@ -5,20 +5,29 @@ https://github.com/Isilon/isilon_hadoop_tools
 ###setup OneFS Zone and HDFS configuration
 
 ###on a linux host
-yum install python3 python3-pip python3-virtualenv
-python3 -m venv ./iht
-source iht/bin/activate
+###Linux
+create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
+
+yum install install python3-pip
+yum install python3-virtualenv
+
+cd /root
+mkdir virtualenv
+cd virtualenv/
+
+virtualenv-v3 isilon_hadoop_tools
+cd isilon_hadoop_tools/
+source isilon_hadoop_tools/bin/activate
 pip install isilon_hadoop_tools
 
-isilon_create_users --help
-isilon_create_directories --help 
+isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
 
-###create users
-isilon_create_users --zone=<zone> --no-verify --onefs-user=root --onefs-password=a --dist=cdp --start-uid=500 --start-gid=500  --log-level=debug x.x.x.x 
+isilon_create_directories  --zone=System --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdp  X.X.X.X
 
-###create directories
-isilon_create_directories --zone=<zone> --no-verify --onefs-user=root --onefs-password=a --dist=cdp  x.x.x.x
 
+chmod 777 xxxxxxxxxxx-System-cdp.sh
+./xxxxxxxxxxx-zone-cdh6-cdh.sh
+cat /etc/passwd
 
 deactivate
 rm -rf iht/
