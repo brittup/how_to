@@ -233,13 +233,18 @@ hdfs dfs -ls /
 
 yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar pi 10 100
 
-  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teragen 10000 /user/cdp7-user1/gen
-  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar terasort /user/cdp7-user1/gen /user/cdp7-user1/sort
-  yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teravalidate /user/cdp7-user1/sort /user/cdp7-user1/validate
+yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teragen 10000 /user/cdp7-user1/gen
+yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar terasort /user/cdp7-user1/gen /user/cdp7-user1/sort
+yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar teravalidate /user/cdp7-user1/sort /user/cdp7-user1/validate
 
 
-###
+###Ranger
+isi_for_array isi hdfs log-level modify --set=verbose
+isi hdfs ranger-plugin settings modify --policy-manager-url=http://<ranger sever FQDN>:6182
+isi hdfs ranger-plugin settings modify --repository-name=cm_hdfs
+isi hdfs ranger-plugin settings modify --enabled=true
 
+isi_for_array tail -f /var/log/hdfs.log
 
 #status of agent
 systemctl status cloudera-scm-agent
