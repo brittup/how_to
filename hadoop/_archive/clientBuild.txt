@@ -1,0 +1,47 @@
+yum -y update
+yum -y groupinstall "Development tools"
+yum -y install ntp krb5-workstation krb5-libs openldap-clients wget
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl start ntpd
+systemctl enable ntpd
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+hostnamectl
+
+hostnamectl set-hostname fqdn
+
+vi /etc/selinux/config
+
+vi /etc/rc.local
+
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never > /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+
+vi /etc/sysctl.conf 
+	
+vm.swappiness=10
+
+#create users 
+
+reboot
+
+
+###install CM 
+### https://www.cloudera.com/downloads/cdp-private-cloud-trial/cdp-private-cloud-base-trial.html
+### wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
+
+
+wget https://archive.cloudera.com/cm7/7.4.4/cloudera-manager-installer.bin
+chmod u+x cloudera-manager-installer.bin
+./cloudera-manager-installer.bin
+
+systemctl status cloudera-scm-server
+systemctl status cloudera-scm-server-db
+
+tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
