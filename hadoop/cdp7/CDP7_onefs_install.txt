@@ -10,7 +10,7 @@ CDP 7.1.7
 -setup linux for cdp
 -install CM
 -setup kerberos on OneFS & CM 
--
+-install CDP
 
 
 
@@ -78,7 +78,6 @@ isi auth roles create --name=hdfs_access --description="Bypass FS permissions" -
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify hdfs_access --add-priv=ISI_PRIV_IFS_BACKUP --zone=System
 
-
 isi auth roles modify hdfs_access --add-user=hdfs --zone=System
 isi auth roles view hdfs_access --zone=System
 isi_for_array "isi auth mapping flush --all"
@@ -100,6 +99,9 @@ isi auth ads modify DEMO.LOCAL --allocate-uids=false
 isi auth ads modify DEMO.LOCAL --allocate-gids=false
 isi auth ads modify DEMO.LOCAL --assume-default-domain=true
 
+
+
+
 ###Linux Client Prep
 yum -y update
 yum -y groupinstall "Development tools"
@@ -113,10 +115,9 @@ hostnamectl
 
 vi /etc/selinux/config
 
-#set to disable
+#set to disabled
 
 yum -y install ntp
-
 systemctl start ntpd
 systemctl enable ntpd
 
@@ -141,7 +142,7 @@ vi /etc/sysctl.conf
 	
 vm.swappiness=10
 
-yum -y install krb5-workstation krb5-libs openldap-clients
+yum -y install krb5-workstation krb5-libs openldap-clients wget
 
 
 reboot
@@ -150,7 +151,7 @@ reboot
 cat /proc/sys/vm/swappiness
 
 
-###install CM and CDP
+###install CM 
 ### https://www.cloudera.com/downloads/cdp-private-cloud-trial/cdp-private-cloud-base-trial.html
 ### wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
 
@@ -167,12 +168,12 @@ systemctl status cloudera-scm-server-db
 http://X.X.X.X:7180
 admin | admin
 
-
-Create OU - cdp7
+###AD SetupCreate OU - cdp7
 Create AD cdp account - cdp7-admin
 Assign AD role on OU
 
-Kerberize CDP7
+
+###setup KRB - Kerberize CDP7
 
 DEMO.LOCAL
 launchpad.demo.local
