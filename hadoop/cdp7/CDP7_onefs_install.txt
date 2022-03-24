@@ -162,8 +162,19 @@ chmod u+x cloudera-manager-installer.bin
 
 systemctl status cloudera-scm-server
 systemctl status cloudera-scm-server-db
+tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
+
+###If using PowerScale CSD: download and copy powerscale csd jar from: https://github.com/brittup/how_to/tree/master/hadoop/cdp7
+
+cp PowerScale-1.1.0.jar /opt/cloudera/cm/csd 
+ls -al /opt/cloudera/cm/csd  | grep -i powerscale
+
+### after CM is up, reboot and make sure the PowerScale CSD loads
+reboot
+tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log  | grep -i powerscale
 
 
+###Install CDP
 
 http://X.X.X.X:7180
 admin | admin
@@ -190,25 +201,13 @@ ou=cdp7,DC=demo,DC=local
 -Check SPN's on isilon
 
 
-If using PowerScale CSD:
-
-
-download and copy powerscale csd jar from: https://github.com/brittup/how_to/tree/master/hadoop/cdp7
-
-cp PowerScale-1.1.0.jar /opt/cloudera/cm/csd 
-ls -al /opt/cloudera/cm/csd
-reboot
-
-tail -f /var/log/cloudera/cloudera-scm-server
-
-
 ###Deploy & Install CDP
 
 Not in this doc:
 
 powerscale csd:
 hdfs://cdp7.demo.local:8020
-hdfs://cdp7.demo.local:8082/webhdfs/v1
+http://cdp7.demo.local:8082/webhdfs/v1
 
 
 
