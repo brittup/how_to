@@ -42,8 +42,9 @@ look at isilon config
 -snapshot
 
 
-pod -- > pv --> pvc --> sc   
 
+###pod -- > pv --> pvc --> sc   
+1.create pvc, which create pv and uses sc to create dir/export/quota on onefs
 
 ###create a pvc
 vi persistentvolumeclaim/pvc.yaml
@@ -60,7 +61,7 @@ kubectl describe pvc test-pvc -n test
 kubectl get pv -n test
 
 
-go to isilon, review
+###go to isilon, review
 nfs
 quota
 add a file from cli
@@ -77,15 +78,9 @@ mount point and the volumes piece
 
 kubectl create -f pod/nginx.yaml -n test
 
-
 kubectl get pods -n test
-
 kubectl describe pod ngnix-pv-pod -n test
-
-
 kubectl describe pvc test-pvc -n test
-
-
 kubectl describe pv <pv name> -n test
 
 
