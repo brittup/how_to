@@ -220,6 +220,7 @@ known issues:
 
 ###add test users to host
 useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1 
+usermod  -a -G hdfs cdp-user1
 
 ###add users to AD + rfc2307 atribs
 create AD grp cdp7-grp1
