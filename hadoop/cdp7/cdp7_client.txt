@@ -41,6 +41,10 @@ vm.swappiness=10
 
 yum -y install krb5-workstation krb5-libs openldap-clients
 
+###add test users to host
+useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1
+usermod  -a -G hdfs cdp-user1
+
 
 reboot
 

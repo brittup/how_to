@@ -42,7 +42,7 @@ yum install rpcbind nfs-utils nfs4-acl-tools -y
 
 ### setp client for nfsv4 - domain needs setup for dns namespace to match isilon
 
-vim /etc/idmapd.conf
+vi /etc/idmapd.conf
 [General]
 Domain = demo.local
 
@@ -61,11 +61,8 @@ systemctl start nfs-server
 systemctl start nfs-lock
 systemctl start nfs-idmap
 
-systemctl status rpcbind.service
-systemctl status rpcidmapd.service
-systemctl status nfs-server
-systemctl status nfs-lock
-systemctl status nfs-idmap
+
+-krb
 
 
 ###centos6
