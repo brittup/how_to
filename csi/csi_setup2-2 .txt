@@ -402,8 +402,6 @@ https://k9scli.io/topics/commands/
 
 
 
-
-
 ##################################
 Steps to create storage class: 
 There are samples storage class yaml files available under helm/samples/storageclass
@@ -415,17 +413,11 @@ cd ~/git/csi-isilon
 
 vi ~/git/csi-isilon/my-isilon-sc.yaml
 
-
 # Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
 mountOptions: []
 
-
 kubectl create -f ~/git/csi-isilon/my-isilon-sc.yaml
-
 kubectl get sc 
-
-
-
 
 ###create a testing namespace
 
@@ -434,11 +426,8 @@ kubectl create namespace test
 ###this maybe required
 docker login
 
-
-
-
-###
-Testing
+##################################################
+Testing CSI 
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
@@ -454,9 +443,12 @@ kubectl describe pv <pv name> -n test
 
 
 go to isilon, review
-nfs
-quota
-add a file from cli
+nfs: isi nfs exports list --zone=System
+quota: isi quota list --zone=System
+#add a file from cli
+cd /ifs/csi/k8s-.../
+touch this_is_isilon.txt
+ls -al
 
 
 kubectl create -f pod/nginx.yaml -n test
