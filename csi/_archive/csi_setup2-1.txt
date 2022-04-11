@@ -1,4 +1,4 @@
-###csi driver setup 2.2
+###csi driver setup 2.1
 
 https://dell.github.io/csm-docs/docs/
 
@@ -91,14 +91,14 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #yum install kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
-#yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
 
 #install a supported version
-####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
+#yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
 
-###with 1.23
-yum install kubelet-1.23.0-0 kubeadm-1.23.0-0 kubectl-1.23.0-0 --disableexcludes=kubernetes
+
+###with 1.22
+yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
 
 
 mkdir /etc/docker
@@ -181,7 +181,7 @@ kubeadm reset
 
 ###hit q and yes to accept eula
 
-isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
+isi license add --evaluation=SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
 
 isi license list
 
@@ -246,14 +246,13 @@ chmod 700 get_helm.sh
 ###clone the powerscale csi repo
 mkdir git
 cd git
-git clone -b v2.2.0 https://github.com/dell/csi-powerscale.git
+git clone -b v2.1.0 https://github.com/dell/csi-powerscale.git
 
 ln -s /root/git/csi-powerscale csi-isilon
 
 cd ~/git/csi-isilon
 cat ReleaseNotes.md
-touch CSI_2.2.txt
-ls -al
+
 
 
 ###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
@@ -264,17 +263,26 @@ vi /etc/systemd/system/multi-user.target.wants/docker.service
 
 MountFlags=shared
 
+
 systemctl daemon-reload
 systemctl restart docker
 
-
-
 ####install the snapshot controller
-####Snapshot controller versioned 4.0.0, look at latest or specific versions
+####1.20, Snapshot controller versioned 4.0.0
 ###https://github.com/kubernetes-csi/external-snapshotter/tree/v4.0.0/deploy/kubernetes/snapshot-controller
 ###https://github.com/kubernetes-csi/external-snapshotter/tree/v4.0.0/client/config/crd
 
-###select version
+
+####Install Snapshot CRD'smanually, this is the older method, use method below
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+###Install Snapshot Controller               
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.0.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+###
+
+
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
@@ -283,16 +291,20 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
+
 OR - one shot install
 
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
 git checkout <release-version>
-git checkout v4.2.1         ##v5.0.x is out, saw errors 
+git checkout v4.2.0
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
+
+
+
 
 
 ###install the csi driver
@@ -333,7 +345,8 @@ vi secret.yaml
  ###delete/comment out the cluster2 controllerCount
 
 
-###create isilon-creds secret -- use the sample secret.yaml as a template, edit in place ot copy elsewhere
+
+###create isilon-creds secret
 kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###since we are using isiInsecure = 'true"
@@ -343,11 +356,12 @@ kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
-####Before we install the driver, we will take the NoSchedule taint away from the master node, USE SHORTNAME
+
+####Before we install the driver, we will take the NoSchedule taint away from the master node, use shortname
 kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
 
-kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
+kubectl taint nodes <hostname> node-role.kubernetes.io/master-
 
 kubectl describe node <hostname> | grep Taint
 
@@ -380,7 +394,6 @@ kubectl get pods --namespace isilon
 kubectl describe pod   <pod>  -n isilon
 kubectl logs  <pod> -n isilon -c driver
 
-
 ###K9S is very useful
 mkdir ~/git/k9s
 cd ~/git/k9s
@@ -393,11 +406,7 @@ ls -al
 https://k9scli.io/topics/commands/
 
 
-###if needed b/c of issues starting the pods
--review the secrets.yaml
--review the my-settings.yaml
-
-###if needed uninstall the driver
+###if needed
  ./csi-uninstall.sh --namespace isilon
 
 
