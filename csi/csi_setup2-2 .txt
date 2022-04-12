@@ -450,7 +450,7 @@ cd /ifs/csi/k8s-.../
 touch this_is_isilon.txt
 ls -al
 
-
+###create pod and attach to pvc
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
 kubectl describe pods ngnix-pv-pod -n test
@@ -461,8 +461,6 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/
 ls -al
 touch test1.txt
-
-
 
 
 ###from isilon cli, browse to the directory mounted by the pod
@@ -484,21 +482,18 @@ kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 
 kubectl get Volumesnapshotclass -n test
 
-
-
 ###create the snapshot
 
 vi volumesnapshot/snapshot-of-test-pvc.yaml
 -review api version and change v1beta -- v1
--review and set the namespace
-
+-review and set the namespace: test
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
 kubectl get volumesnapshot -n test
 
 
-
 ###view snapshot from isilon
+isi snapshot list
 ls -al /ifs/.snapshot/snapshot-<id_created>/csi/<volume_name>
 
 
@@ -508,29 +503,37 @@ cd /usr/share/nginx/html/.snapshot
 cd <snapshot-id>
 ls -al
 
-
-###deletethe snapshot
+###delete the snapshot
 kubectl get volumesnapshot -n test
 kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 
 
-
-###cleanup
+###cleanup; 
 kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
 
 kubectl get pvc  -n test
 kubectl delete pvc test-pvc -n test
-
 kubectl get pv
-kubectl delete pv <k8s-ec5c9fec46>
 
-kubectl get pv k8s-56da61f45b
-kubectl describe pv k8s-56da61f45b
-kubectl get volumeattachment -n test
-kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
+#pod, pvc and pv will be gone 
+#export/quota and snap will be gone 
+#have fun with CSI
 
 
+!completes setup and simple demo
+
+
+
+
+
+
+
+
+
+
+###################################################################################################################################################
+Misc stuff 
 
 
 ###useful
@@ -539,80 +542,13 @@ kubectl get pods --namespace isilon
 kubectl describe pod     -n isilon
 kubectl logs   -n isilon -c driver
 
-
-
 cd ~/git/csi-isilon/dell-csi-helm-installer
-
 
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml --uninstall
 
+kubectl delete pv <k8s-ec5c9fec46>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###test driver, from csi-isilon
-cd ~/git/csi-isilon/test/helm
-
-kubectl create namespace test
-
-
-### start the volumes
-./starttest.sh -t 2vols -n test
-kubectl get pv -A
-kubectl get pvc -A
-kubectl get pvc -n test
-kubectl get pods -n test
-kubectl describe pods -n test
-kubectl exec -ti -n test isilontest-0 bash
-
-
-### stop the volumes and cleanup
-./stoptest.sh -t 2vols -n test
-
-
-###################################################################################################################################################
-Misc:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+kubectl get pv k8s-56da61f45b
+kubectl describe pv k8s-56da61f45b
+kubectl get volumeattachment -n test
+kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
