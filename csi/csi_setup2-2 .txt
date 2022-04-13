@@ -270,9 +270,9 @@ systemctl restart docker
 
 
 ####install the snapshot controller
-####Snapshot controller versioned 4.0.0, look at latest or specific versions
-###https://github.com/kubernetes-csi/external-snapshotter/tree/v4.0.0/deploy/kubernetes/snapshot-controller
-###https://github.com/kubernetes-csi/external-snapshotter/tree/v4.0.0/client/config/crd
+####Snapshot controller versioned, look at latest or specific versions
+
+https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
 ###select version
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
