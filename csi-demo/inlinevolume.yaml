@@ -1,5 +1,13 @@
 #use the default driver settings from csi-driver not the storage class
 #no pvc or pv
+#Ephemeral Inline Volume
+#The CSI PowerScale driver version 1.4.0 and later supports CSI ephemeral inline volumes.
+#This feature serves as use cases for data volumes whose content and lifecycle are tied to a pod. For example, a driver might populate a volume with dynamically created secrets that are specific to the application running in the pod. Such volumes need to be created together with a pod and can be deleted as part of pod termination (ephemeral). They get defined as part of the pod spec (inline).
+#At runtime, nested inline volumes follow the lifecycle of their associated pods where the driver handles all phases of volume operations as pods are created and destroyed.
+#The following is a sample manifest for creating CSI ephemeral Inline Volume in pod manifest with CSI PowerScale driver.
+#kubectl apply -f inlinevolume.yaml -n test
+#kubectl get pod -n test
+#
 apiVersion: v1
 kind: Pod
 metadata:
@@ -14,8 +22,8 @@ spec:
          name: my-csi-volume
   volumes:
     - name: my-csi-volume
-       csi:
-        driver: csi-isilon.dellemc.com
-        volumeAttributes:
+      csi:
+      driver: csi-isilon.dellemc.com
+      volumeAttributes:
         size: "2Gi"
         ClusterName: "ps1"
