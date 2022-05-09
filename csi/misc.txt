@@ -1,7 +1,5 @@
 
 ###K9S
-Install k9s on CentOS using the Snap Store | Snapcraft
-
 
 mkdir ~/git/k9s
 cd ~/git/k9s
@@ -33,6 +31,8 @@ https://fdqn of the host installed on.
 
 
 
+###SSL certificate problem: unable to get local issuer certificate
+ git config --global http.sslVerify false
 
 
 
