@@ -1,4 +1,6 @@
 ###csi driver setup 2.3
+-move to containerd
+-K8 1.24
 
 https://dell.github.io/csm-docs/docs/
 
@@ -20,6 +22,15 @@ systemctl status rpcbind
 
 ###################################################################################################################################################
 ###install containerd
+###Note:
+Kubernetes releases before v1.24 included a direct integration with Docker Engine, using a component named dockershim. 
+That special direct integration is no longer part of Kubernetes (this removal was announced as part of the v1.20 release). 
+You can read Check whether Dockershim deprecation affects you to understand how this removal might affect you. 
+To learn about migrating from using dockershim, see Migrating from dockershim.
+
+If you are running a version of Kubernetes other than v1.24, check the documentation for that version.
+###Note:
+
 
 
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
@@ -66,6 +77,9 @@ systemctl restart containerd
 systemctl status status
 
 
+
+ctr images pull docker.io/library/redis:alpine
+ctr run docker.io/library/redis:alpine redis
 
 
 
