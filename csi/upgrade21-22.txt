@@ -1,4 +1,7 @@
-######Upgrade Driver from version v2.0 to v2.1
+######
+Upgrade CSI Driver from version v2.1 to v2.2
+######
+
 
 git clone -b v2.2.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2.2

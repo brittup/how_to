@@ -78,6 +78,7 @@ mkdir -p /etc/containerd
 
 containerd config default | sudo tee /etc/containerd/config.toml
 
+systemctl enable containerd
 systemctl restart containerd
 systemctl status containerd
 
