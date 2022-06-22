@@ -253,6 +253,10 @@ git clone -b v2.3.0 https://github.com/dell/csi-powerscale.git
 ###create a link, makes upgrade easier
 ln -s /root/git/csi-powerscale csi-isilon
 
+###mkdir for isilon csi configuration files
+mkdir ~/git/csi-isilon/isilon/
+
+###add release version to linked directory
 cd ~/git/csi-isilon
 cat ReleaseNotes.md
 touch CSI_2.3.txt
@@ -332,7 +336,7 @@ vi secret.yaml
 
       password: "Password123!"
 
-      endpoint: "https://cascade-system.demo.local"       < --- System Zone
+      endpoint: "https://csi.demo.local"       < --- System Zone
 
       isDefault: true
 
@@ -354,30 +358,32 @@ kubectl get secret isilon-creds -o yaml -n isilon
 
 
 ####Before we install the driver, we will take the NoSchedule taint away from the master node, USE SHORTNAME
+###not required with 3 node k8 clusters
 kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
-
 kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
-
 kubectl describe node <hostname> | grep Taint
 
+
+###################################################################################################################################################
+###install the csi driver
+###add another session, to watch pod deployments during install
+
+watch kubectl get pods -A  
 
 cd ~/git/csi-isilon/dell-csi-helm-installer
 
-###add another session, to watch pod deployments during install
-watch kubectl get pods -A  
-
-
-###docker login, use your dockerhub user&pass
+###docker login, use your dockerhub user&pass on all hosts, this just seems to help
 docker login
 
+##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
  ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  
 
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml 
 
 
-###watch the pods in the other session
 
+###watch the pods in the other session
 
 ####if you hit rate limit issue - logon to dockerhub if you have not
 docker login
@@ -385,6 +391,7 @@ username
 password
 
 
+###review the csi pods
 kubectl get pods -A
 kubectl get pods --namespace isilon
 kubectl describe pod   <pod>  -n isilon
@@ -418,15 +425,15 @@ There are samples storage class yaml files available under helm/samples/storagec
 
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/my-isilon-sc.yaml
-cd ~/git/csi-isilon
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc.yaml
+cd ~/git/csi-isilon/isilon
 
-vi ~/git/csi-isilon/my-isilon-sc.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 
 # Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
 mountOptions: []
 
-kubectl create -f ~/git/csi-isilon/my-isilon-sc.yaml
+kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 kubectl get sc 
 
 ###create a testing namespace
