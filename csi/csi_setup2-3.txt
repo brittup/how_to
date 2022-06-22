@@ -1,10 +1,10 @@
 ###csi driver setup 2.3
-https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
+-https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -stay on K8 1.23
+-https://dell.github.io/csm-docs/docs/
 
 
-https://dell.github.io/csm-docs/docs/
 
 #ensure dns is setup for all hosts, do not skip this step
 #Add IP - hostnames of k8 hosts, fqdn and shortname
@@ -16,7 +16,7 @@ vi /etc/hosts
 
 vi /etc/resolv.conf
 
-hostnamectl set-hostname fqdn
+hostnamectl set-hostname <fqdn>
 hostnamectl
 
 
@@ -70,11 +70,8 @@ swapoff -a
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
-
 reboot
 
-
-sestatus
 
 ###install K8
 cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
@@ -108,7 +105,6 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 ###with 1.23
 yum install kubelet-1.23.0-0 kubeadm-1.23.0-0 kubectl-1.23.0-0 --disableexcludes=kubernetes
 
-
 mkdir /etc/docker
 cat <<EOF | sudo tee /etc/docker/daemon.json
 {
@@ -124,9 +120,8 @@ EOF
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
-
-
 systemctl enable kubelet
+
 
 ###Complete up to here for all nodes going into cluster!!!!
 
@@ -137,12 +132,10 @@ systemctl enable kubelet
 #kubeadm init --pod-network-cidr=X.X.X.X/X
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
-
 ###
 <see output for node info and joining nodes to cluster - DO NOT JOIN YET>
 copy the node join code for later
 ###
-
 
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -154,19 +147,16 @@ cat /root/.bash_profile
 docker ps --all
 
 
-###
 ###deploy a pod network to the cluster.
 ###Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 ###https://kubernetes.io/docs/concepts/cluster-administration/addons/
 ###https://www.weave.works/blog/weave-net-kubernetes-integration/
 ###kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
-
 wget https://cloud.weave.works/k8s/v1.16/net.yaml --no-check-certificate
 cat net.yaml
 
 kubectl apply -f net.yaml
-
 
 ###join nodes to cluster here per the kubeadm init###
 
@@ -176,17 +166,19 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 
 
 #on master node
-kubectl get nodes
+kubectl get nodesq
 
 kubectl get pods --all-namespaces
 
-### if reset needed
+### 
+###if reset of k8 cluster needed
 kubeadm reset
 ###
 
 
-###isilon setup 
 
+###################################################################################################################################################
+###isilon setup 
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
@@ -224,7 +216,6 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
-
 isi auth roles modify k8-csi --add-user=k8 --zone=System
 isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
@@ -246,22 +237,25 @@ source <(kubectl completion bash)
 # add autocomplete permanently to your bash shell.
 echo "source <(kubectl completion bash)" >> ~/.bashrc 
 
-
-###install helm
+###################################################################################################################################################
+###install helm3 on master
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
 
+###################################################################################################################################################
 ###clone the powerscale csi repo
 mkdir git
 cd git
 git clone -b v2.3.0 https://github.com/dell/csi-powerscale.git
 
+
+###create a link, makes upgrade easier
 ln -s /root/git/csi-powerscale csi-isilon
 
 cd ~/git/csi-isilon
 cat ReleaseNotes.md
-touch CSI_2.2.txt
+touch CSI_2.3.txt
 ls -al
 
 
@@ -283,10 +277,10 @@ systemctl restart docker
 
 https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
-###select version
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+###select version: 5.0.1 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
