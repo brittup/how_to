@@ -292,14 +292,15 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout <release-version>
 git checkout v5.0.1    
-     
+rm -f client/config/crd/kustomization.yaml
+rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
+
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
 
-
+###################################################################################################################################################
 ###install the csi driver
 cd ~/git/csi-isilon
 cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/my-isilon-settings.yaml
@@ -314,13 +315,13 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
-
+###################################################################################################################################################
 ###create a K8 namespace 
 kubectl create namespace isilon
 
 
 ####create secrets
-cd ~/git/csi-isilon/samples/secret/
+cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/secret.yaml
 vi secret.yaml
 
 ###modify
