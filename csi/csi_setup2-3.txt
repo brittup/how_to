@@ -255,7 +255,7 @@ chmod 700 get_helm.sh
 ###clone the powerscale csi repo
 mkdir git
 cd git
-git clone -b v2.2.0 https://github.com/dell/csi-powerscale.git
+git clone -b v2.3.0 https://github.com/dell/csi-powerscale.git
 
 ln -s /root/git/csi-powerscale csi-isilon
 
