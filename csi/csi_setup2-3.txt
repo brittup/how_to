@@ -1,7 +1,8 @@
 ###csi driver setup 2.3
--DO NOT USE!!!
--move to containerd
--K8 1.24
+https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
+-continue to use docker on democenter hosts based on CentOS version
+-stay on K8 1.23
+
 
 https://dell.github.io/csm-docs/docs/
 
@@ -24,78 +25,56 @@ yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils 
 systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
-systemctl stop firewalld
-systemctl disable firewalld
-systemctl status firewalld
-
 
 ###################################################################################################################################################
-###install containerd
-###Note:
-Kubernetes releases before v1.24 included a direct integration with Docker Engine, using a component named dockershim. 
-That special direct integration is no longer part of Kubernetes (this removal was announced as part of the v1.20 release). 
-You can read Check whether Dockershim deprecation affects you to understand how this removal might affect you. 
-To learn about migrating from using dockershim, see Migrating from dockershim.
-
-If you are running a version of Kubernetes other than v1.24, check the documentation for that version.
-###Note:
+###install Docker Runtime, use a specific version
+###From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
 
 
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-overlay
-br_netfilter
-EOF
+systemctl enable docker.service
+systemctl start docker
+systemctl status docker
 
-modprobe overlay
-modprobe br_netfilter
+###if dockerhub login is required
+docker login
 
-# sysctl params required by setup, params persist across reboots
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables  = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.ipv4.ip_forward                 = 1
-EOF
-
-# Apply sysctl params without reboot
-sysctl --system
-
-###From <https://kubernetes.io/docs/setup/production-environment/container-runtimes/> 
-
-yum update
-yum install containerd
-
-###Install containerd:
-###Visit Getting started with containerd and follow the instructions there, up to the point where you have a valid configuration file (on Linux: /etc/containerd/config.toml).
-###From <https://kubernetes.io/docs/setup/production-environment/container-runtimes/> 
+docker run -it --rm ubuntu /bin/bash
+    exit
 
 
-mkdir -p /etc/containerd
-containerd config default | sudo tee /etc/containerd/config.toml
-
-systemctl enable containerd
-systemctl restart containerd
-systemctl status containerd
-
-
-ctr images pull docker.io/library/redis:alpine
-ctr run docker.io/library/redis:alpine redis
-
-
+docker ps --all
+docker images -a
 
 ###################################################################################################################################################
 ###install Kubernetes
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
 
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+br_netfilter
+EOF
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sysctl --system
 sed -i '/swap/d' /etc/fstab
 swapoff -a
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
+
 reboot
 
-sestatus
 
+sestatus
 
 ###install K8
 cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
@@ -125,13 +104,29 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #install a supported version
 ####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
+
 ###with 1.23
 yum install kubelet-1.23.0-0 kubeadm-1.23.0-0 kubectl-1.23.0-0 --disableexcludes=kubernetes
 
-systemctl enable kubelet
-systemctl restart containerd
-systemctl status containerd
 
+mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+systemctl enable docker
+systemctl daemon-reload
+systemctl restart docker
+
+
+systemctl enable kubelet
 
 ###Complete up to here for all nodes going into cluster!!!!
 
@@ -229,6 +224,7 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+
 isi auth roles modify k8-csi --add-user=k8 --zone=System
 isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
@@ -339,7 +335,7 @@ vi secret.yaml
 
       password: "Password123!"
 
-      endpoint: "https://csi.demo.local"
+      endpoint: "https://cascade-system.demo.local"       < --- System Zone
 
       isDefault: true
 

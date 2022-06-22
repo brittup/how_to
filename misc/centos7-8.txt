@@ -46,3 +46,28 @@ reboot
 
 more /etc/redhat-release
 
+
+
+dnf clean all
+rm -rf /var/cache/dnf
+cd /etc/yum.repos.d/
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+dnf remove python3
+rpm -qa bash-completion
+dnf remove <bash-completion>
+dnf update
+
+
+
+rpm -e --nodeps gdbm-1.10-8.el7.x86_64
+rpm -i /var/cache/dnf/baseos-<----->/packages/gdbm-libs-1.18-1.el8.x86_64.rpm
+
+dnf update
+
+
+
+
+
+

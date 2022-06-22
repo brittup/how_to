@@ -1,0 +1,11 @@
+#cp the main.tf to a directory
+cp main.tf ~/terraform/learn/
+cd ~/terraform/learn/
+
+terraform init
+
+terraform apply
+
+docker ps -a
+
+terraform destroy
