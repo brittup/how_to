@@ -278,21 +278,23 @@ systemctl restart docker
 https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
 ###select version: 5.0.1 
+###manually
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v4.2.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
-OR - one shot install
+###OR - one shot install
 
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
 git checkout <release-version>
-git checkout v4.2.1         ##v5.0.x is out, saw errors 
+git checkout v5.0.1    
+     
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
