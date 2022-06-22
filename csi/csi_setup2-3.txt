@@ -543,6 +543,13 @@ kubectl delete pvc test-pvc -n test
 kubectl get pvc  -n test
 kubectl get pv
 
+
+###on isilon
+isi snapshot list
+isi nfs exports list
+isi quota list 
+
+
 #pod, pvc and pv will be gone 
 #export/quota and snap will be gone 
 #have fun with CSI!! 
