@@ -419,17 +419,16 @@ https://k9scli.io/topics/commands/
 
 
 
-##################################
-Steps to create storage class: 
-There are samples storage class yaml files available under helm/samples/storageclass
+###################################################################################################################################################
+###Steps to create storage class: 
+###There are samples storage class yaml files available under helm/samples/storageclass
 
 ###Sample storage classes:  samples/storageclass
 
 cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc.yaml
-cd ~/git/csi-isilon/isilon
-
 vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 
+modify IsiPath /ifs/csi 
 # Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
 mountOptions: []
 
@@ -443,8 +442,10 @@ kubectl create namespace test
 ###this maybe required
 docker login
 
-##################################################
-Testing CSI 
+
+
+###################################################################################################################################################
+###Testing CSI with samples
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
@@ -458,16 +459,18 @@ kubectl describe pvc test-pvc -n test
 kubectl get pv -n test
 kubectl describe pv <pv name> -n test
 
-
+###
 go to isilon, review
 nfs: isi nfs exports list --zone=System
 quota: isi quota list --zone=System
-#add a file from cli
+###add a file from cli
+
 cd /ifs/csi/k8s-.../
 touch this_is_isilon.txt
 ls -al
 
-###create pod and attach to pvc
+
+###create sample pod and attach to pvc
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
 kubectl describe pods ngnix-pv-pod -n test
@@ -478,11 +481,13 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/
 ls -al
 touch test1.txt
-
+ls -al
 
 ###from isilon cli, browse to the directory mounted by the pod
 
-###snapshots
+
+
+###test csi snapshot snapshots
 ###VolumeSnapshotClass is needed for creating the volume snapshots
 
 cd ~/git/csi-isilon/samples
@@ -496,14 +501,13 @@ isiPath: "/ifs/csi"
 ###create the volumesnapshotclass in the namespace as the pvc and the pod
 
 kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
-
 kubectl get Volumesnapshotclass -n test
 
 ###create the snapshot
 
 vi volumesnapshot/snapshot-of-test-pvc.yaml
--review api version and change v1beta -- v1
--review and set the namespace: test
+
+###review and set the namespace: test
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
 kubectl get volumesnapshot -n test
@@ -520,22 +524,28 @@ cd /usr/share/nginx/html/.snapshot
 cd <snapshot-id>
 ls -al
 
+
+
+###################################################################################################################################################
+###cleanup the snap, pod and pvc
 ###delete the snapshot
 kubectl get volumesnapshot -n test
 kubectl delete volumesnapshot snapshot-of-test-pvc -n test
-
+kubectl get volumesnapshot -n test
 
 ###cleanup; 
 kubectl get pods -n test
 kubectl delete -f pod/nginx.yaml -n test
+kubectl get pods -n test
 
 kubectl get pvc  -n test
 kubectl delete pvc test-pvc -n test
+kubectl get pvc  -n test
 kubectl get pv
 
 #pod, pvc and pv will be gone 
 #export/quota and snap will be gone 
-#have fun with CSI
+#have fun with CSI!! 
 
 
 !completes setup and simple demo
