@@ -339,10 +339,14 @@ vi secret.yaml
  ###delete/comment out the cluster2 controllerCount
 
 
-###create isilon-creds secret -- use the sample secret.yaml as a template, edit in place ot copy elsewhere
-kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
+###create isilon-creds secret 
+kubectl create secret generic isilon-creds -n isilon --from-file=config=~/git/csi-isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
 
-###since we are using isiInsecure = 'true"
+
+###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
+cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/empty-secret.yaml
+cat secret.yaml
+
 kubectl create -f empty-secret.yaml
 
 kubectl get secret -n isilon
