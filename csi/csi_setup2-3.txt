@@ -428,9 +428,13 @@ https://k9scli.io/topics/commands/
 cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 
-modify IsiPath /ifs/csi 
-# Change all instances of <ISILON_IP> to the IP of the PowerScale OneFS API server
+###modify 
+IsiPath /ifs/csi 
+
+###add mount options if needed
 mountOptions: []
+
+
 
 kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 kubectl get sc 
