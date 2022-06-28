@@ -1,4 +1,4 @@
-###Add nfs mount to isilon /ifs/k8
+# Add nfs mount to isilon /ifs/k8 directly
 
 
 kubectl create -f nfs-pv.yaml -n test

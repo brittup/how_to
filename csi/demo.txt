@@ -1,6 +1,6 @@
 
 ###
-simple csi testing 2.2
+simple csi testing 2.3
 ###
 
 ###review driver config
@@ -9,11 +9,8 @@ vi ~/git/csi-isilon/my-isilon-settings.yaml
 
 ###review pods
 kubectl get pods -A 
-
 kubectl get pods -n isilon
-
 watch kubectl get pods -A 
-
 
 kubectl describe pod -n isilon <controller-id> 
 
@@ -29,11 +26,9 @@ kubectl get pvc -n test
 kubectl get pvc -n test
 
 
-
 ###sample test files:  ~/git/csi-isilon/samples
 
 cd ~/git/csi-isilon/samples
-
 
 ###
 look at isilon config
