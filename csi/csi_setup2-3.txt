@@ -306,8 +306,8 @@ kubectl get crd
 
 ###################################################################################################################################################
 ###install the csi driver
-cd ~/git/csi-isilon
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/my-isilon-settings.yaml
+cd ~/git/csi-isilon/isilon/
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings.yaml
 vi my-isilon-settings.yaml
 
 
@@ -325,7 +325,7 @@ kubectl create namespace isilon
 
 
 ####create secrets
-cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/secret.yaml
+cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret.yaml
 vi secret.yaml
 
 ###modify
@@ -336,7 +336,7 @@ vi secret.yaml
 
       password: "Password123!"
 
-      endpoint: "https://csi.demo.local"       < --- System Zone
+      endpoint: "https://csi.demo.local"       < --- This is the System Zone, for the driver to make API cals to
 
       isDefault: true
 
@@ -344,14 +344,14 @@ vi secret.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/empty-secret.yaml
+cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret.yaml
 cat empty-secret.yaml
 
-kubectl create -f /root/git/csi-isilon/empty-secret.yaml
+kubectl create -f /root/git/csi-isilon/isilon/empty-secret.yaml
 
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
