@@ -5,7 +5,7 @@ simple csi testing 2.3
 
 ###review driver config
 
-vi ~/git/csi-isilon/my-isilon-settings.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-settings.yaml
 
 ###review pods
 kubectl get pods -A 
@@ -16,7 +16,7 @@ kubectl describe pod -n isilon <controller-id>
 
 
 ###review the storage class configuration
-vi ~/git/csi-isilon/my-isilon-sc.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 kubectl get sc
 
 
@@ -80,9 +80,6 @@ kubectl describe pvc test-pvc -n test
 kubectl describe pv <pv name> -n test
 
 
-
-
-
 ###access the pod
 kubectl exec ngnix-pv-pod -i -t -n test -- bash 
 
@@ -92,9 +89,6 @@ touch test1.txt
 
 
 ###from isilon cli, browse to the directory mounted by the pod
-
-
-
 
 
 
@@ -153,7 +147,6 @@ kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 ##############################################
 
 
-
 ###cleanup
 kubectl get pods -n test
 kubectl delete pod ngnix-pv-pod -n test
@@ -161,16 +154,13 @@ kubectl get pods -n test
 
 
 kubectl get pvc -n test
+kubectl get pv -n test
 kubectl delete pvc test-pvc -n test
 kubectl get pvc -n test
-
-
 kubectl get pv -n test
-kubectl delete pv <k8> -n test
-kubectl get volumeattachment -n test
-kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
 
-
+###
+review pods, pvc, pv and isilon - all resources have been removed!
 
 
 
