@@ -10,6 +10,8 @@ vi ~/git/csi-isilon/isilon/my-isilon-settings.yaml
 ###review pods
 kubectl get pods -A 
 kubectl get pods -n isilon
+
+###watch pod creations if needed
 watch kubectl get pods -A 
 
 kubectl describe pod -n isilon <controller-id> 
@@ -23,7 +25,7 @@ kubectl get sc
 ###review the test namespace
 kubectl get pods -n test
 kubectl get pvc -n test
-kubectl get pvc -n test
+kubectl get pv -n test
 
 
 ###sample test files:  ~/git/csi-isilon/samples
