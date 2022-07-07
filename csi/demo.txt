@@ -48,14 +48,8 @@ look at isilon config
 vi persistentvolumeclaim/pvc.yaml
 
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
-
-
 kubectl get pvc -n test
-
-
 kubectl describe pvc test-pvc -n test
-
-
 kubectl get pv -n test
 
 
@@ -153,8 +147,6 @@ kubectl delete volumesnapshot snapshot-of-test-pvc -n test
 kubectl get pods -n test
 kubectl delete pod ngnix-pv-pod -n test
 kubectl get pods -n test
-
-
 kubectl get pvc -n test
 kubectl get pv -n test
 kubectl delete pvc test-pvc -n test
