@@ -1,0 +1,42 @@
+### idi setup - https://github.com/j-sims/idi
+
+
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
+
+systemctl start rpcbind
+systemctl enable rpcbind
+systemctl status rpcbind
+
+###################################################################################################################################################
+###install Docker Runtime, use a specific version
+###From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+
+systemctl enable docker.service
+systemctl start docker
+systemctl status docker
+
+###if dockerhub login is required
+docker login
+
+docker run -it --rm ubuntu /bin/bash
+    exit
+
+
+docker ps --all
+docker images -a
+
+
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version  && echo Success
+
+
+cd ~
+mkdir git
+cd git
+git clone https://github.com/j-sims/idi.git
+cd idi
+bash run.sh build
