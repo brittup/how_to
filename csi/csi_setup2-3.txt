@@ -475,15 +475,6 @@ kubectl describe pvc test-pvc -n test
 kubectl get pv -n test
 kubectl describe pv <pv name> -n test
 
-###
-go to isilon, review
-nfs: isi nfs exports list --zone=System
-quota: isi quota list --zone=System
-###add a file from cli
-
-cd /ifs/csi/k8s-.../
-touch this_is_isilon.txt
-ls -al
 
 
 ###create sample pod and attach to pvc
@@ -499,8 +490,17 @@ ls -al
 touch test1.txt
 ls -al
 
-###from isilon cli, browse to the directory mounted by the pod
+###from isilon cli, view and test, the directory mounted by the pod
 
+###
+go to isilon, review
+nfs: isi nfs exports list --zone=System
+quota: isi quota list --zone=System
+###add a file from cli
+
+cd /ifs/csi/k8s-.../
+touch this_is_isilon.txt
+ls -al
 
 
 ###test csi snapshot snapshots
