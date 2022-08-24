@@ -228,7 +228,6 @@ kubectl describe pod <podname> -n isilon
 kubectl get pods --namespace isilon
 kubectl get pods -A
 
-
 kubectl describe pod <name> -n test
 
 kubectl get pv -A
@@ -240,25 +239,26 @@ kubectl get pods -n test
 kubectl describe pods <name> -n test
 
 
-kubectl exec -ti -n test isilontest-0 bash
-
-
 ###test new volume
-cd /root/git/csi-isilon/test/sample_files
-cat pvc.yaml
-cat nginx.yaml
+cd ~/git/csi-isilon/samples
 
-kubectl create -f pvc.yaml
-kubectl get pvc
+vi persistentvolumeclaim/pvc.yaml
+##add -2-3 to the name of the pvc
 
-cat nginx.yaml
-kubectl create -f nginx.yaml
+vi pod/nginx.yaml
+##add update pod definition -2-3 
+name: ngnix-pv-pod-2-3
+claimName: test-pvc-2-3
 
-kubectl get pvc
-kubectl get pv
 
-kubectl get pods -n default
-kubectl exec -ti -n default ngnix-pv-pod bash
+kubectl create -f persistentvolumeclaim/pvc.yaml -n test
+kubectl get pvc -n test
+
+kubectl create -f vi pod/nginx.yaml -n test
+
+kubectl get pvc -n test
+kubectl get pv -n test
+kubectl get pods -n test
 
 #drop a file here 
 ls -al /usr/share/nginx/html
