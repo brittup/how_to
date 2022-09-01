@@ -1,5 +1,5 @@
 ###csi driver setup 2.3
--DO NOT USE!!!
+-DO NOT USE!!! centos in the labs don'r support containerd
 -move to containerd
 -K8 1.24
 
