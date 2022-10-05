@@ -145,16 +145,18 @@ docker ps --all
 
 ###deploy a pod network to the cluster.
 ###Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-###https://kubernetes.io/docs/concepts/cluster-administration/addons/
-###https://www.weave.works/blog/weave-net-kubernetes-integration/
-###kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
-wget https://cloud.weave.works/k8s/v1.16/net.yaml --no-check-certificate
-cat net.yaml
 
-kubectl apply -f net.yaml
+###https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
-###join nodes to cluster here per the kubeadm init###
+
+kubectl get pods --all-namespaces
+
+
+
+
+###join other nodes to cluster here per the kubeadm init output###
 
 ##eg:
 kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
@@ -162,12 +164,12 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 
 
 #on master node
-kubectl get nodesq
+kubectl get nodes
 
 kubectl get pods --all-namespaces
 
 ### 
-###if reset of k8 cluster needed
+###if reset of k8 cluster needed, run on master node
 kubeadm reset
 ###
 
@@ -178,10 +180,7 @@ kubeadm reset
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
-
 isi license list
-
-
 
 ###setup SmartConnect on Isilon
 
@@ -227,7 +226,7 @@ chmod 777 /ifs/csi
 ####https://dell.github.io/storage-plugin-docs/docs/installation/
 ####https://dell.github.io/storage-plugin-docs/docs/installation/helm/isilon/
 
-# setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+# setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
 
 # add autocomplete permanently to your bash shell.
@@ -243,7 +242,7 @@ chmod 700 get_helm.sh
 ###clone the powerscale csi repo
 mkdir git
 cd git
-git clone -b v2.3.0 https://github.com/dell/csi-powerscale.git
+git clone -b v2.4.0 https://github.com/dell/csi-powerscale.git
 
 
 ###create a link, makes upgrade easier
@@ -255,7 +254,7 @@ mkdir ~/git/csi-isilon/isilon/
 ###add release version to linked directory
 cd ~/git/csi-isilon
 cat ReleaseNotes.md
-touch CSI_2.3.txt
+touch CSI_2.4.txt
 ls -al
 
 
@@ -277,14 +276,14 @@ systemctl restart docker
 
 https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
-###select version: 5.0.1 
+###select version: 6.0.1 
 ###manually
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v5.0.1/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
 ###OR - one shot install
@@ -292,7 +291,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v5.0.1    
+git checkout v6.0.1    
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 

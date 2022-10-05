@@ -166,7 +166,7 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 
 
 #on master node
-kubectl get nodesq
+kubectl get nodes
 
 kubectl get pods --all-namespaces
 
