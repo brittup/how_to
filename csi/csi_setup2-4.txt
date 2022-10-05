@@ -347,7 +347,6 @@ cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/em
 cat empty-secret.yaml
 
 kubectl create -f /root/git/csi-isilon/isilon/empty-secret.yaml
-
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -372,9 +371,9 @@ cd ~/git/csi-isilon/dell-csi-helm-installer
 docker login
 
 ##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
- ./verify.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml  
+ ./verify.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings.yaml  
 
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/my-isilon-settings.yaml 
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings.yaml 
 
 
 
@@ -413,7 +412,6 @@ https://k9scli.io/topics/commands/
  ./csi-uninstall.sh --namespace isilon
 
 
-
 ###################################################################################################################################################
 ###Steps to create storage class: 
 ###There are samples storage class yaml files available under helm/samples/storageclass
@@ -431,7 +429,7 @@ vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create exports in
+ AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports in
 
 
 ###add mount options if needed
@@ -442,16 +440,12 @@ mountOptions: []
 
 
 
-
+###copy and create a sample storageclass - sc
 kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 kubectl get sc 
 
 ###create a testing namespace
-
 kubectl create namespace test
-
-###this maybe required
-docker login
 
 
 
@@ -471,7 +465,6 @@ kubectl get pv -n test
 kubectl describe pv <pv name> -n test
 
 
-
 ###create sample pod and attach to pvc
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
@@ -487,10 +480,11 @@ ls -al
 
 ###from isilon cli, view and test, the directory mounted by the pod
 
-###
-go to isilon, review
-nfs: isi nfs exports list --zone=System
-quota: isi quota list --zone=System
+###go to isilon, review
+###nfs 
+isi nfs exports list --zone=System
+###quota
+isi quota list --zone=System
 ###add a file from cli
 
 cd /ifs/csi/k8s-.../
@@ -515,10 +509,11 @@ kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
 kubectl get Volumesnapshotclass -n test
 
 ###create the snapshot
-
+kubectl get pvc -n test
 vi volumesnapshot/snapshot-of-test-pvc.yaml
 
-###review and set the namespace: test
+###review and set the namespace from default to: 
+test
 
 kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
 kubectl get volumesnapshot -n test
@@ -534,6 +529,7 @@ kubectl exec ngnix-pv-pod -i -t -n test -- bash
 cd /usr/share/nginx/html/.snapshot
 cd <snapshot-id>
 ls -al
+
 
 
 
