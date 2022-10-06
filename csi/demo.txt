@@ -1,6 +1,6 @@
 
 ###
-simple csi testing 2.3
+simple csi testing 2.4
 ###
 
 ###review driver config
@@ -41,7 +41,7 @@ look at isilon config
 
 
 
-###pod -- > pv --> pvc --> sc   
+###pod -- > pvc --> pv --> sc   
 1.create pvc, which create pv and uses sc to create dir/export/quota on onefs
 
 ###create a pvc
