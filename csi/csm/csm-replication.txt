@@ -1,29 +1,35 @@
 ###CSM replication 
-https://dell.github.io/csm-docs/docs/replication/deployment/
-https://dell.github.io/csm-docs/docs/replication/deployment/configmap-secrets/
-
-
-###install
+https://dell.github.io/csm-docs/docs/replication/
 https://dell.github.io/csm-docs/docs/replication/deployment/installation/
-###Install repctl
-https://github.com/dell/csm-replication/releases
+https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/
 
-wget https://github.com/dell/csm-replication/releases/download/v1.2.0/repctl-linux-amd64
+https://github.com/dell/csm-replication/tree/main/repctl
 
-###https://github.com/dell/csm-replication
+
+
+
+The installation process consists of three steps:
+
+1.Install repctl
+2.Install Container Storage Modules (CSM) for Replication Controller
+3.Install CSI driver after enabling replication
+
+
 mkdir git
-cd git
-git clone -b v1.2 https://github.com/dell/csm-replication
+cd ~/git
 
-mv csm-replication csm-replication-1.2
-ln -s /root/git/csm-replication-1.2 csm-replication
-ls -al
-cd csm-replication
+wget https://github.com/dell/csm-replication/releases
+mv repctl-linux-amd64 repctl
+chmod a+x repctl
+./replctl
 
-kubectl create ns dell-replication-controller
-# Copy and  modify values.yaml file if you wish to customize your deployment in any way
-cp ../helm/csm-replication/values.yaml ./myvalues.yaml
-bash scripts/install.sh --values ./myvalues.yaml
+
+
+
+
+
+
+
 
 
 

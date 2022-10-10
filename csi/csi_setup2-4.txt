@@ -151,12 +151,12 @@ kubectl get pods --all-namespaces
 
 
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
-kubectl describe node hostname | grep -i taint
+kubectl describe node | grep -i taint
 ### taints:             node-role.kubernetes.io/master:NoSchedule
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
-kubectl describe node hostname | grep -i taint
-
+kubectl describe node | grep -i taint
+###if only deploying a single node cluster
 
 
 ###join other nodes to cluster here per the kubeadm init output###
