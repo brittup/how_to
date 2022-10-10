@@ -143,20 +143,19 @@ docker ps --all
 
 ###deploy a pod network to the cluster.
 ###Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-
 ###https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
-https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
-wget "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')" -O "weave.yaml"
-
-##### check weave net status
-kubectl exec -n kube-system weave-net-1jkl6 -c weave -- /home/weave/weave --local status
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 
 kubectl get pods --all-namespaces
 
 
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
-kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+kubectl describe node hostname | grep -i taint
+### taints:             node-role.kubernetes.io/master:NoSchedule
+
+kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl describe node hostname | grep -i taint
 
 
 
