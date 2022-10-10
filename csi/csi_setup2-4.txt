@@ -14,8 +14,6 @@ vi /etc/hosts
 192.168.1.41    hdfs02.demo.local   hdfs02
 192.168.1.42    hdfs03.demo.local   hdfs03
 
-vi /etc/resolv.conf
-
 hostnamectl set-hostname hdfs01.demo.local
 hostnamectl
 
@@ -153,6 +151,9 @@ https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
 kubectl get pods --all-namespaces
 
+
+###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
 
 
