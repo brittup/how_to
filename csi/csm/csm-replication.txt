@@ -185,8 +185,20 @@ parameters:
 
 
 
+cd ~/git/csi-isilon/isilon/
+wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
 
 
+###create a testing namespace
+kubectl create namespace test
+
+###create a testing namespace
+kubectl create -f pvc.yaml -n test
+
+kubectl get pvc -n test
+kubectl describe pvc test-pvc -n test
+kubectl get pv -n test
+kubectl describe pv <pv name> -n test
 
 
 
