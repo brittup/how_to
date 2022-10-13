@@ -3,12 +3,19 @@ https://dell.github.io/csm-docs/docs/replication/
 https://dell.github.io/csm-docs/docs/replication/deployment/installation/
 https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/
 
-https://github.com/dell/csm-replication/tree/main/repctl
+https://github.com/dell/csm-replication
+https://github.com/dell/csm-replication/releases
 
+
+
+
+install K8 clusters and have them operational
 
 
 
 The installation process consists of three steps:
+
+install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/csi/csi_setup2-4.txt
 
 1.Install repctl
 2.Install Container Storage Modules (CSM) for Replication Controller
@@ -17,11 +24,109 @@ The installation process consists of three steps:
 
 mkdir git
 cd ~/git
+git clone github.com/dell/csm-replication
 
 wget https://github.com/dell/csm-replication/releases
 mv repctl-linux-amd64 repctl
 chmod a+x repctl
 ./replctl
+
+
+
+cp /deploy/config.yaml  /root/.kube
+mv /root/.kube/config.yaml /root/.kube/config-1
+vi /root/.kube/config-1
+
+
+###edit
+#cls1
+cp /root/.kube/config /root/.kube/config-1
+
+#cls2
+cp /root/.kube/config /root/.kube/config-2
+
+
+ ###scp 1 - > 2 and 2 - > 1   
+
+./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
+./repctl create -f ../deploy/replicationcrds.all.yaml
+./repctl create -f ../deploy/controller.yaml
+./repctl cluster inject --use-sa
+
+
+
+###isilon setup 
+###hit q and yes to accept eula
+
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ, SYNCIQ
+isi license list
+
+isi sync setting mod --encryption-required=false
+isi sync setting view
+
+###setup SmartConnect on Isilon
+###cls1
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip1-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi1.demo.local    --description=csi_pool
+isi network pools list
+isi network pools view groupnet0:subnet0:pool1
+
+###cls2
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.225 --sc-service-name=ssip2-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.210-192.168.1.215  --access-zone=System  --alloc-method=dynamic  --ifaces=1:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi2.demo.local    --description=csi_pool
+isi network pools list
+isi network pools view groupnet0:subnet0:pool1
+
+
+###Run the following PowerShell command:
+
+-open PowerShell prompt from Start Menu
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi1" -NameServer "ssip1-isilon.demo.local" -IPAddress 192.168.1.100
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi2" -NameServer "ssip1-isilon.demo.local" -IPAddress 192.168.1.225
+
+nslookup csi1.demo.local
+nslookup csi2.demo.local
+
+###create the csi onefs api user
+###cls1
+isi auth groups create --zone=System --name=k81 --provider=local
+isi auth users create --zone=System --name=k81 --set-password --enabled=true --provider=local --primary-group=k81
+
+###cls2
+isi auth groups create --zone=System --name=k82 --provider=local
+isi auth users create --zone=System --name=k82 --set-password --enabled=true --provider=local --primary-group=k82
+
+(use Password123!)
+
+isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System
+isi auth roles view k8-csi --zone=System
+
+mkdir /ifs/csi
+chmod 777 /ifs/csi
+
+###cls1
+isi auth users view --zone=System --user=k81
+###cls1
+isi auth users view --zone=System --user=k82
+
+
+
+
+
+
+
+
+
+
+
 
 
 
