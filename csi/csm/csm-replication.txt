@@ -151,10 +151,39 @@ replication:
 
 ### create replication enabled storage class
 
-wget https://github.com/dell/csm-replication/blob/main/repctl/examples/powerscale_example_values.yaml
-mv powerscale_example_values.yaml my-isilon-sc-replication.yaml
+wget https://raw.githubusercontent.com/dell/csm-replication/main/repctl/examples/powerscale_example_values.yaml
+mv powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
+
+###edit
+
+sourceClusterID: "source"
+targetClusterID: "target"
+name: "isilon-replication"
+driver: "isilon"
+reclaimPolicy: "Delete"
+replicationPrefix: "replication.storage.dell.com"
+remoteRetentionPolicy:
+  RG: "Retain"
+  PV: "Retain"
+parameters:
+  rpo: "Five_Minutes"
+  ignoreNamespaces: "false"
+  volumeGroupPrefix: "csi"
+  accessZone: "System"
+  isiPath: "/ifs/csi"
+  rootClientEnabled: "false"
+  clusterName:
+    source: "cluster-1"
+    target: "cluster-2"
+
+
+./repctl create sc --from-config ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
+
+ ./repctl get sc
+
+
 
 
 
