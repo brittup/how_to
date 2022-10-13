@@ -19,7 +19,6 @@ install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/c
 
 1.Install repctl
 2.Install Container Storage Modules (CSM) for Replication Controller
-3.Install CSI driver after enabling replication
 
 
 mkdir git
@@ -58,7 +57,7 @@ cp /root/.kube/config /root/.kube/config-2
 ###isilon setup 
 ###hit q and yes to accept eula
 
-isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ, SYNCIQ
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
 isi license list
 
 isi sync setting mod --encryption-required=false
@@ -122,15 +121,40 @@ isi auth users view --zone=System --user=k82
 
 
 
+Check controller pods - Check that controller config map is properly populated
+kubectl get pods -n dell-replication-controller
 
 
 
 
+kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
 
 
 
 
+3.Install CSI driver after enabling replication
 
+
+###need to specify both source and target Isilon in secret.yaml
+
+
+
+###enable replication by setting helm parameter controller.replication.enabled in values.yaml
+
+replication:
+    enabled: true
+    image: dellemc/dell-csi-replicator:v1.2.0
+    replicationContextPrefix: "powerscale"
+    replicationPrefix: "replication.storage.dell.com"
+
+
+
+### create replication enabled storage class
+
+wget https://github.com/dell/csm-replication/blob/main/repctl/examples/powerscale_example_values.yaml
+mv powerscale_example_values.yaml my-isilon-sc-replication.yaml
+
+vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 
 
