@@ -7,9 +7,7 @@ https://github.com/dell/csm-replication
 https://github.com/dell/csm-replication/releases
 
 
-
-
-install K8 clusters and have them operational
+###install K8 clusters and have them operational
 
 
 
@@ -29,12 +27,6 @@ wget https://github.com/dell/csm-replication/releases
 mv repctl-linux-amd64 repctl
 chmod a+x repctl
 ./replctl
-
-
-
-cp /deploy/config.yaml  /root/.kube
-mv /root/.kube/config.yaml /root/.kube/config-1
-vi /root/.kube/config-1
 
 
 ###edit
@@ -81,19 +73,19 @@ isi network pools view groupnet0:subnet0:pool1
 
 -open PowerShell prompt from Start Menu
 Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi1" -NameServer "ssip1-isilon.demo.local" -IPAddress 192.168.1.100
-Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi2" -NameServer "ssip1-isilon.demo.local" -IPAddress 192.168.1.225
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi2" -NameServer "ssip2-isilon.demo.local" -IPAddress 192.168.1.225
 
 nslookup csi1.demo.local
 nslookup csi2.demo.local
 
 ###create the csi onefs api user
 ###cls1
-isi auth groups create --zone=System --name=k81 --provider=local
-isi auth users create --zone=System --name=k81 --set-password --enabled=true --provider=local --primary-group=k81
+isi auth groups create --zone=System --name=k8 --provider=local
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k81
 
 ###cls2
-isi auth groups create --zone=System --name=k82 --provider=local
-isi auth users create --zone=System --name=k82 --set-password --enabled=true --provider=local --primary-group=k82
+isi auth groups create --zone=System --name=k8 --provider=local
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k82
 
 (use Password123!)
 
@@ -105,27 +97,22 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
-isi auth roles modify k8-csi --add-user=k8 --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System'
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
 isi auth roles view k8-csi --zone=System
 
 mkdir /ifs/csi
 chmod 777 /ifs/csi
 
 ###cls1
-isi auth users view --zone=System --user=k81
+isi auth users view --zone=System --user=k8
 ###cls1
-isi auth users view --zone=System --user=k82
-
-
-
+isi auth users view --zone=System --user=k8
 
 
 
 Check controller pods - Check that controller config map is properly populated
 kubectl get pods -n dell-replication-controller
-
-
-
 
 kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
 
@@ -134,16 +121,13 @@ kubectl get cm -n dell-replication-controller dell-replication-controller-config
 
 3.Install CSI driver after enabling replication
 
-
 ###need to specify both source and target Isilon in secret.yaml
-
-
 
 ###enable replication by setting helm parameter controller.replication.enabled in values.yaml
 
 replication:
     enabled: true
-    image: dellemc/dell-csi-replicator:v1.2.0
+    image: dellemc/dell-csi-replicator:v1.3.0
     replicationContextPrefix: "powerscale"
     replicationPrefix: "replication.storage.dell.com"
 
@@ -151,15 +135,15 @@ replication:
 
 ### create replication enabled storage class
 
-wget https://raw.githubusercontent.com/dell/csm-replication/main/repctl/examples/powerscale_example_values.yaml
+cp ~/root/git/csm-replication/repctl/examples/powerscale_example_values.yaml
 mv powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 ###edit
 
-sourceClusterID: "source"
-targetClusterID: "target"
+sourceClusterID: "cluster-1"
+targetClusterID: "cluster-2"
 name: "isilon-replication"
 driver: "isilon"
 reclaimPolicy: "Delete"
@@ -181,12 +165,17 @@ parameters:
 
 ./repctl create sc --from-config ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
- ./repctl get sc
-
+./repctl get sc
 
 
 cd ~/git/csi-isilon/isilon/
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
+
+
+
+
+
+
 
 
 ###create a testing namespace
@@ -198,8 +187,40 @@ kubectl create -f pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
 kubectl get pv -n test
+
 kubectl describe pv <pv name> -n test
 
 
+./repctl get sc
+./repctl get pvc
+./repctl get rg
 
 
+
+###create sample pod and attach to pvc
+cp ~/git/csi-isilon/samples/pod/nginx.yaml ~/git/csi-isilon/isilon/
+vi nginx.yaml
+kubectl create -f nginx.yaml -n test
+kubectl get pods -n test
+kubectl describe pods ngnix-pv-pod -n test
+
+kubectl get pv -n test
+kubectl exec ngnix-pv-pod -i -t -n test -- bash 
+
+cd /usr/share/nginx/html/
+ls -al
+touch test1.txt
+ls -al
+
+###from isilon cli, view and test, the directory mounted by the pod
+
+###go to isilon, review
+###nfs 
+isi nfs exports list --zone=System
+###quota
+isi quota list --zone=System
+###add a file from cli
+
+cd /ifs/csi/k8s-.../
+touch this_is_isilon.txt
+ls -al
