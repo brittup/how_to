@@ -8,4 +8,5 @@ spec:
   resources:
     requests:
       storage: 5Gi
+  volumeName: <k8 pv>   
   storageClassName: isilon-replication
