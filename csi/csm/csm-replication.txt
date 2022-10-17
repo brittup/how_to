@@ -117,8 +117,6 @@ kubectl get pods -n dell-replication-controller
 kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
 
 
-
-
 3.Install CSI driver after enabling replication
 
 ###need to specify both source and target Isilon in secret.yaml
@@ -130,7 +128,6 @@ replication:
     image: dellemc/dell-csi-replicator:v1.3.0
     replicationContextPrefix: "powerscale"
     replicationPrefix: "replication.storage.dell.com"
-
 
 
 ### create replication enabled storage class
@@ -167,16 +164,9 @@ parameters:
 
 ./repctl get sc
 
-
 cd ~/git/csi-isilon/isilon/
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
-
-
-
-
-
-
-
+vi pvc.yaml
 
 ###create a testing namespace
 kubectl create namespace test
@@ -190,11 +180,14 @@ kubectl get pv -n test
 
 kubectl describe pv <pv name> -n test
 
-
+###cls1 & cls2
 ./repctl get sc
 ./repctl get pvc
 ./repctl get rg
-
+kubectl get pvc -n test
+kubectl describe pvc test-pvc -n test
+kubectl get pv -n test
+kubectl describe pv <pv name> -n test
 
 
 ###create sample pod and attach to pvc
@@ -217,10 +210,29 @@ ls -al
 ###go to isilon, review
 ###nfs 
 isi nfs exports list --zone=System
+
 ###quota
 isi quota list --zone=System
+
+###synciq
+isi sync policies list 
+
+
+
+
 ###add a file from cli
 
-cd /ifs/csi/k8s-.../
+cd /ifs/csi/....k8s-.../
 touch this_is_isilon.txt
 ls -al
+
+
+
+
+#on k8 cls2 
+wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc-target.yaml
+wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pod-target.yaml
+
+vi pvc-target.yaml
+
+
