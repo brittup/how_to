@@ -39,7 +39,7 @@ olcSuffix: dc=demo,dc=local
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 replace: olcRootDN
-olcRootDN: cn=ldapadm,dc=demo,dc=local
+olcRootDN: cn=admin,dc=demo,dc=local
 
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
@@ -58,7 +58,7 @@ vi monitor.ldif
 dn: olcDatabase={1}monitor,cn=config
 changetype: modify
 replace: olcAccess
-olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth" read by dn.base="cn=ldapadm,dc=demo,dc=local" read by * none
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth" read by dn.base="cn=admin,dc=demo,dc=local" read by * none
 
 ###
 ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
@@ -66,7 +66,7 @@ ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
 
 
 
-
+###this continues to have issue, skip and use ldap only
 1.use a Self Signed Ceriticate 
 ####
 openssl req -new -x509 -nodes -out /etc/openldap/certs/myldap.demo.local.cert -keyout /etc/openldap/certs/myldap.demo.local.key -days 365
@@ -268,7 +268,7 @@ o : demo
 
 
 ###add base
-ldapadd -f demo.ldif -D cn=ldapadm,dc=demo,dc=local -w password
+ldapadd -f demo.ldif -D cn=admin,dc=demo,dc=local -w password
 
 
 ###test ldap search
@@ -282,7 +282,7 @@ dn: ou=users,dc=demo,dc=local
 objectClass: organizationalUnit
 ou: users
 
-ldapadd -f users.ldif -D cn=ldapadm,dc=demo,dc=local -w password
+ldapadd -f users.ldif -D cn=admin,dc=demo,dc=local -w password
 
 
 ###create groups OU
@@ -292,7 +292,7 @@ dn: ou=groups,dc=demo,dc=local
 objectClass: organizationalUnit
 ou:groups
 
-ldapadd -f groups.ldif -D cn=ldapadm,dc=demo,dc=local -w password
+ldapadd -f groups.ldif -D cn=admin,dc=demo,dc=local -w password
 
 ###
 ldapsearch -x -LLL -b dc=demo,dc=local
@@ -312,8 +312,8 @@ chmod 777 gen*
 cat users_add.ldif
 cat groups_add.ldif
 
-ldapadd -f users_add.ldif -D cn=ldapadm,dc=demo,dc=local -w password
-ldapadd -f groups_add.ldif -D cn=ldapadm,dc=demo,dc=local -w password
+ldapadd -f users_add.ldif -D cn=admin,dc=demo,dc=local -w password
+ldapadd -f groups_add.ldif -D cn=admin,dc=demo,dc=local -w password
 
 
 ###validate the ldap users and groups with ldapbrowser or ldapsearch
@@ -323,7 +323,9 @@ ldapsearch -x -LLL -b dc=demo,dc=local
 
 
 ###install phpldapadmin
-https://github.com/brittup/how_to/blob/master/ldap/phpldapadmin.txt
+https://www.ezeelogin.com/kb/article/how-to-install-openldap-and-phpldapadmin-in-centos-426.html
+
+
 
 
 ###get windows LDAP browser to jump host
@@ -336,7 +338,7 @@ Add New ldap server to browser
 -New Profile
 
 Name: ldap1
-Host: ldap-kdc.demo.local  < ---- or whatever host you install LDAP on
+Host: ldapkdc.demo.local  < ---- or whatever host you install LDAP on
 Base DN: dc=demo,dc=local
 
 use anonymous user if needed
@@ -364,6 +366,43 @@ use anonymous
 #### ldap vs ldaps can be validated with tcpdump
 tcpdump -i ens192 port 389
 tcpdump -i ens192 port 636
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
