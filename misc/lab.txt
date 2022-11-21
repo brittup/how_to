@@ -16,6 +16,10 @@ systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
 
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+
 
 yum remove docker \
                   docker-client \
@@ -33,9 +37,9 @@ yum-config-manager \
     https://download.docker.com/linux/centos/docker-ce.repo                  
 
 
-yum install-y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 systemctl start docker
-
+systemctl enable docker
 
 
 ########################
