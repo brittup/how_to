@@ -256,6 +256,8 @@ mkdir ~/git/csi-isilon/isilon/
 ###add release version to linked directory
 cd ~/git/csi-isilon
 cat ReleaseNotes.md
+
+
 touch CSI_2.4.txt
 ls -al
 

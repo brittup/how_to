@@ -26,18 +26,24 @@ cd ~/git
 wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
 mv repctl-linux-amd64 repctl
 chmod a+x repctl
-./replctl
+./repctl
 
 
 ###edit
 #cls1
+cat /root/.kube/config
 cp /root/.kube/config /root/.kube/config-1
 
 #cls2
+cat /root/.kube/config
 cp /root/.kube/config /root/.kube/config-2
 
 
  ###scp 1 - > 2 and 2 - > 1   
+
+ scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
+
+ scp /root/.kube/config-2 root@192.168.1.41:/root/.kube/config-2
 
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
 ./repctl create -f ../deploy/replicationcrds.all.yaml
