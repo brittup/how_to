@@ -22,7 +22,7 @@ The installation process consists of three steps:
 mkdir ~/git
 cd ~/git
 
-git clone https://github.com/dell/csm-replication.git
+git clone -b v1.3.0 https://github.com/dell/csm-replication.git
 
 ###download the prebuilt repctl binary
 wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
@@ -49,11 +49,12 @@ cp /root/.kube/config /root/.kube/config-2
  scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
 
 ###on both clusters
+docker login
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
 
 ###on cls1 only
-./repctl create -f ~git/csm-replication/deploy/replicationcrds.all.yaml
-./repctl create -f .~git/csm-replication/deploy/controller.yaml
+./repctl create -f ~/git/csm-replication/deploy/replicationcrds.all.yaml
+./repctl create -f ~/git/csm-replication/deploy/controller.yaml
 ./repctl cluster inject --use-sa
 
 
