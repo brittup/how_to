@@ -13,17 +13,17 @@ https://github.com/dell/csm-replication/releases
 
 The installation process consists of three steps:
 
-install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/csi/csi_setup2-4.txt
+1.install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/csi/csi_setup2-4.txt
 
-1.Install repctl
-2.Install Container Storage Modules (CSM) for Replication Controller
+2.Install repctl
+3.Install Container Storage Modules (CSM) for Replication Controller
 
 
-mkdir git
+mkdir ~/git
 cd ~/git
-git clone github.com/dell/csm-replication
 
-wget https://github.com/dell/csm-replication/releases
+###download the prebuilt repctl binary
+wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
 mv repctl-linux-amd64 repctl
 chmod a+x repctl
 ./replctl
