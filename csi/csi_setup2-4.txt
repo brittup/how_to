@@ -305,6 +305,12 @@ kubectl get crd
 
 ###################################################################################################################################################
 ###install the csi driver
+
+###create a K8 namespace 
+kubectl create namespace isilon
+
+
+###configure the csi values & secret files
 cd ~/git/csi-isilon/isilon/
 cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings.yaml
 vi my-isilon-settings.yaml
@@ -318,9 +324,10 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
+###replication if using 
+
 ###################################################################################################################################################
-###create a K8 namespace 
-kubectl create namespace isilon
+
 
 
 ####create secrets
@@ -597,3 +604,10 @@ kubectl get pv k8s-56da61f45b
 kubectl describe pv k8s-56da61f45b
 kubectl get volumeattachment -n test
 kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
+
+
+#delete secrets
+kubectl get secret -n isilon
+kubectl delete secret isilon-certs-0 -n isilon
+kubectl delete secret isilon-creds -n isilon
+kubectl get secret -n isilon

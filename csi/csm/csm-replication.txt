@@ -58,6 +58,10 @@ docker login
 ./repctl cluster inject --use-sa
 
 
+kubectl get pods -n dell-replication-controller
+kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
+
+
 
 ###isilon setup if not done
 ###hit q and yes to accept eula
@@ -123,18 +127,21 @@ isi auth users view --zone=System --user=k8
 isi auth users view --zone=System --user=k8
 
 
-
+######
 Check controller pods - Check that controller config map is properly populated
 kubectl get pods -n dell-replication-controller
-
 kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
 
 
-3.Install CSI driver after enabling replication
+3.Install CSI driver after enabling replication; setup and configure values and secret as needed
 
 ###need to specify both source and target Isilon in secret.yaml
+vi ~/git/csi-isilon/isilon/secret.yaml
+
 
 ###enable replication by setting helm parameter controller.replication.enabled in values.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-settings.yaml
+
 
 replication:
     enabled: true
@@ -143,9 +150,14 @@ replication:
     replicationPrefix: "replication.storage.dell.com"
 
 
+ ###deploy CSI driver  --- >
+
+ kubectl get pods -A   
+
+
 ### create replication enabled storage class
 
-cp ~/root/git/csm-replication/repctl/examples/powerscale_example_values.yaml
+cp ~/root/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-isilon/isilon/powerscale_example_values.yaml
 mv powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
