@@ -157,8 +157,8 @@ replication:
 
 ### create replication enabled storage class
 
-cp ~/root/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-isilon/isilon/powerscale_example_values.yaml
-mv powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
+cp ~/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-isilon/isilon/powerscale_example_values.yaml
+mv ~/git/csi-isilon/isilon/powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
