@@ -156,10 +156,10 @@ kubectl describe node | grep -i taint
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl describe node | grep -i taint
-###if only deploying a single node cluster
 
-
+############
 ###join other nodes to cluster here per the kubeadm init output###
+############
 
 ##eg:
 kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
@@ -168,7 +168,6 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 
 #on master node
 kubectl get nodes
-
 kubectl get pods --all-namespaces
 
 ### 
@@ -182,7 +181,7 @@ kubeadm reset
 ###isilon setup 
 ###hit q and yes to accept eula
 
-isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
 isi license list
 
 ###setup SmartConnect on Isilon
