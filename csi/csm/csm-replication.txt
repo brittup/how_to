@@ -22,6 +22,8 @@ The installation process consists of three steps:
 mkdir ~/git
 cd ~/git
 
+git clone https://github.com/dell/csm-replication.git
+
 ###download the prebuilt repctl binary
 wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
 mv repctl-linux-amd64 repctl
@@ -40,19 +42,23 @@ cp /root/.kube/config /root/.kube/config-2
 
 
  ###scp 1 - > 2 and 2 - > 1   
-
+1 -> 2
  scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
 
- scp /root/.kube/config-2 root@192.168.1.41:/root/.kube/config-2
+2 -> 1
+ scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
 
+###on both clusters
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
-./repctl create -f ../deploy/replicationcrds.all.yaml
-./repctl create -f ../deploy/controller.yaml
+
+###on cls1 only
+./repctl create -f ~git/csm-replication/deploy/replicationcrds.all.yaml
+./repctl create -f .~git/csm-replication/deploy/controller.yaml
 ./repctl cluster inject --use-sa
 
 
 
-###isilon setup 
+###isilon setup if not done
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
