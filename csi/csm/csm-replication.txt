@@ -7,63 +7,13 @@ https://github.com/dell/csm-replication
 https://github.com/dell/csm-replication/releases
 
 
-###install K8 clusters and have them operational
-
-
-
-The installation process consists of three steps:
+###The installation process consists of three steps:
 
 1.install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/csi/csi_setup2-4.txt
-
 2.Install repctl
 3.Install Container Storage Modules (CSM) for Replication Controller
 
-
-mkdir ~/git
-cd ~/git
-
-git clone -b v1.3.0 https://github.com/dell/csm-replication.git
-
-###download the prebuilt repctl binary
-wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
-mv repctl-linux-amd64 repctl
-chmod a+x repctl
-./repctl
-
-
-###edit
-#cls1
-cat /root/.kube/config
-cp /root/.kube/config /root/.kube/config-1
-
-#cls2
-cat /root/.kube/config
-cp /root/.kube/config /root/.kube/config-2
-
-
- ###scp 1 - > 2 and 2 - > 1   
-1 -> 2
- scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
-
-2 -> 1
- scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
-
-###on both clusters
-docker login
-./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
-
-###on cls1 only
-./repctl create -f ~/git/csm-replication/deploy/replicationcrds.all.yaml
-./repctl create -f ~/git/csm-replication/deploy/controller.yaml
-./repctl cluster inject --use-sa
-
-
-kubectl get pods -n dell-replication-controller
-kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
-
-
-
-###isilon setup if not done
+###isilon setup if not done, this is for two cluster setup
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
@@ -114,8 +64,9 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
-isi auth roles modify k8-csi --add-user=k8 --zone=System'
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System
 isi auth roles view k8-csi --zone=System
 
 mkdir /ifs/csi
@@ -127,21 +78,66 @@ isi auth users view --zone=System --user=k8
 isi auth users view --zone=System --user=k8
 
 
+
+###install repctl
+
+mkdir ~/git
+cd ~/git
+
+git clone -b v1.3.0 https://github.com/dell/csm-replication.git
+
+###download the prebuilt repctl binary
+wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
+mv repctl-linux-amd64 repctl
+chmod a+x repctl
+./repctl
+
+
+###edit
+#cls1
+cat /root/.kube/config
+cp /root/.kube/config /root/.kube/config-1
+
+#cls2
+cat /root/.kube/config
+cp /root/.kube/config /root/.kube/config-2
+
+
+ ###scp 1 - > 2 and 2 - > 1   
+1 -> 2
+ scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
+
+2 -> 1
+ scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
+
+###on both clusters
+docker login
+./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
+./repctl get cluster
+
+###on cls1 only
+./repctl create -f ~/git/csm-replication/deploy/replicationcrds.all.yaml
+./repctl create -f ~/git/csm-replication/deploy/controller.yaml
+
+./repctl cluster inject --use-sa
+
+kubectl get pods -n dell-replication-controller
+kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
+
+
 ######
 Check controller pods - Check that controller config map is properly populated
 kubectl get pods -n dell-replication-controller
 kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
 
 
-3.Install CSI driver after enabling replication; setup and configure values and secret as needed
+###Install CSI driver after enabling replication; setup and configure values and secret as needed
 
 ###need to specify both source and target Isilon in secret.yaml
 vi ~/git/csi-isilon/isilon/secret.yaml
 
-
 ###enable replication by setting helm parameter controller.replication.enabled in values.yaml
 vi ~/git/csi-isilon/isilon/my-isilon-settings.yaml
-
 
 replication:
     enabled: true
@@ -149,11 +145,9 @@ replication:
     replicationContextPrefix: "powerscale"
     replicationPrefix: "replication.storage.dell.com"
 
-
  ###deploy CSI driver  --- >
 
  kubectl get pods -A   
-
 
 ### create replication enabled storage class
 
@@ -162,7 +156,11 @@ mv ~/git/csi-isilon/isilon/powerscale_example_values.yaml ~/git/csi-isilon/isilo
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
+./repctl get clusters
+
 ###edit
+https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/#creating-storage-classes
+https://github.com/dell/csm-replication/blob/v1.3.0/repctl/examples/powerscale_example_values.yaml
 
 sourceClusterID: "cluster-1"
 targetClusterID: "cluster-2"
@@ -186,8 +184,12 @@ parameters:
 
 
 ./repctl create sc --from-config ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
-
 ./repctl get sc
+
+
+###validate SIQ SSL is working or disabled!!!!
+
+
 
 cd ~/git/csi-isilon/isilon/
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
