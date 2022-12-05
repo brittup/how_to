@@ -24,6 +24,53 @@ systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
 
+
+###################################################################################################################################################
+###isilon setup 
+###hit q and yes to accept eula
+
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
+isi license list
+
+###setup SmartConnect on Isilon
+
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=csi_pool
+isi network pools list
+isi network pools view groupnet0:subnet0:pool1
+
+###Run the following PowerShell command:
+
+-open PowerShell prompt from Start Menu
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
+
+nslookup csi.demo.local
+
+###create the csi onefs api user
+
+isi auth groups create --zone=System --name=k8 --provider=local
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k8
+
+(use Password123!)
+
+isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System
+isi auth roles view k8-csi --zone=System
+isi auth users view --zone=System --user=k8
+mkdir /ifs/csi
+chmod 777 /ifs/csi
+
+###################################################################################################################################################
+
+
+
 ###################################################################################################################################################
 ###install Docker Runtime, use a specific version
 ###From: https://docs.docker.com/engine/install/centos/
@@ -177,51 +224,6 @@ kubeadm reset
 
 
 
-###################################################################################################################################################
-###isilon setup 
-###hit q and yes to accept eula
-
-isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
-isi license list
-
-###setup SmartConnect on Isilon
-
-isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
-isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=csi_pool
-isi network pools list
-isi network pools view groupnet0:subnet0:pool1
-
-###Run the following PowerShell command:
-
--open PowerShell prompt from Start Menu
-Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
-
-nslookup csi.demo.local
-
-###create the csi onefs api user
-
-isi auth groups create --zone=System --name=k8 --provider=local
-isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k8
-
-(use Password123!)
-
-isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
-isi auth roles modify k8-csi --add-user=k8 --zone=System
-isi auth roles view k8-csi --zone=System
-isi auth users view --zone=System --user=k8
-mkdir /ifs/csi
-chmod 777 /ifs/csi
-
-
-
-###################################################################################################################################################
 ###CSI driver install
 ### On K8 linux:
 ####https://github.com/dell/csi-powerscale

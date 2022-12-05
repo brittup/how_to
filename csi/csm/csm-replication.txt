@@ -209,6 +209,12 @@ kubectl get pv -n test
 
 kubectl describe pv <pv name> -n test
 
+###
+In source k8s, when the PVC is created, PV and RG will be created automatically.
+And in target k8s, the same PV and RG will be created (replicated) as well.
+Notice that, all PV and RG have identical names between source and target k8s.
+###
+
 ###cls1 & cls2
 ./repctl get sc
 ./repctl get pvc
