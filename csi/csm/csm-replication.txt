@@ -47,12 +47,12 @@ nslookup csi2.demo.local
 
 ###create the csi onefs api user
 ###cls1
-isi auth groups create --zone=System --name=k8 --provider=local
-isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k81
+isi auth groups create --zone=System --name=k81 --provider=local
+isi auth users create --zone=System --name=k81 --set-password --enabled=true --provider=local --primary-group=k81
 
 ###cls2
-isi auth groups create --zone=System --name=k8 --provider=local
-isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k82
+isi auth groups create --zone=System --name=k82 --provider=local
+isi auth users create --zone=System --name=k82 --set-password --enabled=true --provider=local --primary-group=k82
 
 (use Password123!)
 
@@ -66,7 +66,11 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
-isi auth roles modify k8-csi --add-user=k8 --zone=System
+
+isi auth roles modify k8-csi --add-user=k81 --zone=System
+isi auth roles view k8-csi --zone=System
+
+isi auth roles modify k8-csi --add-user=k82 --zone=System
 isi auth roles view k8-csi --zone=System
 
 mkdir /ifs/csi
