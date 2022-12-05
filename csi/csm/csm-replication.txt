@@ -164,6 +164,7 @@ cd ~/git
 https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/#creating-storage-classes
 https://github.com/dell/csm-replication/blob/v1.3.0/repctl/examples/powerscale_example_values.yaml
 
+
 sourceClusterID: "cluster-1"
 targetClusterID: "cluster-2"
 name: "isilon-replication"
@@ -183,6 +184,7 @@ parameters:
   clusterName:
     source: "cluster-1"
     target: "cluster-2"
+
 
 
 ./repctl create sc --from-config ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
@@ -253,8 +255,6 @@ isi quota list --zone=System
 isi sync policies list 
 
 
-
-
 ###add a file from cli
 
 cd /ifs/csi/....k8s-.../
@@ -263,10 +263,13 @@ ls -al
 
 
 
-
+###
+need to manual create pvc on k8 cluster-2 and attach to pod - RO as it's siq target
 #on k8 cls2 
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc-target.yaml
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pod-target.yaml
+
+###edit the volumeName to pv
 
 vi pvc-target.yaml
 

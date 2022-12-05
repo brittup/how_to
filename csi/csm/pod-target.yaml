@@ -15,4 +15,4 @@ spec:
   volumes:
   - name: task-pv-storage
     persistentVolumeClaim:
-      claimName: test-pvc
+      claimName: dr-test-pvc
