@@ -77,9 +77,9 @@ mkdir /ifs/csi
 chmod 777 /ifs/csi
 
 ###cls1
-isi auth users view --zone=System --user=k8
+isi auth users view --zone=System --user=k81
 ###cls1
-isi auth users view --zone=System --user=k8
+isi auth users view --zone=System --user=k82
 
 
 
@@ -125,9 +125,6 @@ docker login
 
 ./repctl cluster inject --use-sa
 
-kubectl get pods -n dell-replication-controller
-kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
-
 
 ######
 Check controller pods - Check that controller config map is properly populated
@@ -160,6 +157,7 @@ mv ~/git/csi-isilon/isilon/powerscale_example_values.yaml ~/git/csi-isilon/isilo
 
 vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
+cd ~/git
 ./repctl get clusters
 
 ###edit
@@ -199,10 +197,10 @@ cd ~/git/csi-isilon/isilon/
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
 vi pvc.yaml
 
-###create a testing namespace
+###create a testing namespace on both k8 clusters
 kubectl create namespace test
 
-###create a testing namespace
+###create a pvc on cluster-1
 kubectl create -f pvc.yaml -n test
 
 kubectl get pvc -n test

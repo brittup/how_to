@@ -236,13 +236,14 @@ echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 ###################################################################################################################################################
 ###install helm3 on master
+cd ~
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
 
 ###################################################################################################################################################
 ###clone the powerscale csi repo
-mkdir git
+mkdir ~/git
 cd git
 git clone -b v2.4.0 https://github.com/dell/csi-powerscale.git
 
