@@ -61,6 +61,8 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
 isi auth roles modify k8-csi --add-user=k8 --zone=System
 isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
