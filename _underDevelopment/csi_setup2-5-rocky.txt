@@ -264,10 +264,10 @@ chmod 700 get_helm.sh
 mkdir ~/git
 cd git
 git clone -b v2.5.0 https://github.com/dell/csi-powerscale.git
-
+mv csi-powerscale csi-powerscale-2.5
 
 ###create a link, makes upgrade easier
-ln -s /root/git/csi-powerscale csi-isilon
+ln -s /root/git/csi-powerscale-2.5 csi-isilon
 
 ###mkdir for isilon csi configuration files
 mkdir ~/git/csi-isilon/isilon/
@@ -307,7 +307,6 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
-
 ###OR - one shot install
 
 cd ~/git/
@@ -330,32 +329,6 @@ kubectl create namespace isilon
 
 
 ###configure the csi values & secret files
-cd ~/git/csi-isilon/isilon/
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings.yaml
-
-vi my-isilon-settings.yaml
-
-
-Review auth seetings on onefs
-isi_gconfig -t web-config auth_basic
-
-
-###edit my-isilon-settings.yaml: modify any values as needed
-
-
-controllerCount: 2    - if only 1 host, 2 is 2
-
-healthMonitor:
-  healthMonitor:true
-
-isiAuthType: 0
-
-isiPath: /ifs/csi
-
-###replication if using replication with repctl
-
-###################################################################################################################################################
-
 
 
 ####create secrets
@@ -370,7 +343,7 @@ vi secret.yaml
 
       password: "Password123!"
 
-      endpoint: "https://csi.demo.local"       < --- This is the System Zone, for the driver to make API cals to
+      endpoint: "https://csi.demo.local"       < --- This is the System Zone SmartConnect Name or IP in System Zone, for the driver to make API cals to
 
       isDefault: true
 
@@ -379,7 +352,6 @@ vi secret.yaml
 
 ###create isilon-creds secret 
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
-
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
 cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret.yaml
@@ -390,12 +362,37 @@ kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
+
+####create settings
+cd ~/git/csi-isilon/isilon/
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings.yaml
+
+vi my-isilon-settings.yaml
+
+###Review auth seetings on onefs
+isi_gconfig -t web-config auth_basic
+
+###edit my-isilon-settings.yaml: modify any values as needed
+
+controllerCount: 2    - if only 1 host, 2 is 2
+
+healthMonitor:
+  healthMonitor:true
+
+isiAuthType: 0
+
+isiPath: /ifs/data
+
+###replication if using replication with repctl
+
+###################################################################################################################################################
+
 ####Before we install the driver, we will take the NoSchedule taint away from the master node, USE SHORTNAME
 ###not required with 3 node k8 clusters
 kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
 kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
-kubectl describe node <hostname> | grep Taint
+kubectl describe node <hostname> | grep -i taint
 
 
 ###################################################################################################################################################
@@ -406,20 +403,21 @@ watch kubectl get pods -A
 
 cd ~/git/csi-isilon/dell-csi-helm-installer
 
-###docker login, use your dockerhub user&pass on all hosts, this just seems to help
-docker login
-
-##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
-
 ./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings.yaml 
 
 
 ###watch the pods in the other session
 
-####if you hit rate limit issue - logon to dockerhub if you have not
-docker login
-username
-password
+####if you hit rate limit issue 
+###need to add docker hub logon info to allow imahe pulls after exceeding rate limits
+[plugins]
+
+[plugins."io.containerd.grpc.v1.cri".registry.configs."registry-1.docker.io".auth]
+    username = "<username>"
+    password = "<password>"
+
+ restart containerd and kubectl   
+####if you hit rate limit issue 
 
 
 ###review the csi pods
@@ -441,14 +439,13 @@ ls -al
 https://k9scli.io/topics/commands/
 
 
+###Troubleshooting - review logs and describe pods
 ###if needed b/c of issues starting the pods
 -review the secrets.yaml
 -review the my-settings.yaml
 
 ###if needed uninstall the driver
  ./csi-uninstall.sh --namespace isilon
-
-
 
 ###recreate modify secret.yaml file
 kubectl get secret -n isilon
@@ -473,7 +470,7 @@ vi ~/git/csi-isilon/isilon/my-isilon-sc.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports in
+ AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you are creating nfs exports in
 
 
 ###add mount options if needed
@@ -488,14 +485,13 @@ mountOptions: []
 kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc.yaml
 kubectl get sc 
 
-###create a testing namespace
-kubectl create namespace test
-
-
 
 ###################################################################################################################################################
 ###Testing CSI with samples
 ###sample test files:  ~/git/csi-isilon/samples
+
+###create a testing namespace in K8
+kubectl create namespace test
 
 cd ~/git/csi-isilon/samples
 

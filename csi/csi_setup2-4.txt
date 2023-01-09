@@ -329,7 +329,7 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
-###replication if using 
+###replication if using
 
 ###################################################################################################################################################
 
@@ -372,7 +372,7 @@ kubectl get secret isilon-creds -o yaml -n isilon
 kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
 kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
-kubectl describe node <hostname> | grep Taint
+kubectl describe node <hostname> | grep -i taint
 
 
 ###################################################################################################################################################
