@@ -1,0 +1,261 @@
+######
+Upgrade CSI Driver from version v2.3 to v2.4
+######
+
+
+git clone -b v2.4.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.4
+
+###fix the csi-isilon symlink
+ln -sfn /root/git/csi-powerscale-2.4 csi-isilon
+
+mkdir  csi-isilon/isilon
+cp csi-powerscale-2.3/isilon/* csi-isilon/isilon
+ls -al csi-isilon/isilon
+
+
+
+####update secrets.json 
+cat ~/git/csi-isilon/samples/secret/secret.yaml
+
+diff ~/git/csi-isilon/samples/secret/secret.yaml ~/git/csi-powerscale-2.3/samples/secret/secret.yaml
+
+###review differences for updates
+vi ~/git/csi-isilon/samples/secret/secret.yaml
+
+###update the secret.yaml
+isilonClusters:
+    # logical name of PowerScale Cluster
+  - clusterName: "cluster1"
+
+    # username for connecting to PowerScale OneFS API server
+    # if authorization is enabled, username will be ignored
+    # Default value: None
+    username: "k8"
+
+    # password for connecting to PowerScale OneFS API server
+    # if authorization is enabled, password will be ignored
+    password: "Password123!"
+
+    # HTTPS endpoint of the PowerScale OneFS API server
+    # if authorization is enabled, the endpont should be the localhost address of the csm-authorization-sidecar
+    # Default value: None
+    # Examples: "1.2.3.4", "https://1.2.3.4", "https://abc.myonefs.com"
+    endpoint: "https://cascade-system.foo.com"
+
+    # endpointPort: Specify the HTTPs port number of the PowerScale OneFS API server
+    # Formerly this attribute was named as "isiPort"
+    # If authorization is enabled, endpointPort must match the port specified in the endpoint parameter of the karavi-authorization-config secret
+    # Allowed value: valid port number
+    # Default value: 8080
+    #endpointPort: 8080
+
+    # Is this a default cluster (would be used by storage classes without ClusterName parameter)
+    # Allowed values:
+    #   true: mark this cluster config as default
+    #   false: mark this cluster config as not default
+    # Default value: false
+    isDefault: true
+
+    # Specify whether the PowerScale OneFS API server's certificate chain and host name should be verified.
+    # Allowed values:
+    #   true: skip OneFS API server's certificate verification
+    #   false: verify OneFS API server's certificates
+    # Default value: default value specified in values.yaml
+    # skipCertificateValidation: true
+
+    # The base path for the volumes to be created on PowerScale cluster
+    # This will be used if a storage class does not have the IsiPath parameter specified.
+    # Ensure that this path exists on PowerScale cluster.
+    # Allowed values: unix absolute path
+    # Default value: default value specified in values.yaml
+    # Examples: "/ifs/data/csi", "/ifs/engineering"
+    # isiPath: "/ifs/data/csi"
+
+    # The permissions for isi volume directory path
+    # This will be used if a storage class does not have the IsiVolumePathPermissions parameter specified.
+    # Allowed values: valid octal mode number
+    # Default value: "0777"
+    # Examples: "0777", "777", "0755"
+    # isiVolumePathPermissions: "0777"
+
+  - clusterName: "cluster2"
+    username: "user"
+    password: "password"
+    endpoint: "1.2.3.4"
+
+
+
+###compare empty-secret.yaml
+diff  ~/git/csi-isilon/samples/secret/empty-secret.yaml ~/git/csi-powerscale-2.3/samples/secret/empty-secret.yaml
+
+###delete existing secrets
+kubectl get secret -n isilon
+
+kubectl delete secret isilon-certs-0 -n isilon
+kubectl delete secret isilon-creds -n isilon
+kubectl get secret -n isilon
+
+
+###create isilon-creds secret
+cd ~/git/csi-isilon/samples/secret
+kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create -f empty-secret.yaml
+kubectl get secret -n isilon
+
+kubectl get secret isilon-creds -o yaml -n isilon
+
+
+###copy the helm/csi-isilon/values.yaml into a new location with a custom name say my-isilon-settings-x-x.yaml
+###my-isilon-settings-2-4.yaml  should have been copied into ~/git/csi-isilon/isilon
+###to customize settings for installation. Edit my-isilon-settings-2-4.yaml 
+
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-4.yaml
+diff ~/git/csi-isilon/isilon/my-isilon-settings-2-3.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-4.yaml
+
+###update or edit any required settings
+
+vi ~/git/csi-isilon/isilon/my-isilon-settings-2-4.yaml
+
+
+###update
+isiPath: /ifs/csi
+allowedNetworks: [10.246.156.0/24]
+
+
+###storage class
+
+###copy and review the old storage classes you may have created
+
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml ~/git/csi-isilon/isilon/sample-sc-2-4.yaml
+cp ~/git/csi-isilon/isilon/sample-sc-2-4.yaml ~/git/csi-isilon/isilon/my-isilon-sc-2.4.yaml
+
+diff ~/git/csi-isilon/isilon/my-isilon-sc-2.4.yaml ~/git/csi-isilon/isilon/my-isilon-sc.yaml
+diff ~/git/csi-isilon/isilon/my-isilon-sc-2.4.yaml ~/git/csi-isilon/isilon/my-isilon-sc1.yaml
+
+
+###update - edit and update to reflect isilon sc info 
+
+vi ~/git/csi-isilon/isilon/my-isilon-sc-2.4.yaml
+
+kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2.4.yaml
+kubectl get sc 
+
+
+###add another session 
+watch kubectl get pods -A  
+
+
+###drive upgrade prep and upgrade
+kubectl get nodes
+docker login   -- on all nodes
+
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./verify.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-4.yaml
+
+------------------------------------------------------
+> Verifying Kubernetes and driver configuration
+------------------------------------------------------
+|- Kubernetes Version: 1.20
+|
+|- Driver: csi-isilon
+|
+|- Verifying Kubernetes version
+  |
+  |--> Verifying minimum Kubernetes version                         Success
+  |
+  |--> Verifying maximum Kubernetes version                         Success
+|
+|- Verifying that required namespaces have been created             Success
+|
+|- Verifying that required secrets have been created                Success
+|
+|- Verifying that optional secrets have been created                Success
+|
+|- Verifying alpha snapshot resources
+  |
+  |--> Verifying that alpha snapshot CRDs are not installed         Success
+|
+|- Verifying snapshot support
+  |
+  |--> Verifying that snapshot CRDs are available                   Success
+  |
+  |--> Verifying that the snapshot controller is available          Success
+|
+|- Verifying helm version                                           Success
+|
+|- Verifying helm values version                                    Success
+
+
+------------------------------------------------------
+> Verification Complete - Success
+------------------------------------------------------
+
+
+###upgrade the driver
+
+
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-4.yaml --upgrade 
+
+
+
+------------------------------------------------------
+> Verification Complete - Success
+------------------------------------------------------
+|
+|- Upgrading Driver                                                 Success
+  |
+  |--> Waiting for Deployment isilon-controller to be ready         Success
+  |
+  |--> Waiting for DaemonSet isilon-node to be ready                Success
+------------------------------------------------------
+> Operation complete
+------------------------------------------------------
+
+
+
+
+
+kubectl get pods --namespace isilon
+kubectl describe pod <podname> -n isilon
+
+
+###
+
+kubectl get pods --namespace isilon
+kubectl get pods -A
+
+kubectl describe pod <name> -n test
+
+kubectl get pv -A
+kubectl get pvc -A
+
+kubectl get pv -n test
+kubectl get pvc -n test
+kubectl get pods -n test
+kubectl describe pods <name> -n test
+
+
+###test new volume
+cd ~/git/csi-isilon/samples
+
+vi persistentvolumeclaim/pvc.yaml
+##add -2-3 to the name of the pvc
+
+vi pod/nginx.yaml
+##add update pod definition -2-3 
+name: ngnix-pv-pod-2-3
+claimName: test-pvc-2-3
+
+
+kubectl create -f persistentvolumeclaim/pvc.yaml -n test
+kubectl get pvc -n test
+
+kubectl create -f vi pod/nginx.yaml -n test
+
+kubectl get pvc -n test
+kubectl get pv -n test
+kubectl get pods -n test
+
+#drop a file here 
+ls -al /usr/share/nginx/html
