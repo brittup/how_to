@@ -240,12 +240,12 @@ kubectl describe pods <name> -n test
 cd ~/git/csi-isilon/samples
 
 vi persistentvolumeclaim/pvc.yaml
-##add -2-3 to the name of the pvc
+##add -2-4 to the name of the pvc
 
 vi pod/nginx.yaml
 ##add update pod definition -2-3 
-name: ngnix-pv-pod-2-3
-claimName: test-pvc-2-3
+name: ngnix-pv-pod-2-4
+claimName: test-pvc-2-4
 
 
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test

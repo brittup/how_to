@@ -362,7 +362,7 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret.yaml
 cat empty-secret.yaml
 
-kubectl create -f /root/git/csi-isilon/isilon/empty-secret.yaml
+kubectl create -f ~/git/csi-isilon/isilon/empty-secret.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -423,6 +423,8 @@ https://k9scli.io/topics/commands/
 ###if needed b/c of issues starting the pods
 -review the secrets.yaml
 -review the my-settings.yaml
+###update secrets
+kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###if needed uninstall the driver
  ./csi-uninstall.sh --namespace isilon
