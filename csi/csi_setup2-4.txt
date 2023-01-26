@@ -325,6 +325,8 @@ vi my-isilon-settings.yaml
 
 allowedNetworks: [192.168.1.0/24]
 
+isiAuthType: 1        - use session based if basic not enabled
+
 controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
@@ -424,7 +426,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=secret.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###if needed uninstall the driver
  ./csi-uninstall.sh --namespace isilon
