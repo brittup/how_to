@@ -1,4 +1,4 @@
-###csi driver setup 2.4 ###
+###csi driver setup 2.5 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -stay on K8 1.23
@@ -141,12 +141,13 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.23.9-0 kubeadm-1.23.9-0 kubectl-1.23.9-0 --disableexcludes=kubernetes
 
 #install a supported version
 ####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
-###with 1.23
-yum install kubelet-1.23.9-0 kubeadm-1.23.9-0 kubectl-1.23.9-0 --disableexcludes=kubernetes
+###with 1.25
+yum install kubelet-1.25.0-0 kubeadm-1.25.0-0 kubectl-1.25.0-0 --disableexcludes=kubernetes
 
 mkdir /etc/docker
 cat <<EOF | sudo tee /etc/docker/daemon.json
@@ -249,11 +250,11 @@ chmod 700 get_helm.sh
 ###clone the powerscale csi repo
 mkdir ~/git
 cd git
-git clone -b v2.4.0 https://github.com/dell/csi-powerscale.git
-
+git clone -b v2.5.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.5
 
 ###create a link, makes upgrade easier
-ln -s /root/git/csi-powerscale csi-isilon
+ln -s /root/git/csi-powerscale-2.5 csi-isilon
 
 ###mkdir for isilon csi configuration files
 mkdir ~/git/csi-isilon/isilon/
@@ -263,7 +264,7 @@ cd ~/git/csi-isilon
 cat ReleaseNotes.md
 
 
-touch CSI_2.4.txt
+touch CSI-2-5.txt
 ls -al
 
 
@@ -285,14 +286,14 @@ systemctl restart docker
 
 https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
-###select version: 6.0.1 
+###2.5  -- select version: 6.1.0
 ###manually
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.0.1/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
 ###OR - one shot install
@@ -300,7 +301,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.0.1    
+git checkout v6.1.0  
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 
@@ -317,11 +318,11 @@ kubectl create namespace isilon
 
 ###configure the csi values & secret files
 cd ~/git/csi-isilon/isilon/
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings.yaml
-vi my-isilon-settings.yaml
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-5.yaml
+vi my-isilon-settings-2-5.yaml
 
 
-###edit my-isilon-settings.yaml: modify any values as needed
+###edit my-isilon-settings-2-x.yaml: modify any values as needed
 
 allowedNetworks: [192.168.1.0/24]
 
@@ -338,8 +339,8 @@ isiPath: /ifs/csi
 
 
 ####create secrets
-cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret.yaml
-vi secret.yaml
+cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret-2-5.yaml
+vi secret-2-5.yaml
 
 ###modify
   
@@ -357,14 +358,14 @@ vi secret.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-5.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret.yaml
-cat empty-secret.yaml
+cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret-2-5.yaml
+cat empty-secret-2-5.yaml
 
-kubectl create -f ~/git/csi-isilon/isilon/empty-secret.yaml
+kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-5.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -389,9 +390,8 @@ cd ~/git/csi-isilon/dell-csi-helm-installer
 docker login
 
 ##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
- ./verify.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings.yaml  
 
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings.yaml 
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-5.yaml 
 
 
 
