@@ -197,7 +197,9 @@ docker ps --all
 
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 
-kubectl get pods --all-namespaces
+kubectl -n kube-system get pods -l name=weave-net -o wide
+kubectl exec -n kube-system <master pod> -c weave -- /home/weave/weave --local status
+kubectl -n kube-system logs <master pod> -c weave -f
 
 
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
@@ -206,6 +208,7 @@ kubectl describe node | grep -i taint
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl describe node | grep -i taint
+
 
 ############
 ###join other nodes to cluster here per the kubeadm init output###
