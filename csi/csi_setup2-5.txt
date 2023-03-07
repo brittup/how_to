@@ -1,7 +1,7 @@
 ###csi driver setup 2.5 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
--stay on K8 1.23
+-stay on K8 1.23 for centos democenter labs
 -https://dell.github.io/csm-docs/docs/
 -https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
 
