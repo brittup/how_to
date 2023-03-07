@@ -22,10 +22,10 @@ https://github.com/cubensquare/containerd-installation/blob/main/containerd-inst
 https://github.com/cubensquare/K8S-v1.26-installation-containerd/blob/main/INSTALLATION%20STEPS.md
 
 
-	1. containerd install
+1. containerd install
 
 
-Install containerd:
+Setup and Install containerd:
 Visit Getting started with containerd and follow the instructions there, up to the point where you have a valid configuration file (on Linux: /etc/containerd/config.toml).
 From <https://kubernetes.io/docs/setup/production-environment/container-runtimes/> 
 
@@ -50,14 +50,11 @@ sudo sysctl --system
 sudo apt-get update
 
 
-
-
 chmod a+x install-containerd.sh 
 ./install-containerd.sh 
 
 
 # Install & Configure containerd with defaults and restart with this config
-
 
 wget https://github.com/containerd/containerd/releases/download/v1.6.14/containerd-1.6.14-linux-amd64.tar.gz
 sudo tar Cxzvf /usr/local containerd-1.6.14-linux-amd64.tar.gz
@@ -75,9 +72,8 @@ sudo systemctl enable --now containerd
 sudo systemctl status containerd
 
 
-
-	2. Install k8 components
-Installing kubeadm | Kubernetes
+2. Install k8 components
+###Installing kubeadm | Kubernetes
 
 ##to see versions apt-cache madison kubeadmin
 
@@ -109,7 +105,8 @@ apt-cache madison kubeadmin
 
 
 
-	3. Initialize K8 cluster
 
+3. Initialize K8 cluster
 
+#### setup k8 cluster
 sudo kubeadm init
