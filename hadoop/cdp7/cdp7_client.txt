@@ -1,6 +1,11 @@
+###Feb2023 updates
+###Centos 7.9
+###Prep linux host for CM & CDP
+
 
 yum -y update
 yum -y groupinstall "Development tools"
+yum -y install krb5-workstation krb5-libs openldap-clients wget
 
 systemctl disable firewalld
 systemctl stop firewalld
@@ -14,7 +19,6 @@ vi /etc/selinux/config
 #set to disable
 
 yum -y install ntp
-
 systemctl start ntpd
 systemctl enable ntpd
 
@@ -42,10 +46,25 @@ vm.swappiness=10
 yum -y install krb5-workstation krb5-libs openldap-clients
 
 ###add test users to host
-useradd -u 456456 -d /home/cdp7-user1 -m cdp7-user1
-usermod  -a -G hdfs cdp-user1
+useradd -u 222222 -d /home/cdp2-user1 -m cdp2-user1
 
 
+
+
+###Linux - prep for users and dirs: https://github.com/Isilon/isilon_hadoop_tools
+
+yum install python3 python3-virtualenv
+
+cd /root
+mkdir virtualenv
+cd virtualenv/
+
+python3 -m venv isilon_hadoop_tools
+source isilon_hadoop_tools/bin/activate
+deactivate
+
+
+###
 reboot
 
 

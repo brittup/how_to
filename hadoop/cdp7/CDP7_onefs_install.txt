@@ -1,5 +1,5 @@
 ###Setup Isilon and client for CDP7
-
+###Feb2023
 CM 7.4
 CDP 7.1.7
 
@@ -45,20 +45,22 @@ touch <smartconnectname>.txt
 isi hdfs settings modify --zone=System --root-directory=/ifs/cdp7/hadoop-root
 
 
-###Linux
+###Linux CDP User Precreate:
 create users and dirs: https://github.com/Isilon/isilon_hadoop_tools
 
+###complete if not done
 yum install python3 python3-pip python3-virtualenv
-
 cd /root
 mkdir virtualenv
 cd virtualenv/
-
 python3 -m venv isilon_hadoop_tools
 source isilon_hadoop_tools/bin/activate
+###
+
+
 pip install isilon_hadoop_tools
 
-isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000   X.X.X.X --no-verify
+isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000  --user-password=Password123!  X.X.X.X --no-verify
 
 isilon_create_directories  --zone=System --no-verify --onefs-user=root --onefs-password=Password123! --dist=cdp  X.X.X.X
 
@@ -67,10 +69,12 @@ chmod 777 xxxxxxxxxxx-System-cdp.sh
 ./xxxxxxxxxxx-zone-cdh6-cdh.sh
 cat /etc/passwd
 
-deactivate
-
 #copy script to any other hosts and run
 scp xxxxxxxxxxx-System-cdp.sh root@192.168.1.X:/root
+
+deactivate
+
+###
 
 
 ###Onefs RBAC setup
@@ -102,13 +106,12 @@ isi auth ads modify DEMO.LOCAL --assume-default-domain=true
 
 
 
-###Linux Client Prep
+###Linux Client Prep if not already completed
 yum -y update
 yum -y groupinstall "Development tools"
 
 systemctl disable firewalld
 systemctl stop firewalld
-
 
 hostnamectl set-hostname fqdn
 hostnamectl
@@ -120,7 +123,6 @@ vi /etc/selinux/config
 yum -y install ntp
 systemctl start ntpd
 systemctl enable ntpd
-
 
 #Cloudera Host inspector fixes
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -144,27 +146,35 @@ vm.swappiness=10
 
 yum -y install krb5-workstation krb5-libs openldap-clients wget
 
-
 reboot
-
-###review host
-cat /proc/sys/vm/swappiness
 
 
 ###install CM 
 ### https://www.cloudera.com/downloads/cdp-private-cloud-trial/cdp-private-cloud-base-trial.html
 ### wget https://archive.cloudera.com/cm7/7.1.4/cloudera-manager-installer.bin
-
+###use the trial installer version - upgrade later - direct repo access needed
 
 wget https://archive.cloudera.com/cm7/7.4.4/cloudera-manager-installer.bin
+
+
 chmod u+x cloudera-manager-installer.bin
 ./cloudera-manager-installer.bin
+
+
 
 systemctl status cloudera-scm-server
 systemctl status cloudera-scm-server-db
 tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
 
 ###If using PowerScale CSD: download and copy powerscale csd jar from: https://github.com/brittup/how_to/tree/master/hadoop/cdp7
+
+###
+1. CM 7.3.1 already contains ISILON-7.3.1.jar file. If the file exists, delete it from the /opt/cloudera/cm/csd path, and replace it with the PowerScale CSD jar file. 
+Otherwise, the Dell EMC PowerScale service does not appear during the Cloudera Runtime installation. 
+2. Copy or move the PowerScale CSD jar file PowerScale-1.0.0.jar to /opt/cloudera/cm/csd on the Cloudera Manager Server.
+
+rm /opt/cloudera/cm/csd/ISILON-7.4.4.jar
+
 
 cp PowerScale-1.1.0.jar /opt/cloudera/cm/csd 
 ls -al /opt/cloudera/cm/csd  | grep -i powerscale
