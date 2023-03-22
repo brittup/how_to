@@ -1,6 +1,6 @@
 ###Setup Isilon and client for CDP7
 ###Feb2023
-CM 7.4
+CM 7.4.4
 CDP 7.1.7
 
 -setup System zone for SmartConnect
@@ -213,19 +213,21 @@ ou=cdp7,DC=demo,DC=local
 
 ###Deploy & Install CDP
 
-Not in this doc:
+Not coveredin this doc:
 
-powerscale csd:
+Uses powerscale csd
 hdfs://cdp7.demo.local:8020
 http://cdp7.demo.local:8082/webhdfs/v1
 
 
 
 known issues:
--fix solr
+-fix solr - initilize 
 -add keyadmin user
 -add hue to hive proxy user
 -add hue to hue proxy user
+-AD add domain\samacct for hue - add users
+-Setup Ranger Plugins
 
 
 ###add test users to host
@@ -248,7 +250,7 @@ chmod 700 cdp7-user1
 su - cdp7-user1
 kinit
 klist -e
-hdfs dfs -ls /
+hadoop fs -ls /
 
 
 yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar pi 10 100
@@ -274,6 +276,36 @@ systemctl status cloudera-scm-agent
 
 
 
+
+
+
+
+####
+Follow the CDP upgrade doc and PowerScale Upgrade docs
+upgrade hue = https://docs.cloudera.com/cdp-private-cloud-base/7.1.8/installation/topics/cdpdc-install-python-3-centos.html
+
+
+
+systemctl stop cloudera-scm-server
+yum remove openjdk8.x86_64
+yum install java-1.8.0-openjdk-devel
+
+
+yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel -y
+cd /opt
+curl -O https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tgz
+tar -zxvf Python-3.8.12.tgz
+cd /opt/Python-3.8.12
+./configure --enable-shared
+make
+make install
+cp --no-clobber ./libpython3.8.so* /lib64/
+chmod 755 /lib64/libpython3.8.so*
+chmod -R 755 /usr/local/lib/python3.8
+python3.8 --version
+cd /etc/yum.repos.d/
+vi cloudera-manager.repo
+pip3.8 install psycopg2-binary
 
 
 

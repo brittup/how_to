@@ -627,3 +627,8 @@ kubectl get secret -n isilon
 kubectl delete secret isilon-certs-0 -n isilon
 kubectl delete secret isilon-creds -n isilon
 kubectl get secret -n isilon
+
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-x.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-x.yaml
+kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon
