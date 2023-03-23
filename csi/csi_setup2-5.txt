@@ -69,6 +69,14 @@ isi auth users view --zone=System --user=k8
 mkdir /ifs/csi
 chmod 777 /ifs/csi
 
+
+
+### review api auth on onefs - session or basic
+isi_gconfig -t web-config
+isi_gconfig -t web-config auth_basic=true
+isi_gconfig -t web-config auth_basic=false
+https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+
 ###################################################################################################################################################
 
 
@@ -611,7 +619,6 @@ kubectl describe pod     -n isilon
 kubectl logs   -n isilon -c driver
 
 cd ~/git/csi-isilon/dell-csi-helm-installer
-
 ./csi-uninstall.sh --namespace isilon 
 
 kubectl delete pv <k8s-ec5c9fec46>
