@@ -1,0 +1,155 @@
+######
+Upgrade CSI Driver from version v2.5 to v2.6
+######
+
+
+git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.6
+
+###fix the csi-isilon symlink
+ln -sfn /root/git/csi-powerscale-2.6 csi-isilon
+cat csi-isilon/ReleaseNotes.md
+
+ls -al ~/git/csi-isilon/isilon
+touch ~/git/csi-isilon/2.6.txt
+mkdir  ~/git/csi-isilon/isilon
+
+cp ~/git/csi-powerscale-2.5/isilon/* ~/git/csi-isilon/isilon
+
+
+
+####update secrets.json 
+
+cp ~/git/csi-isilon/samples/secret/secret.yaml ~/git/csi-isilon/isilon/secret-2-6.yaml
+diff ~/git/csi-isilon/isilon/secret-2-5.yaml ~/git/csi-isilon/isilon/secret-2-6.yaml
+
+###review differences for updates and modify 
+vi ~/git/csi-isilon/isilon/secret-2-5.yaml
+
+
+###compare empty-secret.yaml (usually the same)
+cp ~/git/csi-isilon/samples/secret/empty-secret.yaml ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
+diff  ~/git/csi-isilon/isilon/empty-secret-2-5.yaml ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
+
+
+###Update secrets - delete existing secrets
+kubectl get secret -n isilon
+
+kubectl delete secret isilon-certs-0 -n isilon
+kubectl delete secret isilon-creds -n isilon
+kubectl get secret -n isilon
+
+
+###create isilon-creds secret
+cd ~/git/csi-isilon/isilon/
+kubectl create secret generic isilon-creds -n isilon --from-file=config=secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create -f empty-secret-2-6.yaml
+kubectl get secret -n isilon
+
+kubectl get secret isilon-creds -o yaml -n isilon
+
+
+###copy the helm/csi-isilon/values.yaml into a new location with a custom name say my-isilon-settings-x-x.yaml
+###customize settings for installation. Edit my-isilon-settings-2-5.yaml 
+
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
+diff ~/git/csi-isilon/isilon/my-isilon-settings-2-5.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
+
+###update or edit any required settings
+
+vi ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
+
+###validate updates
+diff ~/git/csi-isilon/isilon/my-isilon-settings-2-5.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
+
+
+###storage class
+###copy and review the old storage classes you may have created
+
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+diff ~/git/csi-isilon/isilon/my-isilon-sc-2-5.yaml ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+
+###update - edit and update to reflect isilon sc info 
+
+vi ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+  name: isilon-2-6
+
+kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+kubectl get sc 
+
+
+###add another session 
+watch kubectl get pods -A  
+
+
+###drive upgrade prep and upgrade
+kubectl get nodes
+docker login   -- on all nodes
+
+
+###upgrade the driver
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml --upgrade 
+
+
+------------------------------------------------------
+> Verification Complete - Success
+------------------------------------------------------
+|
+|- Upgrading Driver                                                 Success
+  |
+  |--> Waiting for Deployment isilon-controller to be ready         Success
+  |
+  |--> Waiting for DaemonSet isilon-node to be ready                Success
+------------------------------------------------------
+> Operation complete
+------------------------------------------------------
+
+
+kubectl get pods --namespace isilon
+kubectl describe pod <podname> -n isilon
+
+
+###
+
+kubectl get pods --namespace isilon
+kubectl get pods -A
+
+kubectl describe pod <name> -n test
+
+kubectl get pv -A
+kubectl get pvc -A
+
+kubectl get pv -n test
+kubectl get pvc -n test
+kubectl get pods -n test
+kubectl describe pods <name> -n test
+
+
+###test new volume 2-6
+cd ~/git/csi-isilon/samples
+
+
+vi persistentvolumeclaim/pvc.yaml
+##add -2-5 to the name of the pvc & update sc to 2-6
+name: test-pvc-2-6
+storageClassName: isilon-2-6
+
+vi pod/nginx.yaml
+##add update pod definition -2-6
+name: ngnix-pv-pod-2-6
+claimName: test-pvc-2-6
+
+kubectl create -f persistentvolumeclaim/pvc.yaml -n test
+
+kubectl get pvc -n test
+kubectl get pv -n test
+
+kubectl create -f pod/nginx.yaml -n test
+kubectl get pods -n test
+
+
+#into nginx container drop a file here 
+ls -al /usr/share/nginx/html
+
+#validate on onefs

@@ -16,7 +16,8 @@ mkdir virtualenv
 cd virtualenv/
 
 python3 -m venv isilon_hadoop_tools
-source isilon_hadoop_tools/bin/activate
+cd isilon_hadoop_tools
+source bin/activate
 pip install isilon_hadoop_tools
 
 isilon_create_users --zone=System  --onefs-user=root --onefs-password=Password123! --dist=cdp --start-uid=5000 --start-gid=5000 --user-password=Password123!  X.X.X.X --no-verify
