@@ -43,7 +43,7 @@ kubectl get secret -n isilon
 ###create isilon-creds secret
 cd ~/git/csi-isilon/isilon/
 kubectl create secret generic isilon-creds -n isilon --from-file=config=secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
-kubectl create -f empty-secret-2-6.yaml
+#kubectl create -f empty-secret-2-6.yaml
 kubectl get secret -n isilon
 
 kubectl get secret isilon-creds -o yaml -n isilon
@@ -108,6 +108,17 @@ cd ~/git/csi-isilon/dell-csi-helm-installer
 
 kubectl get pods --namespace isilon
 kubectl describe pod <podname> -n isilon
+
+
+
+###if needed
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-uninstall.sh --namespace isilon 
+
+vi ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml 
+
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml 
 
 
 ###

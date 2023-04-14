@@ -621,6 +621,9 @@ kubectl logs   -n isilon -c driver
 cd ~/git/csi-isilon/dell-csi-helm-installer
 ./csi-uninstall.sh --namespace isilon 
 
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-x.yaml 
+
 kubectl delete pv <k8s-ec5c9fec46>
 
 kubectl get pv k8s-56da61f45b
