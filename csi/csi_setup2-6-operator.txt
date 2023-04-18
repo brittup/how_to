@@ -30,7 +30,6 @@ systemctl status rpcbind
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
 
-
 isi license list
 
 ###setup SmartConnect on Isilon
@@ -70,8 +69,6 @@ isi auth users view --zone=System --user=k8
 mkdir /ifs/csi
 chmod 777 /ifs/csi
 
-
-
 ### review api auth on onefs - session or basic
 isi_gconfig -t web-config
 isi_gconfig -t web-config auth_basic=true
@@ -79,9 +76,6 @@ isi_gconfig -t web-config auth_basic=false
 https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
 
 ###################################################################################################################################################
-
-
-
 ###################################################################################################################################################
 ###install Docker Runtime, use a specific version of k8 - this lab needs to use docker still
 ###From: https://docs.docker.com/engine/install/centos/
@@ -244,10 +238,8 @@ chmod 700 get_helm.sh
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by operator
-
 mkdir ~/git
 cd git
-
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
 git checkout v6.1.0  
@@ -255,105 +247,55 @@ rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
+kubectl get pods -a
 
 ###################################################################################################################################################
 ###Operator Installation on a cluster without OLM
 ###Clone and checkout the required csm-operator version using 
+cd ~/git
 git clone -b v1.1.0 https://github.com/dell/csm-operator.git
 cd csm-operator
 bash scripts/install.sh
 
 kubectl get pods -n dell-csm-operator
 
-
-
-###create a link, makes upgrade easier
-ln -s /root/git/csi-powerscale-2.5 csi-isilon
-
-###mkdir for isilon csi configuration files
-mkdir ~/git/csi-isilon/isilon/
-
-###add release version to linked directory
-cd ~/git/csi-isilon
-cat ReleaseNotes.md
-
-
-touch CSI-2-6.txt
-ls -al
-
+###################################################################################################################################################
 
 ###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
 ###add the following
 vi /etc/systemd/system/multi-user.target.wants/docker.service
 
 [Service]
-
 MountFlags=shared
 
 systemctl daemon-reload
 systemctl restart docker
 
+###################################################################################################################################################
+###Installing CSI Driver for PowerScale via Dell CSM Operator
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 
+###mkdir for isilon csi configuration files
+mkdir ~/git/csi-isilon/2-6
 
-####install the snapshot controller
-####Snapshot controller versioned, look at latest or specific versions
-
-https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
-
-###2.5  -- select version: 6.1.0
-###manually
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
-###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
-
-
-###OR - one shot install
-
-cd ~/git/
-git clone https://github.com/kubernetes-csi/external-snapshotter/
-cd ./external-snapshotter
-git checkout v6.1.0  
-rm -f client/config/crd/kustomization.yaml
-rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
-
-kubectl create -f client/config/crd
-kubectl create -f deploy/kubernetes/snapshot-controller
-kubectl get crd
+###create a link, makes upgrade easier
+cd ~/git
+ln -s /root/git/csi-2-6 csi-latest
 
 ###################################################################################################################################################
-###install the csi driver
+###setup for the csi driver
 
 ###create a K8 namespace 
 kubectl create namespace isilon
 
 
 ###configure the csi values & secret files
-cd ~/git/csi-isilon/isilon/
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
-vi my-isilon-settings-2-6.yaml
+###add release version to linked directory
 
+cd ~/git/csi-latest
+curl -fsSL -o secret-2-6.yaml https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+curl -fsSL -o empty-secret-2-6.yaml  https://github.com/dell/csi-powerscale/blob/main/samples/secret/empty-secret.yaml
 
-###edit my-isilon-settings-2-x.yaml: modify any values as needed
-
-allowedNetworks: [192.168.1.0/24]
-
-isiAuthType: 1        - use session based if basic not enabled
-
-controllerCount: 2    - if only 1 host, 2 is 2
-
-isiPath: /ifs/csi
-
-###replication if using
-
-###################################################################################################################################################
-
-
-
-####create secrets
-cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret-2-6.yaml
 vi secret-2-6.yaml
 
 ###modify
@@ -372,42 +314,43 @@ vi secret-2-6.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-5.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
 cat empty-secret-2-6.yaml
 
-kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
+kubectl create -f ~/git/csi-latest/empty-secret-2-6.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
+###Create a CR (Custom Resource) for PowerScale using the sample files
+curl -fsSL -o my-isilon-settings-2-6.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v260.yaml
+vi my-isilon-settings-2-6.yaml
 
-####Before we install the driver, we will take the NoSchedule taint away from the master node, USE SHORTNAME
-###not required with 3 node k8 clusters
-kubectl describe node <hostname> | grep Taint
-    #taints:             node-role.kubernetes.io/master:NoSchedule
-kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
-kubectl describe node <hostname> | grep -i taint
+###edit my-isilon-settings-2-x.yaml: modify any values as needed
 
+allowedNetworks: [192.168.1.0/24]
+
+isiAuthType: 1        - use session based if basic not enabled
+
+controllerCount: 2    - if only 1 host, 2 is 2
+
+isiPath: /ifs/csi
+
+###replication if using
+
+
+
+
+
+###################################################################################################################################################
 
 ###################################################################################################################################################
 ###install the csi driver
 ###add another session, to watch pod deployments during install
 
 watch kubectl get pods -A  
-
-cd ~/git/csi-isilon/dell-csi-helm-installer
-
-###docker login, use your dockerhub user&pass on all hosts, this just seems to help
-docker login
-
-##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
-
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml 
-
-
 
 ###watch the pods in the other session
 
