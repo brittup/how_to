@@ -162,8 +162,8 @@ rm -f /etc/containerd/config.toml
 systemctl restart containerd
 
 systemctl status docker
-systemctl containerd docker
-systemctl kubelet docker
+systemctl status containerd
+systemctl status kubelet
 
 ###Complete up to here for all nodes going into cluster!!!!
 
@@ -187,15 +187,13 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
 cat /root/.bash_profile
 
-
-
 ###deploy a pod network to the cluster.
 ###Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 ###https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-
 kubectl -n kube-system get pods -l name=weave-net -o wide
+
 kubectl exec -n kube-system <master pod> -c weave -- /home/weave/weave --local status
 kubectl -n kube-system logs <master pod> -c weave -f
 
@@ -208,15 +206,13 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl describe node | grep -i taint
 
 
-
 ############
 ###join other nodes to cluster here per the kubeadm init output###
 ############
 
-##eg:
+##e.g.:
 kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
     --discovery-token-ca-cert-hash sha256:7fdc56687d8b1ab6a04eddebd4e741ee7ba4f1b751179fee48b83c6449d5d08a
-
 
 #on master node
 kubectl get nodes
@@ -228,12 +224,10 @@ kubeadm reset
 ###
 
 
-
 ###CSI driver install
 ### On K8 linux:
-####https://github.com/dell/csi-powerscale
-####https://dell.github.io/storage-plugin-docs/docs/installation/
-####https://dell.github.io/storage-plugin-docs/docs/installation/helm/isilon/
+####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
+####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
 
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
@@ -249,11 +243,29 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 ###################################################################################################################################################
-###clone the powerscale csi repo
+###add the snapshot CRD required by operator
+
 mkdir ~/git
 cd git
-git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.6
+
+git clone https://github.com/kubernetes-csi/external-snapshotter/
+cd ./external-snapshotter
+git checkout v6.1.0  
+rm -f client/config/crd/kustomization.yaml
+rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
+kubectl create -f client/config/crd
+kubectl create -f deploy/kubernetes/snapshot-controller
+
+###################################################################################################################################################
+###Operator Installation on a cluster without OLM
+###Clone and checkout the required csm-operator version using 
+git clone -b v1.1.0 https://github.com/dell/csm-operator.git
+cd csm-operator
+bash scripts/install.sh
+
+kubectl get pods -n dell-csm-operator
+
+
 
 ###create a link, makes upgrade easier
 ln -s /root/git/csi-powerscale-2.5 csi-isilon
