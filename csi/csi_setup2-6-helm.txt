@@ -1,7 +1,6 @@
 ###csi driver setup 2.6 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
--stay on K8 1.23 for centos democenter labs
 -https://dell.github.io/csm-docs/docs/
 -https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
 
@@ -10,12 +9,15 @@
 #ensure dns is setup for all hosts, do not skip this step
 #Add IP - hostnames of k8 hosts, fqdn and shortname
 
-vi /etc/hosts
-192.168.1.40    hdfs01.demo.local   hdfs01
-192.168.1.41    hdfs02.demo.local   hdfs02
-192.168.1.42    hdfs03.demo.local   hdfs03
+echo 192.168.1.40    hdfs01.demo.local   hdfs01 >> /etc/hosts
+echo 192.168.1.41    hdfs02.demo.local   hdfs02 >> /etc/hosts
+echo 192.168.1.44    hdfs03.demo.local   hdfs03 >> /etc/hosts
+
+
 
 hostnamectl set-hostname hdfs01.demo.local
+hostnamectl set-hostname hdfs02.demo.local
+hostnamectl set-hostname hdfs02.demo.local
 hostnamectl
 
 
@@ -154,25 +156,16 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #install a supported version
 ####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
-###with 1.25
-yum install kubelet-1.25.0-0 kubeadm-1.25.0-0 kubectl-1.25.0-0 --disableexcludes=kubernetes
+###with 1.26
+yum install kubelet-1.26.0-0 kubeadm-1.26.0-0 kubectl-1.26.0-0 --disableexcludes=kubernetes
 
-mkdir /etc/docker
-cat <<EOF | sudo tee /etc/docker/daemon.json
-{
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "storage-driver": "overlay2"
-}
-EOF
 
-systemctl enable docker
-systemctl daemon-reload
-systemctl restart docker
-systemctl enable kubelet
+
+###Remove the installed default config file: 
+rm /etc/containerd/config.toml
+
+###Restart containerd: 
+systemctl restart containerd
 
 
 ###Complete up to here for all nodes going into cluster!!!!
@@ -196,7 +189,7 @@ cat $HOME/.kube/config
 export KUBECONFIG=/etc/kubernetes/admin.conf 
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
 cat /root/.bash_profile
-docker ps --all
+
 
 
 ###deploy a pod network to the cluster.
@@ -216,6 +209,7 @@ kubectl describe node | grep -i taint
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl describe node | grep -i taint
+
 
 
 ############
