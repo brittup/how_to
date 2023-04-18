@@ -280,12 +280,12 @@ mkdir ~/git/csi-isilon/2-6
 
 ###create a link, makes upgrade easier
 cd ~/git
-ln -s /root/git/csi-2-6 csi-latest
-
+ln -s /root/git/csi-isilon/csi-2-6 csi-latest
+touch csi-latest/2-6.txt
 ###################################################################################################################################################
 ###setup for the csi driver
-
 ###create a K8 namespace 
+
 kubectl create namespace isilon
 
 
@@ -293,8 +293,8 @@ kubectl create namespace isilon
 ###add release version to linked directory
 
 cd ~/git/csi-latest
-curl -fsSL -o secret-2-6.yaml https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-curl -fsSL -o empty-secret-2-6.yaml  https://github.com/dell/csi-powerscale/blob/main/samples/secret/empty-secret.yaml
+curl -fsSL -o secret-2-6.yaml https://github.com/dell/csi-powerscale/blob/v2.6.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-6.yaml  https://github.com/dell/csi-powerscale/blob/v2.6.0/samples/secret/empty-secret.yaml
 
 vi secret-2-6.yaml
 
