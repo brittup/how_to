@@ -281,15 +281,19 @@ kubectl get pods -a
 ###Install OLM - Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
 
 curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.24.0/install.sh | bash -s v0.24.0
+kubectl get csv -n olm
+kubectl get all -n olm
 
 
 ###################################################################################################################################################
-###CSM Operator Installation on a cluster with OLM
+###Dell CSM Operator Installation on a cluster with OLM
+###https://operatorhub.io/operator/dell-csm-operator
 
 kubectl create -f https://operatorhub.io/install/dell-csm-operator.yaml
 kubectl get csv -n operators
+kubectl get all -n operators
+kubectl get all--all-namespaces
 
-kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
 ###Installing CSI Driver for PowerScale via Dell CSM Operator
@@ -304,6 +308,7 @@ ln -s /root/git/csi-isilon/csi-2-6 csi-latest
 touch csi-latest/2-6.txt
 ###################################################################################################################################################
 ###setup for the csi driver
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###create a K8 namespace 
 
 kubectl create namespace isilon
@@ -336,7 +341,6 @@ vi secret-2-6.yaml
 ###create isilon-creds secret 
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
 
-
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
 cat empty-secret-2-6.yaml
 
@@ -345,7 +349,6 @@ kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 ###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
-
 
 curl -fsSL -o my-isilon-settings-2-6.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
 vi my-isilon-settings-2-6.yaml
@@ -376,7 +379,7 @@ watch kubectl get pods -A
 kubectl create -f my-isilon-settings-2-6.yaml
 
 
-kubectl get csm -A
+kubectl get csm --all-namespaces
 kubectl get csm/isilon -n isilon -o yaml
 kubectl describe csm isilon -n isilon
 
@@ -385,17 +388,21 @@ kubectl edit csm/isilon -n isilon
 
 
 
-###
-kubectl delete csm/powerscale -n <driver-namespace>         --- uninstall CSI Operaor
-bash scripts/uninstall.sh                                   --- uninstall CSM Operator
+###uninstall
+kubectl delete csm/isilon -n isilon         --- uninstall CSI Operator
+cd ~git/git/csm-operator
+bash scripts/uninstall.sh                   --- uninstall CSM Operator
 
+kubectl get csm/isilon -n isilon -o yaml
+kubectl get csm -A
+
+
+###logs
 kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
-
-
 ###################################################################################################################################################
-####if you hit rate limit issue - logon to dockerhub if you have not
+###if you hit rate limit issue - logon to dockerhub if you have not
 docker login
 username
 password
@@ -426,8 +433,6 @@ https://k9scli.io/topics/commands/
 ###update secrets
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
 
-###if needed uninstall the driver
- ./csi-uninstall.sh --namespace isilon
 
 
 ###################################################################################################################################################
@@ -435,9 +440,11 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 ###There are samples storage class yaml files available under helm/samples/storageclass
 
 ###Sample storage classes:  samples/storageclass
-
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
-vi ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+cd git
+git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.6
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-6.yaml
+vi ~/git/csi-latest/my-isilon-sc-2-6.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -463,7 +470,7 @@ mountOptions: []
 
 
 ###copy and create a sample storageclass - sc-2-6  for driver version
-kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+kubectl create -f ~/git/csi-latest/my-isilon-sc-2-6.yaml
 kubectl get sc 
 
 ###create a testing namespace

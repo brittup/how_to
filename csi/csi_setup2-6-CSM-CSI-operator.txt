@@ -283,7 +283,7 @@ kubectl get pods -a
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
 git clone -b v1.1.0 https://github.com/dell/csm-operator.git
-cd csm-operator
+cd ~git/git/csm-operator
 bash scripts/install.sh
 
 kubectl get pods -n dell-csm-operator
@@ -358,6 +358,7 @@ isiPath: /ifs/csi
 ###add another session, to watch pod deployments during install
 watch kubectl get pods -A  
 
+###install
 kubectl create -f my-isilon-settings-2-6.yaml
 
 kubectl get csm -A
@@ -370,8 +371,14 @@ kubectl edit csm/isilon -n isilon
 
 ###uninstall
 kubectl delete csm/isilon -n isilon         --- uninstall CSI Operator
-bash scripts/uninstall.sh                                   --- uninstall CSM Operator
+cd ~git/git/csm-operator
+bash scripts/uninstall.sh                   --- uninstall CSM Operator
 
+kubectl get csm/isilon -n isilon -o yaml
+kubectl get csm -A
+
+
+###logs
 kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
@@ -409,18 +416,18 @@ https://k9scli.io/topics/commands/
 ###update secrets
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
 
-###if needed uninstall the driver
- ./csi-uninstall.sh --namespace isilon
 
 
 ###################################################################################################################################################
 ###Steps to create storage class: 
 ###There are samples storage class yaml files available under helm/samples/storageclass
-
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
-vi ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+cd git
+git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.6
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-6.yaml
+vi ~/git/csi-latest/my-isilon-sc-2-6.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -446,7 +453,7 @@ mountOptions: []
 
 
 ###copy and create a sample storageclass - sc-2-6  for driver version
-kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+kubectl create -f ~/git/csi-latest/my-isilon-sc-2-6.yaml
 kubectl get sc 
 
 ###create a testing namespace
