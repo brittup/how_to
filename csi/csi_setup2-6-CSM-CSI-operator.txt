@@ -1,0 +1,617 @@
+###csi driver setup 2.6 ###
+-https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
+-continue to use docker on democenter hosts based on CentOS version
+-https://dell.github.io/csm-docs/docs/
+-https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
+
+CSM & CSI Installation without OLM
+1.install Snapshot CRD
+2.install CSM Operator without OLM
+3.create secrets
+4.install CSI Operator
+
+
+#ensure dns is setup for all hosts, do not skip this step
+#Add IP - hostnames of k8 hosts, fqdn and shortname
+
+echo 192.168.1.40    hdfs01.demo.local   hdfs01 >> /etc/hosts
+echo 192.168.1.41    hdfs02.demo.local   hdfs02 >> /etc/hosts
+echo 192.168.1.44    hdfs03.demo.local   hdfs03 >> /etc/hosts
+
+hostnamectl set-hostname hdfs01.demo.local
+hostnamectl set-hostname hdfs02.demo.local
+hostnamectl set-hostname hdfs02.demo.local
+hostnamectl
+
+
+yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
+systemctl start rpcbind
+systemctl enable rpcbind
+systemctl status rpcbind
+
+
+###################################################################################################################################################
+###isilon setup 
+###hit q and yes to accept eula
+
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
+
+isi license list
+
+###setup SmartConnect on Isilon
+
+isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.100 --sc-service-name=ssip-isilon.demo.local
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-4:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local    --description=csi_pool
+isi network pools list
+isi network pools view groupnet0:subnet0:pool1
+
+###Run the following PowerShell command:
+
+-open PowerShell prompt from Start Menu
+Add-DnsServerZoneDelegation -Name "demo.local" -ChildZoneName "csi" -NameServer "ssip-isilon.demo.local" -IPAddress 192.168.1.100
+
+nslookup csi.demo.local
+
+###create the csi onefs api user
+
+isi auth groups create --zone=System --name=k8 --provider=local
+isi auth users create --zone=System --name=k8 --set-password --enabled=true --provider=local --primary-group=k8
+
+(use Password123!)
+
+isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
+isi auth roles modify k8-csi --add-user=k8 --zone=System
+isi auth roles view k8-csi --zone=System
+isi auth users view --zone=System --user=k8
+mkdir /ifs/csi
+chmod 777 /ifs/csi
+
+### review api auth on onefs - session or basic
+isi_gconfig -t web-config
+isi_gconfig -t web-config auth_basic=true
+isi_gconfig -t web-config auth_basic=false
+https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+
+###################################################################################################################################################
+###################################################################################################################################################
+###install Docker Runtime, use a specific version of k8 - this lab needs to use docker still
+###From: https://docs.docker.com/engine/install/centos/
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+systemctl enable docker.service
+systemctl start docker
+systemctl status docker
+
+###if dockerhub login is required
+docker login
+
+docker run -it --rm ubuntu /bin/bash
+    exit
+
+docker ps --all
+docker images -a
+
+###################################################################################################################################################
+###install Kubernetes
+###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+br_netfilter
+EOF
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+sysctl --system
+sed -i '/swap/d' /etc/fstab
+swapoff -a
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
+reboot
+
+
+###install K8
+cat <<EOF |tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=0
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+cat /etc/yum.repos.d/kubernetes.repo
+
+###check supported versions of k8s with CSI
+yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
+
+#yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
+#yum install kubelet-1.14.1* kubeadm-1.14.1* kubectl-1.14.1* --disableexcludes=kubernetes
+#yum install kubelet-1.19.8-0 kubeadm-1.19.8-0 kubectl-1.19.8-0 --disableexcludes=kubernetes
+#yum install kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
+#yum install kubelet-1.23.9-0 kubeadm-1.23.9-0 kubectl-1.23.9-0 --disableexcludes=kubernetes
+
+#install a supported version
+####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
+
+###with 1.26
+yum install kubelet-1.26.0-0 kubeadm-1.26.0-0 kubectl-1.26.0-0 --disableexcludes=kubernetes
+
+
+
+###Remove the installed default config file: 
+###Restart containerd: 
+rm -f /etc/containerd/config.toml
+systemctl restart containerd
+
+systemctl status docker
+systemctl status containerd
+systemctl status kubelet
+
+###Complete up to here for all nodes going into cluster!!!!
+
+
+###
+###deploy kubernetes cluster on master node only, use output to join other nodes
+###
+#kubeadm init --pod-network-cidr=X.X.X.X/X
+kubeadm init --pod-network-cidr=10.244.0.0/16
+
+###
+<see output for node info and joining nodes to cluster - DO NOT JOIN YET>
+copy the node join code for later
+###
+
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
+cat $HOME/.kube/config
+export KUBECONFIG=/etc/kubernetes/admin.conf 
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
+cat /root/.bash_profile
+
+###deploy a pod network to the cluster.
+###Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+###https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+kubectl -n kube-system get pods -l name=weave-net -o wide
+
+kubectl exec -n kube-system <master pod> -c weave -- /home/weave/weave --local status
+kubectl -n kube-system logs <master pod> -c weave -f
+
+
+###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
+kubectl describe node | grep -i taint
+### taints:             node-role.kubernetes.io/master:NoSchedule
+
+kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl describe node | grep -i taint
+
+
+############
+###join other nodes to cluster here per the kubeadm init output###
+############
+
+##e.g.:
+kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
+    --discovery-token-ca-cert-hash sha256:7fdc56687d8b1ab6a04eddebd4e741ee7ba4f1b751179fee48b83c6449d5d08a
+
+#on master node
+kubectl get nodes
+kubectl get pods --all-namespaces
+
+### 
+###if reset of k8 cluster needed, run on master node
+kubeadm reset
+###
+
+
+###CSM & CSI Opertors and driver install
+### On K8 linux:
+####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
+####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
+
+# setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
+source <(kubectl completion bash) 
+
+# add autocomplete permanently to your bash shell.
+echo "source <(kubectl completion bash)" >> ~/.bashrc 
+
+###################################################################################################################################################
+###install helm3 on master
+cd ~
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+###################################################################################################################################################
+###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
+###add the following
+vi /etc/systemd/system/multi-user.target.wants/docker.service
+
+[Service]
+MountFlags=shared
+
+systemctl daemon-reload
+systemctl restart docker
+
+###################################################################################################################################################
+###Installing CSI Driver for PowerScale via Dell CSM Operator
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+###mkdir for isilon csi configuration files
+###create a link, makes upgrade easier
+
+mkdir ~/git/csi-isilon
+mkdir ~/git/csi-isilon/2-6
+cd ~/git
+ln -s /root/git/csi-isilon/csi-2-6 csi-latest
+touch csi-latest/2-6.txt
+
+###################################################################################################################################################
+###add the snapshot CRD required by csm operator
+mkdir ~/git
+cd git
+git clone https://github.com/kubernetes-csi/external-snapshotter/
+cd ./external-snapshotter
+git checkout v6.1.0  
+rm -f client/config/crd/kustomization.yaml
+rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
+kubectl create -f client/config/crd
+kubectl create -f deploy/kubernetes/snapshot-controller
+kubectl get pods -a
+
+###################################################################################################################################################
+###Operator Installation on a cluster without OLM
+###Clone and checkout the required csm-operator version using 
+cd ~/git
+git clone -b v1.1.0 https://github.com/dell/csm-operator.git
+cd csm-operator
+bash scripts/install.sh
+
+kubectl get pods -n dell-csm-operator
+
+###################################################################################################################################################
+###setup for the csi driver
+###create a K8 namespace 
+
+kubectl create namespace isilon
+
+
+###configure the csi values & secret files
+###add release version to linked directory
+
+cd ~/git/csi-latest
+curl -fsSL -o secret-2-6.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.6.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-6.yaml  https://raw.github.com/dell/csi-powerscale/v2.6.0/samples/secret/empty-secret.yaml
+vi secret-2-6.yaml
+
+
+###modify
+  
+      - clusterName: "ps1"
+      
+      username: "k8"
+
+      password: "Password123!"
+
+      endpoint: "https://csi.demo.local"       < --- This is the System Zone, for the driver to make API cals to
+
+      isDefault: true
+
+ ###delete/comment out the cluster2 controllerCount
+
+
+###create isilon-creds secret 
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+
+
+###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
+cat empty-secret-2-6.yaml
+
+kubectl create -f ~/git/csi-latest/empty-secret-2-6.yaml
+kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon
+
+###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
+
+
+curl -fsSL -o my-isilon-settings-2-6.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
+vi my-isilon-settings-2-6.yaml
+
+###edit my-isilon-settings-2-x.yaml: modify any values as needed
+
+ name: isilon
+  namespace: isilon
+
+ authSecret: isilon-creds 
+
+allowedNetworks: [192.168.1.0/24]
+
+isiAuthType: 1        - use session based if basic not enabled
+
+controllerCount: 2    - if only 1 host, 2 is 2
+
+isiPath: /ifs/csi
+
+###replication if using
+
+
+###install the csi driver operator
+###add another session, to watch pod deployments during install
+watch kubectl get pods -A  
+
+
+kubectl create -f my-isilon-settings-2-6.yaml
+
+
+kubectl get csm -A
+kubectl get csm/isilon -n isilon -o yaml
+kubectl describe csm isilon -n isilon
+
+###edit the csi driver
+kubectl edit csm/isilon -n isilon
+
+
+
+###
+kubectl delete csm/powerscale -n <driver-namespace>         --- uninstall CSI Operaor
+bash scripts/uninstall.sh                                   --- uninstall CSM Operator
+
+kubectl logs <csm-operator-controller-podname> -n <namespace>
+###
+
+
+
+###################################################################################################################################################
+####if you hit rate limit issue - logon to dockerhub if you have not
+docker login
+username
+password
+
+
+###review the csi pods
+kubectl get pods -A
+kubectl get pods --namespace isilon
+kubectl describe pod   <pod>  -n isilon
+kubectl logs  <pod> -n isilon -c driver
+
+
+###K9S is very useful
+mkdir ~/git/k9s
+cd ~/git/k9s
+wget https://github.com/derailed/k9s/releases/download/v0.25.12/k9s_Linux_x86_64.tar.gz
+gunzip k9s_Linux_x86_64.tar.gz
+tar -xvf k9s_Linux_x86_64.tar
+ls -al
+./k9s
+
+https://k9scli.io/topics/commands/
+
+
+###if needed b/c of issues starting the pods
+-review the secrets.yaml
+-review the my-settings.yaml
+###update secrets
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+
+###if needed uninstall the driver
+ ./csi-uninstall.sh --namespace isilon
+
+
+###################################################################################################################################################
+###Steps to create storage class: 
+###There are samples storage class yaml files available under helm/samples/storageclass
+
+###Sample storage classes:  samples/storageclass
+
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+
+###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
+###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
+ ### default sc name is isilon, can use or add version if needed; will need to modify samples and pvc files to support sc name
+ 
+ 
+ 
+ AccessZone: System         < -- AZ you create exports in
+
+
+ IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
+
+
+ AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not system if using a different zone
+
+
+###add mount options if needed
+mountOptions: []
+
+
+###Other options can be reviewed and tested as needed
+
+
+
+###copy and create a sample storageclass - sc-2-6  for driver version
+kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+kubectl get sc 
+
+###create a testing namespace
+kubectl create namespace test
+
+
+
+###################################################################################################################################################
+###Testing CSI with samples
+###sample test files:  ~/git/csi-isilon/samples
+
+cd ~/git/csi-isilon/samples
+
+
+###create a pvc
+cat persistentvolumeclaim/pvc.yaml
+kubectl create -f persistentvolumeclaim/pvc.yaml -n test
+kubectl get pvc -n test
+kubectl describe pvc test-pvc -n test
+kubectl get pv -n test
+kubectl describe pv <pv name> -n test
+
+
+###create sample pod and attach to pvc
+kubectl create -f pod/nginx.yaml -n test
+kubectl get pods -n test
+kubectl describe pods ngnix-pv-pod -n test
+
+kubectl get pv -n test
+kubectl exec ngnix-pv-pod -i -t -n test -- bash 
+
+cd /usr/share/nginx/html/
+ls -al
+touch test1.txt
+ls -al
+
+###from isilon cli, view and test, the directory mounted by the pod
+
+###go to isilon, review
+###nfs 
+isi nfs exports list --zone=System
+###quota
+isi quota list --zone=System
+###add a file from cli
+
+cd /ifs/csi/k8s-.../
+touch this_is_isilon.txt
+ls -al
+
+
+###test csi snapshot snapshots
+###VolumeSnapshotClass is needed for creating the volume snapshots
+
+cd ~/git/csi-isilon/samples
+vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
+
+###modify path as needed
+
+isiPath: "/ifs/csi"
+
+
+###create the volumesnapshotclass in the namespace as the pvc and the pod
+
+kubectl create -f volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml -n test
+kubectl get Volumesnapshotclass -n test
+
+###create the snapshot
+kubectl get pvc -n test
+vi volumesnapshot/snapshot-of-test-pvc.yaml
+
+###review and set the namespace from default to: 
+test
+
+kubectl create -f volumesnapshot/snapshot-of-test-pvc.yaml -n test
+kubectl get volumesnapshot -n test
+
+
+###view snapshot from isilon
+isi snapshot list
+ls -al /ifs/.snapshot/snapshot-<id_created>/csi/<volume_name>
+
+
+###view snapshot from nginxpod
+kubectl exec ngnix-pv-pod -i -t -n test -- bash
+cd /usr/share/nginx/html/.snapshot
+cd <snapshot-id>
+ls -al
+
+
+
+
+###################################################################################################################################################
+###cleanup the snap, pod and pvc
+###delete the snapshot
+kubectl get volumesnapshot -n test
+kubectl delete volumesnapshot snapshot-of-test-pvc -n test
+kubectl get volumesnapshot -n test
+
+###cleanup; 
+kubectl get pods -n test
+kubectl delete -f pod/nginx.yaml -n test
+kubectl get pods -n test
+
+kubectl get pvc  -n test
+kubectl delete pvc test-pvc -n test
+kubectl get pvc  -n test
+kubectl get pv
+
+
+###on isilon
+isi snapshot list
+isi nfs exports list
+isi quota list 
+
+
+#pod, pvc and pv will be gone 
+#export/quota and snap will be gone 
+#have fun with CSI!! 
+
+
+!completes setup and simple demo
+
+
+
+
+
+
+
+
+
+
+###################################################################################################################################################
+Misc stuff 
+
+
+###useful
+kubectl get pods -A
+kubectl get pods --namespace isilon
+kubectl describe pod     -n isilon
+kubectl logs   -n isilon -c driver
+
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-uninstall.sh --namespace isilon 
+
+cd ~/git/csi-isilon/dell-csi-helm-installer
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-x.yaml 
+
+kubectl delete pv <k8s-ec5c9fec46>
+
+kubectl get pv k8s-56da61f45b
+kubectl describe pv k8s-56da61f45b
+kubectl get volumeattachment -n test
+kubectl delete volumeattachment csi-e38eb79827b44396bd1520ab916091671c4d696ea9bfd4d54be428aa80e4b586 -n test
+
+
+#delete secrets
+kubectl get secret -n isilon
+kubectl delete secret isilon-certs-0 -n isilon
+kubectl delete secret isilon-creds -n isilon
+kubectl get secret -n isilon
+
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-x.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-x.yaml
+kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon

@@ -4,6 +4,13 @@
 -https://dell.github.io/csm-docs/docs/
 -https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
 
+CSM & CSI Installation with OLM
+1.install Snapshot CRD
+2.install OLM 
+3.install CSM Operator with OLM
+4.create secrets
+5.install CSI Operator via CSM
+
 
 #ensure dns is setup for all hosts, do not skip this step
 #Add IP - hostnames of k8 hosts, fqdn and shortname
@@ -17,12 +24,10 @@ hostnamectl set-hostname hdfs02.demo.local
 hostnamectl set-hostname hdfs02.demo.local
 hostnamectl
 
-
 yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
 systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
-
 
 ###################################################################################################################################################
 ###isilon setup 
@@ -218,7 +223,7 @@ kubeadm reset
 ###
 
 
-###CSI driver install
+###OLM & CSM & CSI driver install
 ### On K8 linux:
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
@@ -237,7 +242,30 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 ###################################################################################################################################################
-###add the snapshot CRD required by operator
+###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
+###add the following
+vi /etc/systemd/system/multi-user.target.wants/docker.service
+
+[Service]
+MountFlags=shared
+
+systemctl daemon-reload
+systemctl restart docker
+
+###################################################################################################################################################
+###Installing CSI Driver for PowerScale via Dell CSM Operator OLM
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+###mkdir for isilon csi configuration files
+###create a link, makes upgrade easier
+
+mkdir ~/git/csi-isilon
+mkdir ~/git/csi-isilon/2-6
+cd ~/git
+ln -s /root/git/csi-isilon/csi-2-6 csi-latest
+touch csi-latest/2-6.txt
+
+###################################################################################################################################################
+###add the snapshot CRD required by csm operator
 mkdir ~/git
 cd git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
@@ -250,35 +278,27 @@ kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get pods -a
 
 ###################################################################################################################################################
-###Operator Installation on a cluster without OLM
-###Clone and checkout the required csm-operator version using 
-cd ~/git
-git clone -b v1.1.0 https://github.com/dell/csm-operator.git
-cd csm-operator
-bash scripts/install.sh
+###Install OLM - Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
+
+curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.24.0/install.sh | bash -s v0.24.0
+
+
+###################################################################################################################################################
+###CSM Operator Installation on a cluster with OLM
+
+kubectl create -f https://operatorhub.io/install/dell-csm-operator.yaml
+kubectl get csv -n operators
 
 kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
-
-###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
-###add the following
-vi /etc/systemd/system/multi-user.target.wants/docker.service
-
-[Service]
-MountFlags=shared
-
-systemctl daemon-reload
-systemctl restart docker
-
-###################################################################################################################################################
 ###Installing CSI Driver for PowerScale via Dell CSM Operator
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
-
 ###mkdir for isilon csi configuration files
-mkdir ~/git/csi-isilon/2-6
-
 ###create a link, makes upgrade easier
+
+mkdir ~/git/csi-isilon
+mkdir ~/git/csi-isilon/2-6
 cd ~/git
 ln -s /root/git/csi-isilon/csi-2-6 csi-latest
 touch csi-latest/2-6.txt
@@ -348,20 +368,28 @@ isiPath: /ifs/csi
 ###replication if using
 
 
-###install the csi driver
+###install the csi driver operator
 ###add another session, to watch pod deployments during install
 watch kubectl get pods -A  
 
 
 kubectl create -f my-isilon-settings-2-6.yaml
 
+
 kubectl get csm -A
 kubectl get csm/isilon -n isilon -o yaml
 kubectl describe csm isilon -n isilon
 
+###edit the csi driver
+kubectl edit csm/isilon -n isilon
+
+
 
 ###
-kubectl delete csm/powerscale -n <driver-namespace>
+kubectl delete csm/powerscale -n <driver-namespace>         --- uninstall CSI Operaor
+bash scripts/uninstall.sh                                   --- uninstall CSM Operator
+
+kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
 
