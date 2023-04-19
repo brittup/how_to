@@ -293,10 +293,10 @@ kubectl create namespace isilon
 ###add release version to linked directory
 
 cd ~/git/csi-latest
-curl -fsSL -o secret-2-6.yaml https://github.com/dell/csi-powerscale/blob/v2.6.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-6.yaml  https://github.com/dell/csi-powerscale/blob/v2.6.0/samples/secret/empty-secret.yaml
-
+curl -fsSL -o secret-2-6.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.6.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-6.yaml  https://raw.github.com/dell/csi-powerscale/v2.6.0/samples/secret/empty-secret.yaml
 vi secret-2-6.yaml
+
 
 ###modify
   
@@ -324,11 +324,18 @@ kubectl create -f ~/git/csi-latest/empty-secret-2-6.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
-###Create a CR (Custom Resource) for PowerScale using the sample files
-curl -fsSL -o my-isilon-settings-2-6.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v260.yaml
+###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
+
+
+curl -fsSL -o my-isilon-settings-2-6.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
 vi my-isilon-settings-2-6.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
+
+ name: isilon
+  namespace: isilon
+
+ authSecret: isilon-creds 
 
 allowedNetworks: [192.168.1.0/24]
 
@@ -341,19 +348,25 @@ isiPath: /ifs/csi
 ###replication if using
 
 
-
-
-
-###################################################################################################################################################
-
-###################################################################################################################################################
 ###install the csi driver
 ###add another session, to watch pod deployments during install
-
 watch kubectl get pods -A  
 
-###watch the pods in the other session
 
+kubectl create -f my-isilon-settings-2-6.yaml
+
+kubectl get csm -A
+kubectl get csm/isilon -n isilon -o yaml
+kubectl describe csm isilon -n isilon
+
+
+###
+kubectl delete csm/powerscale -n <driver-namespace>
+###
+
+
+
+###################################################################################################################################################
 ####if you hit rate limit issue - logon to dockerhub if you have not
 docker login
 username
