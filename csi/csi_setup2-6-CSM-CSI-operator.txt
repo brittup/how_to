@@ -279,7 +279,7 @@ kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get pods -a
 
 ###################################################################################################################################################
-###Operator Installation on a cluster without OLM
+###CSM Operator Installation on cluster without OLM
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
 git clone -b v1.1.0 https://github.com/dell/csm-operator.git
@@ -358,9 +358,7 @@ isiPath: /ifs/csi
 ###add another session, to watch pod deployments during install
 watch kubectl get pods -A  
 
-
 kubectl create -f my-isilon-settings-2-6.yaml
-
 
 kubectl get csm -A
 kubectl get csm/isilon -n isilon -o yaml
@@ -370,9 +368,8 @@ kubectl describe csm isilon -n isilon
 kubectl edit csm/isilon -n isilon
 
 
-
-###
-kubectl delete csm/powerscale -n <driver-namespace>         --- uninstall CSI Operaor
+###uninstall
+kubectl delete csm/isilon -n isilon         --- uninstall CSI Operator
 bash scripts/uninstall.sh                                   --- uninstall CSM Operator
 
 kubectl logs <csm-operator-controller-podname> -n <namespace>
