@@ -456,20 +456,18 @@ mountOptions: []
 kubectl create -f ~/git/csi-latest/my-isilon-sc-2-6.yaml
 kubectl get sc 
 
-###create a testing namespace
-kubectl create namespace test
-
-
 
 ###################################################################################################################################################
 ###Testing CSI with samples
-###sample test files:  ~/git/csi-isilon/samples
+###sample test files:  ~/git/csi-powerscale-2.6/samples
+###create a testing namespace
 
-cd ~/git/csi-isilon/samples
+kubectl create namespace test
 
+cd ~/git/csi-powerscale-2.6/samples
 
 ###create a pvc
-cat persistentvolumeclaim/pvc.yaml
+vi persistentvolumeclaim/pvc.yaml
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
