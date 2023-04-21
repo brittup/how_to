@@ -223,17 +223,21 @@ kubectl get pods --all-namespaces
 kubeadm reset
 ###
 
+# setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
+source <(kubectl completion bash) 
+
+# add autocomplete permanently to your bash shell.
+echo "source <(kubectl completion bash)" >> ~/.bashrc 
+
+###################################################################################################################################################
+###
+###################################################################################################################################################
 
 ###CSM & CSI Opertors and driver install
 ### On K8 linux:
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
 
-# setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
-source <(kubectl completion bash) 
-
-# add autocomplete permanently to your bash shell.
-echo "source <(kubectl completion bash)" >> ~/.bashrc 
 
 ###################################################################################################################################################
 ###install helm3 on master
@@ -262,21 +266,20 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 mkdir ~/git/csi-isilon
 mkdir ~/git/csi-isilon/2-6
 cd ~/git
-ln -s /root/git/csi-isilon/csi-2-6 csi-latest
+ln -s /root/git/csi-isilon/2-6 csi-latest
 touch csi-latest/2-6.txt
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
-mkdir ~/git
 cd git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.1.0  
+git checkout v6.2.1  
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
-kubectl get pods -a
+kubectl get pods -A
 
 ###################################################################################################################################################
 ###CSM Operator Installation on cluster without OLM
@@ -290,10 +293,10 @@ kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
 ###setup for the csi driver
-###create a K8 namespace 
+###create a K8 namespace for csi driver 
 
 kubectl create namespace isilon
-
+kubectl get ns
 
 ###configure the csi values & secret files
 ###add release version to linked directory
@@ -330,8 +333,8 @@ kubectl create -f ~/git/csi-latest/empty-secret-2-6.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
-###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
 
+###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
 
 curl -fsSL -o my-isilon-settings-2-6.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
 vi my-isilon-settings-2-6.yaml
