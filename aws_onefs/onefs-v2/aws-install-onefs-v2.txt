@@ -397,11 +397,11 @@ Key=Name,Value=onefs-v2-node6
 Name,Value=onefs-v2-node6
 clustername,Value=onefs-v2
 
-Fifth node external network interface ID		eni-ext5   10.15.2.9
-Fifth node internal network interface ID		eni-int5   10.15.3.114
+Fifth node external network interface ID	eni-ext5   10.15.2.9
+Fifth node internal network interface ID	eni-int5   10.15.3.114
 
-Sixth node external network interface ID	    eni-ext6   10.15.2.10
-Sixth node internal network interface ID        eni-int6   10.15.3.115
+Sixth node external network interface ID	eni-ext6    10.15.2.10
+Sixth node internal network interface ID	eni-int6    10.15.3.115
 
 
 ###node5 add
