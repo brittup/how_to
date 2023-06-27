@@ -166,23 +166,23 @@ aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.1
 
 
 ###get the interface id
-First node external network interface ID		eni-08bcc687a97e7b675   10.15.2.5 
-First node internal network interface ID		eni-01833796cfc024102   10.15.3.110
+First node external network interface ID		eni-ext1   10.15.2.5 
+First node internal network interface ID		eni-int1   10.15.3.110
 
-Second node external network interface ID		eni-02ba7c1a32c0c2e31   10.15.2.6
-Second node internal network interface ID		eni-00c7803670b7fb5de   10.15.3.111
+Second node external network interface ID		eni-ext2   10.15.2.6
+Second node internal network interface ID		eni-int2   10.15.3.111
 
-Third node external network interface ID		eni-0abc75322feee95f6   10.15.2.7
-Third node internal network interface ID		eni-0ed334b79449b1e0f   10.15.3.112
+Third node external network interface ID		eni-ext3   10.15.2.7
+Third node internal network interface ID		eni-int3   10.15.3.112
 
-Fourth node external network interface ID		eni-0fc1f440700f55cf5   10.15.2.8
-Fourth node internal network interface ID		eni-04a6d3572d3329acb   10.15.3.113
+Fourth node external network interface ID		eni-ext4   10.15.2.8
+Fourth node internal network interface ID		eni-int4   10.15.3.113
 
-Fifth node external network interface ID		eni-087cfab2e6057f866   10.15.2.9
-Fifth node internal network interface ID		eni-0155b7b0c309c6da9   10.15.3.114
+Fifth node external network interface ID		eni-ext5   10.15.2.9
+Fifth node internal network interface ID		eni-int5   10.15.3.114
 
-Sixth node external network interface ID		eni-03e33f3e98a5eef68   10.15.2.10
-Sixth node internal network interface ID	    eni-0550e715769dad636   10.15.3.115
+Sixth node external network interface ID		eni-ext6   10.15.2.10
+Sixth node internal network interface ID	    eni-int6   10.15.3.115
 
 
 13.Prepare cluster nodes block device mapping
@@ -288,31 +288,31 @@ clustername,Value=onefs-v2
 ###aws ec2 run-instances --image-id <onefs_ami_id> --instance-type <onefs_instance_type> --placement GroupName=<cluster_name>-onefs-placement-group --network-interfaces NetworkInterfaceId=<internal_network_interface_id>,DeviceIndex=0 NetworkInterfaceId=<external_network_interface_id>,DeviceIndex=1 --region <aws_region> --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-1.json --block-device-mappings file://block-device-mappings.json --tag-specifications "ResourceType=instance,Tags=[{Key=cluster-name,Value=<cluster_name>},{Key=Name,Value=<cluster_name>-node<node_number>}]"
 
 ###node1 
-First node external network interface ID		eni-08bcc687a97e7b675   10.15.2.5 
-First node internal network interface ID		eni-01833796cfc024102   10.15.3.110
+First node external network interface ID		eni-ext1   10.15.2.5 
+First node internal network interface ID		eni-int1   10.15.3.110
 
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-01833796cfc024102,DeviceIndex=0 NetworkInterfaceId=eni-08bcc687a97e7b675,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-1-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node1}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int1,DeviceIndex=0 NetworkInterfaceId=eni-ext1,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-1-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node1}]"
 
 
 ###node2
-Second node external network interface ID		eni-02ba7c1a32c0c2e31   10.15.2.6
-Second node internal network interface ID		eni-00c7803670b7fb5de   10.15.3.111
+Second node external network interface ID		eni-ext2   10.15.2.6
+Second node internal network interface ID		eni-int2   10.15.3.111
 
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-00c7803670b7fb5de,DeviceIndex=0 NetworkInterfaceId=eni-02ba7c1a32c0c2e31,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-2-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node2}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int2,DeviceIndex=0 NetworkInterfaceId=eni-ext2,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-2-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node2}]"
 
 
 ###node3
-Third node external network interface ID		eni-0abc75322feee95f6   10.15.2.7
-Third node internal network interface ID		eni-0ed334b79449b1e0f   10.15.3.112
+Third node external network interface ID		eni-ext3   10.15.2.7
+Third node internal network interface ID		eni-int3   10.15.3.112
 
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0ed334b79449b1e0f6,DeviceIndex=0 NetworkInterfaceId=eni-0abc75322feee95f6,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-3-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node3}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int36,DeviceIndex=0 NetworkInterfaceId=eni-ext3,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-3-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node3}]"
 
 
 ###node4
-Fourth node external network interface ID		eni-0fc1f440700f55cf5   10.15.2.8
-Fourth node internal network interface ID		eni-04a6d3572d3329acb   10.15.3.113
+Fourth node external network interface ID		eni-ext4   10.15.2.8
+Fourth node internal network interface ID		eni-int4   10.15.3.113
 
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-04a6d3572d3329acb,DeviceIndex=0 NetworkInterfaceId=eni-0fc1f440700f55cf5,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-4-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node4}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int4,DeviceIndex=0 NetworkInterfaceId=eni-ext4,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-4-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node4}]"
 
 
 
@@ -397,17 +397,17 @@ Key=Name,Value=onefs-v2-node6
 Name,Value=onefs-v2-node6
 clustername,Value=onefs-v2
 
-Fifth node external network interface ID		eni-087cfab2e6057f866   10.15.2.9
-Fifth node internal network interface ID		eni-0155b7b0c309c6da9   10.15.3.114
+Fifth node external network interface ID		eni-ext5   10.15.2.9
+Fifth node internal network interface ID		eni-int5   10.15.3.114
 
-Sixth node external network interface ID		eni-03e33f3e98a5eef68   10.15.2.10
-Sixth node internal network interface ID	    eni-0550e715769dad636   10.15.3.115
+Sixth node external network interface ID	    eni-ext6   10.15.2.10
+Sixth node internal network interface ID        eni-int6   10.15.3.115
 
 
 ###node5 add
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0155b7b0c309c6da9,DeviceIndex=0 NetworkInterfaceId=eni-087cfab2e6057f866,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-5-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node5}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int5,DeviceIndex=0 NetworkInterfaceId=eni-ext5,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-5-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node5}]"
 
 
 ###node6
-aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0550e715769dad636,DeviceIndex=0 NetworkInterfaceId=eni-03e33f3e98a5eef68,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-6-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node6}]"
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-int6,DeviceIndex=0 NetworkInterfaceId=eni-ext6,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-6-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node6}]"
 
