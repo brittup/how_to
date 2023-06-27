@@ -1,0 +1,413 @@
+##Cluster Creation Overview
+###
+### Use the following doc as a template file for the setup and deployment of onefs vNodes
+### replace variable ids with aws specific values
+### i use an aws profile to connect aws cli with - udsawsadmin
+###
+
+###Once per VPC
+1.Create the IAM policy 
+2.Create the IAM assume role
+3.attach the policy to the role
+4.create the instance profile
+5.attach the role to the instance profile
+
+###Per vCluster
+6.Create placement group 
+7.Create external security group 
+8.Add the external security group rules
+9.Create internal security group 
+10.Add internal security group rules
+11.Create network interfaces for OneFS external interfaces
+12.Create network interfaces for OneFS internal interfaces
+13.Prepare cluster nodes block device mapping
+14.Prepare the EC2 instance user data for first node
+
+###optional
+15.Create interface endpoint if you are using a private VPC
+
+###Deploy node
+16.Create EC2 instances for cluster
+
+15.Logon and evaluate cluster; start node adds
+
+
+#########################################################################################################################################################
+###create vcluster
+###using aws profile --profile=udsawsadmin
+###aws id <aws_id>
+
+##########################################################################################################################################################
+####only needed once!
+1.Create the IAM policy 
+###aws id <aws_id> - modify onefs-runtime-policy.json 
+aws iam --profile=udsawsadmin create-policy --policy-name onefs-runtime-policy --policy-document file://onefs-runtime-policy.json 
+
+2.Create the IAM assume role
+aws iam --profile=udsawsadmin create-role --role-name onefs-runtime-role --assume-role-policy-document file://onefs-runtime-assume-role.json  
+
+3.attach the policy to the role
+###aws iam --profile=udsawsadmin attach-role-policy --role-name onefs-runtime-role --policy-arn 
+###<from step 1>  arn = arn:aws:iam::<aws_id>:policy/onefs-runtime-policy 
+aws iam --profile=udsawsadmin attach-role-policy --role-name onefs-runtime-role --policy-arn arn:aws:iam::<aws_id>:policy/onefs-runtime-policy 
+
+4.create the instance profile
+aws iam --profile=udsawsadmin create-instance-profile --instance-profile-name onefs-runtime-instance-profile
+
+5.attach the role to the instance profile
+aws iam --profile=udsawsadmin add-role-to-instance-profile --instance-profile-name onefs-runtime-instance-profile --role-name onefs-runtime-role 
+####only needed once!
+##########################################################################################################################################################
+
+
+#####Per vCluster
+6.Create placement group 
+###aws ec2 --profile=udsawsadmin create-placement-group --strategy spread --group-name <clustername>-onefs-placement-group --region <aws-region> --tag-specifications "ResourceType=placement-group,Tags=[{Key=clustername,Value=<clustername>}]"
+###clustername = onefs-v2
+###aws-region = us-east-1
+aws ec2 --profile=udsawsadmin create-placement-group --strategy spread --group-name onefs-v2-onefs-placement-group --region us-east-1 --tag-specifications "ResourceType=placement-group,Tags=[{Key=clustername,Value=onefs-v2}]"
+
+
+7.Create external security group 
+###aws ec2 --profile=udsawsadmin create-security-group --vpc-id , --group-name <clustername>-external-sg --region <aws-region> --tag-specifications "ResourceType=security-group,Tags=[{Key=clustername,Value=<clustername>}]" --description "External security group for OneFS cluster <clustername"
+###aws_vpc_id = <aws_vpc_id>
+###aws-region = us-east-1
+###clustername = onefs-v2
+aws ec2 --profile=udsawsadmin create-security-group --vpc-id <aws_vpc_id> --group-name onefs-v2-external-sg --region us-east-1 --tag-specifications "ResourceType=security-group,Tags=[{Key=clustername,Value=onefs-v2}]" --description "External security group for OneFS cluster onefs-v2"
+
+
+8.Add the external security group rules
+###sg-group-id = <aws_external_sg_id>
+###aws-region = us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 3-4 --protocol icmp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 22 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 53 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 53 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 111 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 111 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 135 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 135 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 300 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 300 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 302 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 302 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 304 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 304 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 305 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 305 --protocol udp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 443 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 445 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 2049 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 8080 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 9020 --protocol tcp --region us-east-1
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_external_sg_id> --cidr=0.0.0.0/0 --port 9021 --protocol tcp --region us-east-1
+
+
+9.Create internal security group 
+###aws ec2 --profile=udsawsadmin create-security-group --vpc-id <aws_vpc_id> --group-name <clustername>-internal-sg --region <aws-region> --tag-specifications "ResourceType=security-group,Tags=[{Key=clustername,Value=<clustername}]" --description "Internal security group for OneFS cluster <clustername"
+###aws_vpc_id = <aws_vpc_id>
+###aws-region = us-east-1
+###clustername = onefs-v2
+aws ec2 --profile=udsawsadmin create-security-group --vpc-id <aws_vpc_id> --group-name onefs-v2-internal-sg --region us-east-1 --tag-specifications "ResourceType=security-group,Tags=[{Key=clustername,Value=onefs-v2}]" --description "Internal security group for OneFS cluster onefs-v2"
+
+
+10.Add internal security group rules
+###aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <sg-group-id> --source-group <sg-group-id> --protocol all --region <aws-region> --tag-specifications "ResourceType=security-group-rule,Tags=[{Key=clustername,Value=<clustername}]"
+###aws ec2 --profile=udsawsadmin authorize-security-group-egress --group-id <internal_sg_id> --source-group <internal_sg_id> --protocol all --region <aws_region> --tag-specifications "ResourceType=security-group-rule,Tags=[{Key=clustername,Value=<cluster_name>}]"
+###sg-group-id = <aws_internal_sg_id>
+###aws-region = us-east-1
+###clustername = onefs-v2
+aws ec2 --profile=udsawsadmin authorize-security-group-ingress --group-id <aws_internal_sg_id> --source-group <aws_internal_sg_id> --protocol all --region us-east-1 --tag-specifications "ResourceType=security-group-rule,Tags=[{Key=clustername,Value=onefs-v2}]"
+aws ec2 --profile=udsawsadmin authorize-security-group-egress --group-id  <aws_internal_sg_id> --source-group <aws_internal_sg_id> --protocol all --region us-east-1 --tag-specifications "ResourceType=security-group-rule,Tags=[{Key=clustername,Value=onefs-v2}]"
+
+###delete the default All traffic rule
+
+
+11.Create network interfaces for OneFS EXTERNAL interfaces
+###aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address <ip> --subnet-id <subnet-id> --groups <sg-group-id> --region <aws-region> --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=<clustername>},{Key=Name,Value=<clustername>-<node-id>-ext-1}]"
+###ip = 10.15.2.5 - 10.15.2.10
+###external subnet-id = <aws_external_subnet_id>
+###external sg-group-id = <aws_external_sg_id>
+###aws-region = us-east-1
+###clustername = onefs-v2
+### 1 - 6
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.5 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node1-ext-1}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.6 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node2-ext-1}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.7 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node3-ext-1}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.8 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node4-ext-1}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.9 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node5-ext-1}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.2.10 --subnet-id <aws_external_subnet_id> --groups <aws_external_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node6-ext-1}]"
+
+
+12.Create network interfaces for OneFS INTERNAL interfaces
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address <ip> --subnet-id <subnet-id> --groups <sg-group-id> --region <aws-region> --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=<clustername>},{Key=Name,Value=<clustername>-<node-id>-int-a}]"
+###ip = 10.15.3.110 - 10.15.3.115
+###internal subnet-id = <aws_internal_subnet_id>
+###internal sg-group-id = <aws_internal_sg_id>
+###aws-region = us-east-1
+###clustername = onefs-v2
+### 1 - 6
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.110 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node1-int-a}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.111 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node2-int-a}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.112 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node3-int-a}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.113 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node4-int-a}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.114 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node5-int-a}]"
+
+aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.15.3.115 --subnet-id <aws_internal_subnet_id> --groups <aws_internal_sg_id> --region us-east-1 --tag-specifications "ResourceType=network-interface,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node6-int-a}]"
+
+
+###get the interface id
+First node external network interface ID		eni-08bcc687a97e7b675   10.15.2.5 
+First node internal network interface ID		eni-01833796cfc024102   10.15.3.110
+
+Second node external network interface ID		eni-02ba7c1a32c0c2e31   10.15.2.6
+Second node internal network interface ID		eni-00c7803670b7fb5de   10.15.3.111
+
+Third node external network interface ID		eni-0abc75322feee95f6   10.15.2.7
+Third node internal network interface ID		eni-0ed334b79449b1e0f   10.15.3.112
+
+Fourth node external network interface ID		eni-0fc1f440700f55cf5   10.15.2.8
+Fourth node internal network interface ID		eni-04a6d3572d3329acb   10.15.3.113
+
+Fifth node external network interface ID		eni-087cfab2e6057f866   10.15.2.9
+Fifth node internal network interface ID		eni-0155b7b0c309c6da9   10.15.3.114
+
+Sixth node external network interface ID		eni-03e33f3e98a5eef68   10.15.2.10
+Sixth node internal network interface ID	    eni-0550e715769dad636   10.15.3.115
+
+
+13.Prepare cluster nodes block device mapping
+###modify 
+block-device-mappings-template.json
+
+-set DeviceName - xvda,xvdb,xvdc etc for all volumes
+-set volume size - 15
+-set volume type - gp3
+-set iops if needed n/a
+-set delete on termination
+
+
+
+14.Prepare the EC2 instance user data for first node
+###create: user-data-node-1-vonefs.json
+
+###refer to first-node-user-data-template.json 
+
+Prepare the EC2 instance user data for additional nodes
+###each additional node - create: user-data-node-x-vonefs.json
+
+###refer to additional-node-user-data-template.json
+
+###
+hal_dongle_serialno	The serial number of the cluster node in the format SV200-930073-<device_id> where <device_id> is an integer sequence 
+assigned to deployed nodes sequentially starting from 0 with 4 digits of 0 padding. 
+Therefore, it is SV200-930073-0001 for the second node, SV200-930073-0002 for the third node, and so on.
+hal_volume_type	The EBS volume type for the cluster, gp3 or st1.
+devices[*].ext-1	The external IP address of each node
+devices[*].int-a	The internal IP address of each node
+devices[*].serial_number	The serial number of each node
+
+###modify and copy additional-node-user-data-template.json to create:
+user-data-node-2-vonefs.json
+user-data-node-3-vonefs.json
+user-data-node-4-vonefs.json
+
+###if adding nodes 5 & 6 also create per templates
+user-data-node-5-vonefs.json
+user-data-node-6-vonefs.json
+
+modify each accordingly!
+
+###
+
+
+15.Create interface endpoint if you are using a private VPC
+###aws ec2 --profile=udsawsadmin create-vpc-endpoint --vpc-endpoint-type Interface --vpc-id <aws_vpc_id>  --region <aws_region>  --service-name com.amazonaws.<aws_region>.ec2 --subnet-ids <external_subnet_id> --security-group-ids <external_security_group_id>  
+###vpc-id = <aws_vpc_id>
+###region = us-east-1
+###service-name com.amazonaws.<aws_region>.ec2 
+###external subnet-ids = <aws_external_subnet_id>
+###security-group-ids = <aws_external_sg_id>
+aws ec2 --profile=udsawsadmin create-vpc-endpoint --vpc-endpoint-type Interface --vpc-id <aws_vpc_id>  --region us-east-1  --service-name com.amazonaws.us-east-1.ec2 --subnet-ids <aws_external_subnet_id> --security-group-ids <aws_external_sg_id>
+
+
+
+
+16.Create EC2 instances for cluster
+###ami-image-id =  ami-xxxxxxxxxx  == 9.6.0
+###ami-image-id =  ami-xxxxxxxxxx  == 9.6.1
+
+
+
+###instance-type = m5dn.8xlarge
+###placement-group-name = onefs-v2-onefs-placement-group 
+###aws-region = us-east-1
+###block-device-mappings = file://block-device-mappings-vonefs.json 
+###clustername = onefs-v2
+###
+#4 node
+#gp3
+#5 EBS volumes
+#15 GiB
+###
+
+###node-id = 1
+###user-data file://user-data-node-1-vonefs.json
+Name,Value=onefs-v2-node1
+clustername,Value=onefs-v2
+
+###node-id = 2
+###user-data file://user-data-node-2-vonefs.json
+Key=Name,Value=onefs-v2-node2
+Name,Value=onefs-v2-node2
+clustername,Value=onefs-v2
+
+###node-id = 3
+###user-data file://user-data-node-3-vonefs.json
+Key=Name,Value=onefs-v2-node3
+Name,Value=onefs-v2-node3
+clustername,Value=onefs-v2
+
+###node-id = 4
+###user-data file://user-data-node-4-vonefs.json
+Key=Name,Value=onefs-v2-node4
+Name,Value=onefs-v2-node4
+clustername,Value=onefs-v2
+
+####
+#### build cluster nodes
+###aws ec2 run-instances --image-id <onefs_ami_id> --instance-type <onefs_instance_type> --placement GroupName=<cluster_name>-onefs-placement-group --network-interfaces NetworkInterfaceId=<internal_network_interface_id>,DeviceIndex=0 NetworkInterfaceId=<external_network_interface_id>,DeviceIndex=1 --region <aws_region> --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-1.json --block-device-mappings file://block-device-mappings.json --tag-specifications "ResourceType=instance,Tags=[{Key=cluster-name,Value=<cluster_name>},{Key=Name,Value=<cluster_name>-node<node_number>}]"
+
+###node1 
+First node external network interface ID		eni-08bcc687a97e7b675   10.15.2.5 
+First node internal network interface ID		eni-01833796cfc024102   10.15.3.110
+
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-01833796cfc024102,DeviceIndex=0 NetworkInterfaceId=eni-08bcc687a97e7b675,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-1-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node1}]"
+
+
+###node2
+Second node external network interface ID		eni-02ba7c1a32c0c2e31   10.15.2.6
+Second node internal network interface ID		eni-00c7803670b7fb5de   10.15.3.111
+
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-00c7803670b7fb5de,DeviceIndex=0 NetworkInterfaceId=eni-02ba7c1a32c0c2e31,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-2-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node2}]"
+
+
+###node3
+Third node external network interface ID		eni-0abc75322feee95f6   10.15.2.7
+Third node internal network interface ID		eni-0ed334b79449b1e0f   10.15.3.112
+
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0ed334b79449b1e0f6,DeviceIndex=0 NetworkInterfaceId=eni-0abc75322feee95f6,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-3-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node3}]"
+
+
+###node4
+Fourth node external network interface ID		eni-0fc1f440700f55cf5   10.15.2.8
+Fourth node internal network interface ID		eni-04a6d3572d3329acb   10.15.3.113
+
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-04a6d3572d3329acb,DeviceIndex=0 NetworkInterfaceId=eni-0fc1f440700f55cf5,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-4-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node4}]"
+
+
+
+
+##########################################
+##########################################
+Logon to the cluster
+isi status
+isi auth user list
+isi devices node list
+
+isi cluster shutdown --node-lnn=1 
+
+#################
+post install setup
+#################
+aws ec2 describe-instances  --profile=udsawsadmin    --query 'Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key==`Name`]|[0].Value,State:State.Name,IP:PublicIpAddress, IP2:PrivateIpAddress}'     --output table 
+
+
+###access the cluster and review & config as needed
+isi network groupnets view groupnet0
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+isi network interfaces list
+
+isi network subnets modify groupnet0.subnet0 --sc-service-addrs=10.15.2.175
+
+isi network subnets modify groupnet0.subnet0 --sc-service-name=ssip2.foo.com.ec2.internal
+
+isi network pools modify  groupnet0.subnet0.pool0 --sc-dns-zone=sc2.foo.com.ec2.internal
+
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+ifconfig
+nslookup sc2.foo.com.ec2.internal 10.15.2.175
+
+
+isi services nfs enable
+isi services smb enable
+isi services
+
+
+isi devices node add SV200-930073-0001 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before you proceed
+
+isi status
+
+###Run the following command to add the third node:
+
+isi devices node add SV200-930073-0002 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before proceeding
+
+isi status
+
+###Run the following command to add the fourth node:
+
+isi devices node add SV200-930073-0003 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before proceeding
+
+isi status
+
+
+
+
+#######
+Expand a OneFS cluster
+
+###node-id = 5
+###user-data file://user-data-node-5-vonefs.json
+Key=Name,Value=onefs-v2-node5
+Name,Value=onefs-v2-node5
+clustername,Value=onefs-v2
+
+###node-id = 6
+###user-data file://user-data-node-6-vonefs.json
+Key=Name,Value=onefs-v2-node6
+Name,Value=onefs-v2-node6
+clustername,Value=onefs-v2
+
+Fifth node external network interface ID		eni-087cfab2e6057f866   10.15.2.9
+Fifth node internal network interface ID		eni-0155b7b0c309c6da9   10.15.3.114
+
+Sixth node external network interface ID		eni-03e33f3e98a5eef68   10.15.2.10
+Sixth node internal network interface ID	    eni-0550e715769dad636   10.15.3.115
+
+
+###node5 add
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0155b7b0c309c6da9,DeviceIndex=0 NetworkInterfaceId=eni-087cfab2e6057f866,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-5-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node5}]"
+
+
+###node6
+aws ec2 --profile=udsawsadmin run-instances --image-id <aws_ami_id> --instance-type m5dn.8xlarge --placement GroupName=onefs-v2-onefs-placement-group --network-interfaces NetworkInterfaceId=eni-0550e715769dad636,DeviceIndex=0 NetworkInterfaceId=eni-03e33f3e98a5eef68,DeviceIndex=1 --region us-east-1 --iam-instance-profile Name=onefs-runtime-instance-profile --user-data file://user-data-node-6-vonefs.json --block-device-mappings file://block-device-mappings-vonefs.json --tag-specifications "ResourceType=instance,Tags=[{Key=clustername,Value=onefs-v2},{Key=Name,Value=onefs-v2-node6}]"
+

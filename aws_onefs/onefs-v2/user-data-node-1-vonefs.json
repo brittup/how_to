@@ -1,0 +1,87 @@
+{
+  "hal_dongle_serialno": "SV200-930073-0000",  
+  "hal_volume_type": "gp3",
+  "acs_config": {
+    "cluster": {
+      "admin_user_password": "a",
+      "cluster_name_nt4_compatibility": false,
+      "encoding": "utf-8",
+      "l3_cache": {
+        "ssd_l3_cache_default_enabled": false
+      },
+      "name": "onefs-v2",
+      "nodes": [
+        {
+          "serial_number": "SV200-930073-0000"
+        }
+      ],
+      "password": "a",
+      "credentials_hashed": false,
+      "timezone": {
+        "name": "Eastern Time Zone"
+      }
+    },
+    "external_networking": {
+      "dns_domains": [
+        "ec2.internal"
+      ],
+      "dns_servers": [
+        "10.15.0.2"
+      ],
+      "external_interfaces": [
+        {
+          "gateway": "10.15.2.1",
+          "interface": "ext-1",
+          "ip_address_ranges": [
+            {
+              "low": "10.15.2.5",
+			        "high": "10.15.2.10"  
+            }
+          ],
+          "mtu": 1500,
+          "netmask": "255.255.255.0"
+        }
+      ],
+      "internal_as_external": false
+    },
+    "internal_networking": {
+      "internal_interfaces": [
+        {
+          "interface": "int-a",
+          "ip_address_ranges": [
+            {
+              "low": "10.15.3.110",
+			        "high": "10.15.3.115"  
+            }
+          ],
+          "netmask": "255.255.255.0"
+        }
+      ],
+      "internal_mtu": 9001
+    },
+    "join_mode": "auto"
+  },
+  "devices": 
+  [
+    {
+      "ext-1": "10.15.2.5",
+      "int-a": "10.15.3.110",
+      "serial_number": "SV200-930073-0000"
+    },
+	{
+      "ext-1": "10.15.2.6",
+      "int-a": "10.15.3.111",
+      "serial_number": "SV200-930073-0001"
+    },
+	{
+      "ext-1": "10.15.2.7",
+      "int-a": "10.15.3.112",
+      "serial_number": "SV200-930073-0002"
+    },
+	{
+      "ext-1": "10.15.2.8",
+      "int-a": "10.15.3.113",
+      "serial_number": "SV200-930073-0003"
+    }
+  ]
+}
