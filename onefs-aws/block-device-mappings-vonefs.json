@@ -1,0 +1,42 @@
+[
+  {
+    "DeviceName": "xvda",
+    "Ebs": {
+      "VolumeSize": 15,
+      "VolumeType": "gp3",
+      "DeleteOnTermination": true
+    }
+  },
+  {
+    "DeviceName": "xvdb",
+    "Ebs": {
+      "VolumeSize": 15,
+      "VolumeType": "gp3",
+      "DeleteOnTermination": true
+    }
+  },
+  {
+    "DeviceName": "xvdc",
+    "Ebs": {
+      "VolumeSize": 15,
+      "VolumeType": "gp3",
+      "DeleteOnTermination": true
+    }
+  },
+  {
+    "DeviceName": "xvdd",
+    "Ebs": {
+      "VolumeSize": 15,
+      "VolumeType": "gp3",
+      "DeleteOnTermination": true
+    }
+  },
+  {
+    "DeviceName": "xvde",
+    "Ebs": {
+      "VolumeSize": 15,
+      "VolumeType": "gp3",
+      "DeleteOnTermination": true
+    }
+  }
+]
