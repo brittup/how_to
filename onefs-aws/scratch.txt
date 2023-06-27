@@ -1,6 +1,0 @@
-###list instance types in a region
-aws ec2 --profile=udsawsadmin describe-instance-types --region ca-central-1 > instance_types.txt 
-
-m5dn = onefs
-
-
