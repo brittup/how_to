@@ -166,23 +166,23 @@ aws ec2 --profile=udsawsadmin create-network-interface --private-ip-address 10.1
 
 
 ###get the interface id
-First node external network interface ID		eni-ext1   10.15.2.5 
-First node internal network interface ID		eni-int1   10.15.3.110
+First node external network interface ID	eni-ext1   10.15.2.5 
+First node internal network interface ID	eni-int1   10.15.3.110
 
-Second node external network interface ID		eni-ext2   10.15.2.6
-Second node internal network interface ID		eni-int2   10.15.3.111
+Second node external network interface ID	eni-ext2   10.15.2.6
+Second node internal network interface ID	eni-int2   10.15.3.111
 
-Third node external network interface ID		eni-ext3   10.15.2.7
-Third node internal network interface ID		eni-int3   10.15.3.112
+Third node external network interface ID	eni-ext3   10.15.2.7
+Third node internal network interface ID	eni-int3   10.15.3.112
 
-Fourth node external network interface ID	    eni-ext4   10.15.2.8
-Fourth node internal network interface ID		eni-int4   10.15.3.113
+Fourth node external network interface ID   eni-ext4   10.15.2.8
+Fourth node internal network interface ID	eni-int4   10.15.3.113
 
-Fifth node external network interface ID        eni-ext5   10.15.2.9
-Fifth node internal network interface ID	    eni-int5   10.15.3.114
+Fifth node external network interface ID    eni-ext5   10.15.2.9
+Fifth node internal network interface ID    eni-int5   10.15.3.114
 
-Sixth node external network interface ID        eni-ext6    10.15.2.10
-Sixth node internal network interface ID        eni-int6    10.15.3.115
+Sixth node external network interface ID    eni-ext6    10.15.2.10
+Sixth node internal network interface ID    eni-int6    10.15.3.115
 
 
 13.Prepare cluster nodes block device mapping
