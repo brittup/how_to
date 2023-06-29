@@ -59,7 +59,8 @@ aws iam --profile=udsawsadmin add-role-to-instance-profile --instance-profile-na
 ####only needed once!
 ##########################################################################################################################################################
 
-
+##########################################################################################################################################################
+##########################################################################################################################################################
 #####Per vCluster
 6.Create placement group 
 ###aws ec2 --profile=udsawsadmin create-placement-group --strategy spread --group-name <clustername>-onefs-placement-group --region <aws-region> --tag-specifications "ResourceType=placement-group,Tags=[{Key=clustername,Value=<clustername>}]"
@@ -185,10 +186,9 @@ Sixth node external network interface ID	eni-ext6    10.15.2.10
 Sixth node internal network interface ID	eni-int6    10.15.3.115
 
 
-13.Prepare cluster nodes block device mapping
-###modify 
-block-device-mappings-template.json
-
+13.Prepare cluster nodes block device mapping per deployment guide
+###modify: block-device-mappings-template.json
+-5 EBS volumes
 -set DeviceName - xvda,xvdb,xvdc etc for all volumes
 -set volume size - 15
 -set volume type - gp3
