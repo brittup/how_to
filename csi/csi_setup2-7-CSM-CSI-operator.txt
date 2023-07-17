@@ -20,7 +20,7 @@ echo 192.168.1.44    hdfs03.demo.local   hdfs03 >> /etc/hosts
 
 hostnamectl set-hostname hdfs01.demo.local
 hostnamectl set-hostname hdfs02.demo.local
-hostnamectl set-hostname hdfs02.demo.local
+hostnamectl set-hostname hdfs03.demo.local
 hostnamectl
 
 
@@ -66,7 +66,6 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
 isi auth roles modify k8-csi --add-user=k8 --zone=System
@@ -74,6 +73,8 @@ isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
 mkdir /ifs/csi
 chmod 777 /ifs/csi
+
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 
 ### review api auth on onefs - session or basic
 isi_gconfig -t web-config
@@ -147,12 +148,12 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 #yum install kubelet-1.21.0-0 kubeadm-1.21.0-0 kubectl-1.21.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.22.0-0 kubeadm-1.22.0-0 kubectl-1.22.0-0 --disableexcludes=kubernetes
 #yum install kubelet-1.23.9-0 kubeadm-1.23.9-0 kubectl-1.23.9-0 --disableexcludes=kubernetes
-
+#yum install kubelet-1.26.0-0 kubeadm-1.26.0-0 kubectl-1.26.0-0 --disableexcludes=kubernetes
 #install a supported version
 ####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
 ###with 1.26
-yum install kubelet-1.26.0-0 kubeadm-1.26.0-0 kubectl-1.26.0-0 --disableexcludes=kubernetes
+yum install kubelet-1.27.0-0 kubeadm-1.27.0-0 kubectl-1.27.0-0 --disableexcludes=kubernetes
 
 
 
