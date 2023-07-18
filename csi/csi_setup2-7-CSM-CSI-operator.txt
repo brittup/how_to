@@ -268,8 +268,11 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 mkdir ~/git/csi-isilon
 mkdir ~/git/csi-isilon/2-7
 cd ~/git
+git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.7
 ln -s /root/git/csi-isilon/2-7 csi-latest
 touch csi-latest/2-7.txt
+
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
@@ -294,9 +297,6 @@ bash scripts/install.sh
 kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
-
-
-
 
 
 ###setup for the csi driver
