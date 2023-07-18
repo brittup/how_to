@@ -337,9 +337,27 @@ kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
-###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/dell-csi-operator/tree/master/samples
+
+###query csi drivers 
+kubectl get csm --all-namespaces
+
 cd ~/git/csi-latest
-curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v270.yaml
+curl -fsSL -o my-isilon-settings-2-7.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v270.yaml
+
+
+### review api auth on onefs - session or basic
+isi_gconfig -t web-config
+isi_gconfig -t web-config auth_basic=true = 0
+isi_gconfig -t web-config auth_basic=false = 1
+session auth = 1
+basic auth  = 0
+https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+###
+
+
 vi my-isilon-settings-2-7.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
@@ -351,7 +369,7 @@ vi my-isilon-settings-2-7.yaml
 
 allowedNetworks: [192.168.1.0/24]
 
-isiAuthType: 1        - use session based if basic not enabled
+ISICLIENT_AUTH_TYPE      - use session (1) based if basic(0) not enabled
 
 controllerCount: 2    - if only 1 host, 2 is 2
 
@@ -364,8 +382,13 @@ isiPath: /ifs/csi
 ###add another session, to watch pod deployments during install
 watch kubectl get pods -A  
 
-###install
+
+
+###install csi driver via csm 
+
 kubectl create -f my-isilon-settings-2-7.yaml
+
+###
 
 kubectl get csm -A
 kubectl get csm/isilon -n isilon -o yaml
@@ -429,10 +452,7 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 ###There are samples storage class yaml files available under helm/samples/storageclass
 ###Sample storage classes:  samples/storageclass
 
-cd git
-git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.6
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-7.yaml
+cp ~/git/csi-latest//samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-7.yaml
 vi ~/git/csi-latest/my-isilon-sc-2-7.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
@@ -465,12 +485,12 @@ kubectl get sc
 
 ###################################################################################################################################################
 ###Testing CSI with samples
-###sample test files:  ~/git/csi-powerscale-2.6/samples
+###sample test files:  ~/git/csi-powerscale-2-7/samples
 ###create a testing namespace
 
 kubectl create namespace test
 
-cd ~/git/csi-powerscale-2.6/samples
+cd ~/git/csi-powerscale-2-7/samples
 
 ###create a pvc
 vi persistentvolumeclaim/pvc.yaml
