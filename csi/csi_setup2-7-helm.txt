@@ -197,10 +197,11 @@ cat /root/.bash_profile
 ###https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-
 kubectl -n kube-system get pods -l name=weave-net -o wide
-kubectl exec -n kube-system <master pod> -c weave -- /home/weave/weave --local status
-kubectl -n kube-system logs <master pod> -c weave -f
+
+#optional:
+kubectl exec -n kube-system <master weave pod name> -c weave -- /home/weave/weave --local status
+kubectl -n kube-system logs <master weave pod name> -c weave -f
 
 
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
@@ -225,10 +226,10 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-### 
+######################################################
 ###if reset of k8 cluster needed, run on master node
 kubeadm reset
-###
+######################################################
 
 
 
@@ -253,22 +254,12 @@ chmod 700 get_helm.sh
 
 ###################################################################################################################################################
 ###clone the powerscale csi repo
-mkdir ~/git
-cd git
-git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.6
-
-###create a link, makes upgrade easier
-ln -s /root/git/csi-powerscale-2.5 csi-isilon
-
-###mkdir for isilon csi configuration files
-mkdir ~/git/csi-isilon/isilon/
-
-###add release version to linked directory
-cd ~/git/csi-isilon
-cat ReleaseNotes.md
-
-
+mkdir ~/git/csi-isilon
+mkdir ~/git/csi-isilon/2-7
+cd ~/git
+ln -s /root/git/csi-isilon/2-7 csi-latest
+touch csi-latest/2-7.txt
+git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
 touch CSI-2-6.txt
 ls -al
 

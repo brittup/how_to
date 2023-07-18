@@ -193,8 +193,9 @@ cat /root/.bash_profile
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 kubectl -n kube-system get pods -l name=weave-net -o wide
 
-kubectl exec -n kube-system <master pod> -c weave -- /home/weave/weave --local status
-kubectl -n kube-system logs <master pod> -c weave -f
+#optional:
+kubectl exec -n kube-system <master weave pod name> -c weave -- /home/weave/weave --local status
+kubectl -n kube-system logs <master weave pod name> -c weave -f
 
 
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
@@ -217,10 +218,10 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-### 
+######################################################
 ###if reset of k8 cluster needed, run on master node
 kubeadm reset
-###
+######################################################
 
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
@@ -264,10 +265,10 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###create a link, makes upgrade easier
 
 mkdir ~/git/csi-isilon
-mkdir ~/git/csi-isilon/2-6
+mkdir ~/git/csi-isilon/2-7
 cd ~/git
-ln -s /root/git/csi-isilon/2-6 csi-latest
-touch csi-latest/2-6.txt
+ln -s /root/git/csi-isilon/2-7 csi-latest
+touch csi-latest/2-7.txt
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
