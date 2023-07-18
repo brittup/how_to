@@ -265,8 +265,7 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
-mkdir ~/git/csi-isilon
-mkdir ~/git/csi-isilon/2-7
+
 cd ~/git
 git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2.7
