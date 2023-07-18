@@ -273,10 +273,10 @@ touch csi-latest/2-7.txt
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
-cd git
+cd ~/git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.2.1  
+git checkout v6.2.2
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 kubectl create -f client/config/crd
@@ -287,13 +287,18 @@ kubectl get pods -A
 ###CSM Operator Installation on cluster without OLM
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
-git clone -b v1.1.0 https://github.com/dell/csm-operator.git
-cd ~git/git/csm-operator
+git clone -b v1.2.0 https://github.com/dell/csm-operator.git
+cd ~/git/csm-operator
 bash scripts/install.sh
 
 kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
+
+
+
+
+
 ###setup for the csi driver
 ###create a K8 namespace for csi driver 
 
