@@ -1,4 +1,4 @@
-###csi driver setup 2.6 ###
+###csi driver setup 2.7 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
@@ -338,8 +338,8 @@ kubectl get secret isilon-creds -o yaml -n isilon
 
 
 ###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
-
-curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
+cd ~/git/csi-latest
+curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v270.yaml
 vi my-isilon-settings-2-7.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
