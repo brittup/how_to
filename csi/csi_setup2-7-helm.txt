@@ -310,8 +310,8 @@ kubectl create namespace isilon
 
 ###configure the csi values & secret files
 cd ~/git/csi-isilon/isilon/
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml
-vi my-isilon-settings-2-6.yaml
+cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-7.yaml
+vi my-isilon-settings-2-7.yaml
 
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
@@ -331,8 +331,8 @@ isiPath: /ifs/csi
 
 
 ####create secrets
-cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret-2-6.yaml
-vi secret-2-6.yaml
+cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret-2-7.yaml
+vi secret-2-7.yaml
 
 ###modify
   
@@ -350,14 +350,14 @@ vi secret-2-6.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-5.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
-cat empty-secret-2-6.yaml
+cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret-2-7.yaml
+cat empty-secret-2-7.yaml
 
-kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-6.yaml
+kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-7.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -383,7 +383,7 @@ docker login
 
 ##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
 
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-6.yaml 
+./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-7.yaml 
 
 
 
@@ -418,7 +418,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###if needed uninstall the driver
  ./csi-uninstall.sh --namespace isilon
@@ -430,8 +430,8 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
-vi ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
+vi ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -456,8 +456,8 @@ mountOptions: []
 
 
 
-###copy and create a sample storageclass - sc-2-6  for driver version
-kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-6.yaml
+###copy and create a sample storageclass - sc-2-7  for driver version
+kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
 kubectl get sc 
 
 ###create a testing namespace

@@ -306,7 +306,7 @@ kubectl get ns
 
 cd ~/git/csi-latest
 curl -fsSL -o secret-2-7.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.7.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-6.yaml  https://raw.github.com/dell/csi-powerscale/v2.7.0/samples/secret/empty-secret.yaml
+curl -fsSL -o empty-secret-2-7.yaml  https://raw.github.com/dell/csi-powerscale/v2.7.0/samples/secret/empty-secret.yaml
 vi secret-2-7.yaml
 
 
@@ -326,21 +326,21 @@ vi secret-2-7.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cat empty-secret-2-6.yaml
+cat empty-secret-2-7.yaml
 
-kubectl create -f ~/git/csi-latest/empty-secret-2-6.yaml
+kubectl create -f ~/git/csi-latest/empty-secret-2-7.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
 
 ###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
 
-curl -fsSL -o my-isilon-settings-2-6.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
-vi my-isilon-settings-2-6.yaml
+curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
+vi my-isilon-settings-2-7.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
 
@@ -365,7 +365,7 @@ isiPath: /ifs/csi
 watch kubectl get pods -A  
 
 ###install
-kubectl create -f my-isilon-settings-2-6.yaml
+kubectl create -f my-isilon-settings-2-7.yaml
 
 kubectl get csm -A
 kubectl get csm/isilon -n isilon -o yaml
@@ -420,7 +420,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-6.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 
@@ -432,8 +432,8 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 cd git
 git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2.6
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-6.yaml
-vi ~/git/csi-latest/my-isilon-sc-2-6.yaml
+cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-7.yaml
+vi ~/git/csi-latest/my-isilon-sc-2-7.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -458,8 +458,8 @@ mountOptions: []
 
 
 
-###copy and create a sample storageclass - sc-2-6  for driver version
-kubectl create -f ~/git/csi-latest/my-isilon-sc-2-6.yaml
+###copy and create a sample storageclass - sc-2-7  for driver version
+kubectl create -f ~/git/csi-latest/my-isilon-sc-2-7.yaml
 kubectl get sc 
 
 
