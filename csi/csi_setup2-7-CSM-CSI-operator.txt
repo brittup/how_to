@@ -267,8 +267,8 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 
 cd ~/git
 git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.7
-ln -s /root/git/csi-powerscale-2.7 csi-latest
+mv csi-powerscale csi-powerscale-2-7
+ln -s /root/git/csi-powerscale-2-7 csi-latest
 touch csi-latest/2-7.txt
 
 ###################################################################################################################################################
@@ -504,10 +504,10 @@ kubectl describe pv <pv name> -n test
 ###create sample pod and attach to pvc
 kubectl create -f pod/nginx.yaml -n test
 kubectl get pods -n test
-kubectl describe pods ngnix-pv-pod -n test
+kubectl describe pods nginx-pv-pod -n test
 
 kubectl get pv -n test
-kubectl exec ngnix-pv-pod -i -t -n test -- bash 
+kubectl exec nginx-pv-pod -i -t -n test -- bash 
 
 cd /usr/share/nginx/html/
 ls -al
