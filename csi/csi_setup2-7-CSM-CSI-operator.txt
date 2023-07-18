@@ -265,13 +265,11 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
-
 cd ~/git
 git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2.7
-ln -s /root/git/csi-isilon/2-7 csi-latest
+ln -s /root/git/csi-powerscale-2.7 csi-latest
 touch csi-latest/2-7.txt
-
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
@@ -295,9 +293,8 @@ bash scripts/install.sh
 
 kubectl get pods -n dell-csm-operator
 
+
 ###################################################################################################################################################
-
-
 ###setup for the csi driver
 ###create a K8 namespace for csi driver 
 
@@ -308,9 +305,9 @@ kubectl get ns
 ###add release version to linked directory
 
 cd ~/git/csi-latest
-curl -fsSL -o secret-2-6.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.6.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-6.yaml  https://raw.github.com/dell/csi-powerscale/v2.6.0/samples/secret/empty-secret.yaml
-vi secret-2-6.yaml
+curl -fsSL -o secret-2-7.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.7.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-6.yaml  https://raw.github.com/dell/csi-powerscale/v2.7.0/samples/secret/empty-secret.yaml
+vi secret-2-7.yaml
 
 
 ###modify

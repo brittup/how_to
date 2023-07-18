@@ -254,35 +254,29 @@ chmod 700 get_helm.sh
 
 ###################################################################################################################################################
 ###clone the powerscale csi repo
-mkdir ~/git/csi-isilon
-mkdir ~/git/csi-isilon/2-7
-cd ~/git
-ln -s /root/git/csi-isilon/2-7 csi-latest
-touch csi-latest/2-7.txt
-git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
-touch CSI-2-6.txt
-ls -al
 
+cd ~/git
+git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2.7
+ln -s /root/git/csi-powerscale-2.7 csi-latest
+touch csi-latest/2-7.txt
 
 ###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
 ###add the following
 vi /etc/systemd/system/multi-user.target.wants/docker.service
 
 [Service]
-
 MountFlags=shared
 
 systemctl daemon-reload
 systemctl restart docker
-
-
 
 ####install the snapshot controller
 ####Snapshot controller versioned, look at latest or specific versions
 
 https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi-snapshotter
 
-###2.5  -- select version: 6.1.0
+###2.7  -- select version: 6.2.x
 ###manually
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
@@ -297,13 +291,15 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 cd ~/git/
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.1.0  
+git checkout v6.2.2 
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get crd
+
+
 
 ###################################################################################################################################################
 ###install the csi driver
