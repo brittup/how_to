@@ -1,9 +1,8 @@
-###csi driver setup 2.6 ###
+###csi driver setup 2.7 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
 -https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
-
 
 
 #ensure dns is setup for all hosts, do not skip this step
@@ -12,7 +11,6 @@
 echo 192.168.1.40    hdfs01.demo.local   hdfs01 >> /etc/hosts
 echo 192.168.1.41    hdfs02.demo.local   hdfs02 >> /etc/hosts
 echo 192.168.1.44    hdfs03.demo.local   hdfs03 >> /etc/hosts
-
 
 
 hostnamectl set-hostname hdfs01.demo.local
@@ -25,7 +23,6 @@ yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils 
 systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
-
 
 ###################################################################################################################################################
 ###isilon setup 
@@ -160,13 +157,11 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r
 yum install kubelet-1.27.0-0 kubeadm-1.27.0-0 kubectl-1.27.0-0 --disableexcludes=kubernetes
 
 
-
 ###Remove the installed default config file: 
 rm /etc/containerd/config.toml
 
 ###Restart containerd: 
 systemctl restart containerd
-
 
 ###Complete up to here for all nodes going into cluster!!!!
 
@@ -257,9 +252,10 @@ chmod 700 get_helm.sh
 
 cd ~/git
 git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.7
-ln -s /root/git/csi-powerscale-2.7 csi-latest
+mv csi-powerscale csi-powerscale-2-7
+ln -s /root/git/csi-powerscale-2-7 csi-latest
 touch csi-latest/2-7.txt
+mkdir csi-latest/isilon
 
 ###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
 ###add the following
@@ -278,12 +274,12 @@ https://github.com/kubernetes-csi/external-snapshotter/blob/master/README.md#csi
 
 ###2.7  -- select version: 6.2.x
 ###manually
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.2.2/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.2.2/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.2.2/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 ###Install Snapshot Controller               
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.1.0/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.2.2/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.2.2/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 
 ###OR - one shot install
@@ -309,8 +305,8 @@ kubectl create namespace isilon
 
 
 ###configure the csi values & secret files
-cd ~/git/csi-isilon/isilon/
-cp ~/git/csi-isilon/helm/csi-isilon/values.yaml ~/git/csi-isilon/isilon/my-isilon-settings-2-7.yaml
+cd ~/git/csi-latest/isilon/
+cp ~/git/csi-latest/helm/csi-isilon/values.yaml ~/git/csi-latest/isilon/my-isilon-settings-2-7.yaml
 vi my-isilon-settings-2-7.yaml
 
 
@@ -331,7 +327,7 @@ isiPath: /ifs/csi
 
 
 ####create secrets
-cp ~/git/csi-isilon/samples/secret/secret.yaml  ~/git/csi-isilon/isilon/secret-2-7.yaml
+cp ~/git/csi-latest/samples/secret/secret.yaml  ~/git/csi-latest/isilon/secret-2-7.yaml
 vi secret-2-7.yaml
 
 ###modify
@@ -350,14 +346,14 @@ vi secret-2-7.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cp ~/git/csi-isilon/samples/secret/empty-secret.yaml  ~/git/csi-isilon/isilon/empty-secret-2-7.yaml
+cp ~/git/csi-latest/samples/secret/empty-secret.yaml  ~/git/csi-latest/isilon/empty-secret-2-7.yaml
 cat empty-secret-2-7.yaml
 
-kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-7.yaml
+kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-7.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -376,14 +372,14 @@ kubectl describe node <hostname> | grep -i taint
 
 watch kubectl get pods -A  
 
-cd ~/git/csi-isilon/dell-csi-helm-installer
+cd ~/git/csi-latest/dell-csi-helm-installer
 
 ###docker login, use your dockerhub user&pass on all hosts, this just seems to help
 docker login
 
 ##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
 
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-7.yaml 
+./csi-install.sh --namespace isilon --values ~/git/csi-latest/isilon/my-isilon-settings-2-7.yaml 
 
 
 
@@ -418,7 +414,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-7.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###if needed uninstall the driver
  ./csi-uninstall.sh --namespace isilon
@@ -430,8 +426,8 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-isilon/samples/storageclass/isilon.yaml  ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
-vi ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
+cp ~/git/csi-latest/samples/storageclass/isilon.yaml  ~/git/csi-latest/isilon/my-isilon-sc-2-7.yaml
+vi ~/git/csi-latest/isilon/my-isilon-sc-2-7.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -457,7 +453,7 @@ mountOptions: []
 
 
 ###copy and create a sample storageclass - sc-2-7  for driver version
-kubectl create -f ~/git/csi-isilon/isilon/my-isilon-sc-2-7.yaml
+kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-7.yaml
 kubectl get sc 
 
 ###create a testing namespace
@@ -467,9 +463,9 @@ kubectl create namespace test
 
 ###################################################################################################################################################
 ###Testing CSI with samples
-###sample test files:  ~/git/csi-isilon/samples
+###sample test files:  ~/git/csi-latest/samples
 
-cd ~/git/csi-isilon/samples
+cd ~/git/csi-latest/samples
 
 
 ###create a pvc
@@ -511,7 +507,7 @@ ls -al
 ###test csi snapshot snapshots
 ###VolumeSnapshotClass is needed for creating the volume snapshots
 
-cd ~/git/csi-isilon/samples
+cd ~/git/csi-latest/samples
 vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 ###modify path as needed
@@ -599,11 +595,11 @@ kubectl get pods --namespace isilon
 kubectl describe pod     -n isilon
 kubectl logs   -n isilon -c driver
 
-cd ~/git/csi-isilon/dell-csi-helm-installer
+cd ~/git/csi-latest/dell-csi-helm-installer
 ./csi-uninstall.sh --namespace isilon 
 
-cd ~/git/csi-isilon/dell-csi-helm-installer
-./csi-install.sh --namespace isilon --values ~/git/csi-isilon/isilon/my-isilon-settings-2-x.yaml 
+cd ~/git/csi-latest/dell-csi-helm-installer
+./csi-install.sh --namespace isilon --values ~/git/csi-latest/isilon/my-isilon-settings-2-x.yaml 
 
 kubectl delete pv <k8s-ec5c9fec46>
 
@@ -619,7 +615,7 @@ kubectl delete secret isilon-certs-0 -n isilon
 kubectl delete secret isilon-creds -n isilon
 kubectl get secret -n isilon
 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-x.yaml -o yaml --dry-run=client | kubectl apply -f -
-kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-x.yaml
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-x.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-x.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
