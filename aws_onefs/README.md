@@ -12,6 +12,7 @@ It is a distillation of the deployment guide to it's simplest form, use in conju
 
 * onefs-v2 -- contains the aws cli template scripts and required json mappings  
 <br>
+
 * aws-install-onefs-v2.txt  -- the aws cli command template to create and build all aws resources per the deployment guide  
 * block-device-mappings-vonefs.json -- the block device mapping template used by each node  
 <br>
