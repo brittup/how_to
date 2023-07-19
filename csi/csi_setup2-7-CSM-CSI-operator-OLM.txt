@@ -1,4 +1,4 @@
-###csi driver setup 2.6 ###
+###csi driver setup 2.7 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
@@ -266,8 +266,8 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 
 cd ~/git
 git clone -b v2.7.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.7
-ln -s /root/git/csi-powerscale-2.7 csi-latest
+mv csi-powerscale csi-powerscale-2-7
+ln -s /root/git/csi-powerscale-2-7 csi-latest
 touch csi-latest/2-7.txt
 
 ###################################################################################################################################################
@@ -318,8 +318,8 @@ kubectl get ns
 ###add release version to linked directory
 
 cd ~/git/csi-latest
-curl -fsSL -o secret-2-7.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.6.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-7.yaml  https://raw.github.com/dell/csi-powerscale/v2.6.0/samples/secret/empty-secret.yaml
+curl -fsSL -o secret-2-7.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.7.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-7.yaml  https://raw.github.com/dell/csi-powerscale/v2.7.0/samples/secret/empty-secret.yaml
 vi secret-2-7.yaml
 
 
@@ -351,7 +351,18 @@ kubectl get secret isilon-creds -o yaml -n isilon
 
 ###Create a CR (Custom Resource) for PowerScale using the sample files:https://github.com/dell/csm-operator/tree/master/samples
 
-curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v260.yaml
+curl -fsSL -o my-isilon-settings-2-7.yaml https://raw.github.com/dell/csm-operator/main/samples/storage_csm_powerscale_v270.yaml
+
+
+### review api auth on onefs - session or basic
+isi_gconfig -t web-config
+isi_gconfig -t web-config auth_basic=true = 0
+isi_gconfig -t web-config auth_basic=false = 1
+session auth = 1
+basic auth  = 0
+https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+###
+
 vi my-isilon-settings-2-7.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
@@ -363,7 +374,7 @@ vi my-isilon-settings-2-7.yaml
 
 allowedNetworks: [192.168.1.0/24]
 
-isiAuthType: 1        - use session based if basic not enabled
+ISICLIENT_AUTH_TYPE      - use session (1) based if basic(0) not enabled
 
 controllerCount: 2    - if only 1 host, 2 is 2
 
@@ -441,10 +452,7 @@ USING the CSI Driver
 ###There are samples storage class yaml files available under helm/samples/storageclass
 ###Sample storage classes:  samples/storageclass
 
-cd ~/git
-git clone -b v2.6.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2.6
-cp ~/git/csi-powerscale-2.6/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-7.yaml
+cp ~/git/csi-powerscale-2-7/samples/storageclass/isilon.yaml  ~/git/csi-latest/my-isilon-sc-2-7.yaml
 vi ~/git/csi-latest/my-isilon-sc-2-7.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
@@ -475,12 +483,12 @@ kubectl describe sc isilon
 
 ###################################################################################################################################################
 ###Testing CSI with samples
-###sample test files:  ~/git/powerscale-2.6/samples
+###sample test files:  ~/git/csi-latest/samples
 ###create a testing namespace
 
 kubectl create namespace test
 
-cd ~/git/csi-powerscale-2.6/samples
+cd ~/git/csi-latest/samples
 
 ###create a pvc
 vi persistentvolumeclaim/pvc.yaml
@@ -520,7 +528,7 @@ ls -al
 ###test csi snapshot snapshots
 ###VolumeSnapshotClass is needed for creating the volume snapshots
 
-cd ~/git/csi-powerscale-2.6/samples
+cd ~/git/csi-latest/samples
 vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 ###modify path as needed
