@@ -298,31 +298,6 @@ kubectl get crd
 
 
 ###################################################################################################################################################
-###install the csi driver
-
-###create a K8 namespace 
-kubectl create namespace isilon
-
-
-###configure the csi values & secret files
-cd ~/git/csi-latest/isilon/
-cp ~/git/csi-latest/helm/csi-isilon/values.yaml ~/git/csi-latest/isilon/my-isilon-settings-2-7.yaml
-vi my-isilon-settings-2-7.yaml
-
-
-###edit my-isilon-settings-2-x.yaml: modify any values as needed
-
-allowedNetworks: [192.168.1.0/24]
-
-isiAuthType: 1        - use session based if basic not enabled
-
-controllerCount: 2    - if only 1 host, 2 is 2
-
-isiPath: /ifs/csi
-
-###replication if using
-
-###################################################################################################################################################
 
 
 
@@ -364,6 +339,45 @@ kubectl describe node <hostname> | grep Taint
     #taints:             node-role.kubernetes.io/master:NoSchedule
 kubectl taint nodes <shortname of host> node-role.kubernetes.io/master-
 kubectl describe node <hostname> | grep -i taint
+
+###################################################################################################################################################
+###install the csi driver
+
+###create a K8 namespace 
+kubectl create namespace isilon
+
+
+###configure the csi values & secret files
+cd ~/git/csi-latest/isilon/
+cp ~/git/csi-latest/helm/csi-isilon/values.yaml ~/git/csi-latest/isilon/my-isilon-settings-2-7.yaml
+vi my-isilon-settings-2-7.yaml
+
+
+### review api auth on onefs - session or basic
+isi_gconfig -t web-config
+isi_gconfig -t web-config auth_basic=true      : = 0l
+isi_gconfig -t web-config auth_basic=false     := 1
+session auth = 1
+basic auth  = 0
+https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+###
+
+
+
+vi my-isilon-settings-2-7.yaml
+
+
+###edit my-isilon-settings-2-x.yaml: modify any values as needed
+
+allowedNetworks: [192.168.1.0/24]
+
+isiAuthType: 1        - use session based if basic not enabled
+
+controllerCount: 2    - if only 1 host, 2 is 2
+
+isiPath: /ifs/csi
+
+###replication if using
 
 
 ###################################################################################################################################################
