@@ -1,8 +1,8 @@
 ###Sample Deployment with Configs
 
-kubectl apply -f  pvc.yaml.yaml  -n test
+kubectl apply -f pvc.yaml -n test
 
-kubectl apply -f  nginx-deployment.yaml  -n test
+kubectl apply -f nginx-deployment.yaml -n test
 
 kubectl get deployments -n test
 
