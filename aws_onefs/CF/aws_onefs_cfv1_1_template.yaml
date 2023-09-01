@@ -1,0 +1,827 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy AWS vOneFS cluster
+#version1.1
+#base CF cluster deployment template
+#4 node cluster
+
+Transform: 'AWS::LanguageExtensions'
+
+# add tags
+Metadata:
+  Tags:
+    - Key: stackclustername
+      Value: onefs-v3
+
+#AWS VPC and OneFS cluster info required info:
+# cluster parameters:
+# vpc id = 
+# clustername = 
+# onefs placement group =
+# instance type = 
+# AMI ID = 
+# EBS volume size = 
+# EBS voleume type = 
+# internal subnet cidr = 
+# external subnet cidr =
+# internal interface ip =
+# external interface ip =
+
+
+#Set paramters here for cloudformation template:
+#replace #<variable> with your values for the VPC and deployment
+
+
+
+Parameters:
+#VPC ID
+  vpcid:
+    Type: String
+    Description: VPC ID 
+    Default: #<vpc-id>  
+
+#name of onefs cluster to be deployed
+  clustername:
+    Type: String
+    Description: onefs cluster name 
+    Default: #<onefs clustername>
+
+#ec2 node instance type
+  onefsInstanceType:
+    Description: onefs node instance type to be deployed
+    Type: String
+    Default:  m5dn.8xlarge
+    AllowedValues:
+      - m5dn.8xlarge
+      - m5dn.12xlarge
+      - m5dn.16xlarge
+      - m5dn.24xlarge
+    ConstraintDescription: must be a supported instance type
+
+#onefs AMI ID
+  onefsAMIimageid:
+    Type: String
+    Description: onefs cluster AMI ID
+    Default: #<ami-id>
+
+#onefs volumesize
+  onefsvolumesize:
+    Type: String
+    Description: onefs volumesize
+    Default: #<ebs volume size>
+
+ #onefs volumetype
+  onefsvolumetype:
+    Type: String
+    Description: onefs volumetype
+    Default: gp3
+    AllowedValues:
+      - gp3
+      - st1
+
+#instance profile name - pre-requisite, assumes already complete for vpc per deployment doc
+  onefsruntimeinstanceprofile:
+    Type: String
+    Description: onefs cluster instance profile
+    Default: #<run time policyname>
+
+#onefs cluster placement group
+  onefsplacementgroup:
+    Type: String
+    Description: onefs placement group 
+    Default: #<placement group name>
+
+
+#external security group name
+  externalsgname:
+    Type: String
+    Description: onefs external security group 
+    Default: #<external security group name>
+
+#internal security group name
+  internalsgname:
+    Type: String
+    Description: onefs internal security group 
+    Default: #<internal security group name>
+
+#external subnet id - node ext1 interfaces will be created here
+  onefsexternalsubnetid:
+    Type: String
+    Description: onefs external subnet
+    Default: #<external subnet id>
+
+#internal subnet id- node int1 interfaces will be created here
+  onefsinternalsubnetid:
+    Type: String
+    Description: onefs internal subnet
+    Default: #<internal subnet id> 
+
+#external subnet cidr
+  externalsubnetcidr:
+    Type: String
+    Description: external subnet/cidr
+    Default: #<external subnet cidr x.x.x.x/y>  
+
+#internal subnet cidr
+  internalsubnetcidr:
+    Type: String
+    Description: internal subnet/cidr
+    Default: #<internal subnet cidr x.x.x.x/y>  
+
+#dns search domains
+  dnsDomain:
+    Type: String
+    Description: dns search domain
+    Default: #<dns search domain>
+
+#dns servers
+  dnsServer:
+    Type: String
+    Description: dns server
+    Default: #<dns server ip>
+
+#external gateway of external subnet
+  externalGateway:
+    Type: String
+    Description: default gateway
+    Default: #<default gateway>
+
+#external network mask of external subnet
+  externalNetmask:
+    Type: String
+    Description: external 
+    Default: #<external subnet mask x.x.x.x>
+
+#internal network mask of external subnet
+  internalNetmask:
+    Type: String
+    Description: internal network netmask 
+    Default: #<internal subnet mask y.y.y.y>
+
+
+#external interfaces - assign IPs
+#node1 ext-1
+  node1extip1:
+    Type: String
+    Description: node1 external ip
+    Default: #<node1-external ip x.x.x.x>
+#node2 ext-1    
+  node2extip1:
+    Type: String
+    Description: node2 external ip
+    Default: #<node2-external ip x.x.x.x>
+#node3 ext-1  
+  node3extip1:
+    Type: String
+    Description: node3 external ip
+    Default: #<node3-external ip x.x.x.x>
+#node4 ext-1    
+  node4extip1:
+    Type: String
+    Description: node4 external ip
+    Default: #<node4-external ip x.x.x.x>  
+
+#internal interfaces - assign IPs
+#node1 int-1
+  node1intip1:
+    Type: String
+    Description: node1 internal ip
+    Default: #<node1-internal ip y.y.y.y>
+#node2 int-1    
+  node2intip1:
+    Type: String
+    Description: node2 internal ip
+    Default: #<node2-internal ip y.y.y.y>
+#node3 int-1     
+  node3intip1:
+    Type: String
+    Description: node3 internal ip
+    Default: #<node3-internal ip y.y.y.y>
+#node4 int-1     
+  node4intip1:
+    Type: String
+    Description: node4 internal ip
+    Default: #<node4-internal ip y.y.y.y>   
+
+
+####
+#resoures to be deployed
+####
+
+Resources:
+#create placement group
+  ClusterPlacementGroup:
+    Type: AWS::EC2::PlacementGroup
+    Properties:
+      Strategy: spread
+      GroupName: !Ref onefsplacementgroup
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+
+
+#create external security group
+  ExternalSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Ref externalsgname
+      GroupDescription: !Sub '${clustername}-external security group'
+      VpcId: !Ref vpcid
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 53
+          ToPort: 53
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 53
+          ToPort: 53
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 111
+          ToPort: 111
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 111
+          ToPort: 111
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 135
+          ToPort: 135
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 135
+          ToPort: 135
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 300
+          ToPort: 300
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 300
+          ToPort: 300
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 302
+          ToPort: 302
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 302
+          ToPort: 302
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 304
+          ToPort: 304
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 304
+          ToPort: 304
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 305
+          ToPort: 305
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: udp
+          FromPort: 305
+          ToPort: 305
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 445
+          ToPort: 445
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9020
+          ToPort: 9020
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9021
+          ToPort: 9021
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+
+
+#create internal security group
+  InternalSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Ref internalsgname
+      GroupDescription: !Sub '${clustername}-internal security group'
+      VpcId: !Ref vpcid
+      SecurityGroupIngress:
+        - CidrIp: !Ref internalsubnetcidr
+          IpProtocol: '-1'
+      SecurityGroupEgress:
+        - CidrIp: !Ref internalsubnetcidr
+          IpProtocol: '-1'
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+
+
+#create external interfaces
+#
+#create node 1 external network interface
+  node1ext1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node1-ext-1'
+      SubnetId: !Ref onefsexternalsubnetid
+      GroupSet:
+        - !Ref ExternalSecurityGroupID
+      PrivateIpAddress: !Ref node1extip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node1-ext-1'
+
+#create node 2 external network interface
+  node2ext1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node2-ext-1'
+      SubnetId: !Ref onefsexternalsubnetid
+      GroupSet:
+        - !Ref ExternalSecurityGroupID
+      PrivateIpAddress: !Ref node2extip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node2-ext-1'
+
+#create node 3 external network interface
+  node3ext1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node3-ext-1'
+      SubnetId: !Ref onefsexternalsubnetid
+      GroupSet:
+        - !Ref ExternalSecurityGroupID
+      PrivateIpAddress: !Ref node3extip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node3-ext-1'
+
+#create node 4 external network interface
+  node4ext1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node4-ext-1'
+      SubnetId: !Ref onefsexternalsubnetid
+      GroupSet:
+        - !Ref ExternalSecurityGroupID
+      PrivateIpAddress: !Ref node4extip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node4-ext-1'        
+
+
+#create internal interfaces
+#
+#create node 1 internal network interface
+  node1int1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node1-int-1'
+      SubnetId: !Ref onefsinternalsubnetid
+      GroupSet:
+        - !Ref InternalSecurityGroupID
+      PrivateIpAddress: !Ref node1intip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node1-int-1'
+
+#create node 2 external network interface
+  node2int1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node2-int-1'
+      SubnetId: !Ref onefsinternalsubnetid
+      GroupSet:
+        - !Ref InternalSecurityGroupID
+      PrivateIpAddress: !Ref node2intip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node2-int-1'
+
+#create node 3 external network interface
+  node3int1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node3-int-1'
+      SubnetId: !Ref onefsinternalsubnetid
+      GroupSet:
+        - !Ref InternalSecurityGroupID
+      PrivateIpAddress: !Ref node3intip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node3-int-1'
+
+#create node 4 external network interface
+  node4int1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: !Sub '${clustername}-node4-int-1'
+      SubnetId: !Ref onefsinternalsubnetid
+      GroupSet:
+        - !Ref InternalSecurityGroupID
+      PrivateIpAddress: !Ref node4intip1
+      Tags:
+      - Key: clustername
+        Value: !Ref clustername
+      - Key: name
+        Value: !Sub '${clustername}-node4-int-1'     
+
+
+#Create interface endpoint if you are using a private VPC - if an endpoint for the subnet already exists 
+#this will create a new vpc endpoint, if subnet vpc endpoint already exists, you can add the external security group to that interface endpoint
+  OneFSVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: 'Interface'
+      ServiceName: com.amazonaws.us-east-1.ec2
+      VpcId: !Ref vpcid
+      SubnetIds: 
+        - !Ref onefsexternalsubnetid
+      SecurityGroupIds:
+        - !Ref ExternalSecurityGroupID
+
+
+#node creation
+#
+#create onefs node1
+  onefsv1node1:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref onefsAMIimageid  # Replace with the appropriate AMI ID
+      InstanceType: !Ref onefsInstanceType
+      PlacementGroupName: !Ref ClusterPlacementGroup
+      IamInstanceProfile: !Ref onefsruntimeinstanceprofile
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref node1int1 #node1 internal id 
+          DeviceIndex: 0
+        - NetworkInterfaceId: !Ref node1ext1 #node1 external id 
+          DeviceIndex: 1
+      BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: xvda  
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdb 
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdc
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdd
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvde
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true  
+#user data - node1
+      UserData:
+        Fn::Base64: 
+          Fn::ToJsonString:
+            hal_dongle_serialno: SV200-930073-0000
+            hal_volume_type: gp3
+            acs_config:
+              cluster:
+                admin_user_password: a
+                cluster_name_nt4_compatibility: false
+                encoding: utf-8
+                l3_cache:
+                 ssd_l3_cache_default_enabled: false
+                name: onefs-v3
+                nodes:
+                  - serial_number: SV200-930073-0000
+                password: a
+                credentials_hashed: false
+                timezone:
+                  name: Eastern Time Zone
+              external_networking:
+                dns_domains:
+                - !Ref dnsDomain
+                dns_servers:
+                - !Ref dnsServer
+                external_interfaces:
+                - gateway: !Ref externalGateway
+                  interface: ext-1
+                  ip_address_ranges:
+                  - low: !Ref node1extip1
+                    high: !Ref node4extip1
+                  mtu: 1500
+                  netmask: !Ref externalNetmask
+                internal_as_external: false
+              internal_networking:
+                internal_interfaces:
+                  - interface: int-a
+                    ip_address_ranges:
+                      - low:  !Ref node1intip1
+                        high: !Ref node4intip1
+                    netmask: !Ref  internalNetmask
+                internal_mtu: 9001
+              join_mode: auto
+            devices:
+                - ext-1: !Ref node1extip1
+                  int-a: !Ref node1intip1
+                  serial_number: SV200-930073-0000
+                - ext-1: !Ref node2extip1
+                  int-a: !Ref node2intip1
+                  serial_number: SV200-930073-0001
+                - ext-1: !Ref node3extip1
+                  int-a: !Ref node3intip1
+                  serial_number: SV200-930073-0002 
+                - ext-1: !Ref node4extip1
+                  int-a: !Ref node4intip1
+                  serial_number: SV200-930073-0003
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+        - Key: Name
+          Value: !Sub '${clustername}-node-1'       
+
+
+
+#
+#create onefs node2
+  onefsv1node2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref onefsAMIimageid  # Replace with the appropriate AMI ID
+      InstanceType: !Ref onefsInstanceType
+      PlacementGroupName: !Ref ClusterPlacementGroup
+      IamInstanceProfile: !Ref onefsruntimeinstanceprofile
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref node2int1 #node2 internal id 
+          DeviceIndex: 0
+        - NetworkInterfaceId: !Ref node2ext1 #node2 external id 
+          DeviceIndex: 1
+      BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: xvda  
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdb 
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdc
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdd
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvde
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true  
+#user data - node2
+      UserData:
+        Fn::Base64: 
+          Fn::ToJsonString:
+            hal_dongle_serialno: SV200-930073-0001
+            hal_volume_type: gp3
+            devices:
+              - ext-1: !Ref node1extip1
+                int-a: !Ref node1intip1
+                serial_number: SV200-930073-0000
+              - ext-1: !Ref node2extip1
+                int-a: !Ref node2intip1
+                serial_number: SV200-930073-0001
+              - ext-1: !Ref node3extip1
+                int-a: !Ref node3intip1
+                serial_number: SV200-930073-0002 
+              - ext-1: !Ref node4extip1
+                int-a: !Ref node4intip1
+                serial_number: SV200-930073-0003
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+        - Key: Name
+          Value: !Sub '${clustername}-node-2'    
+
+
+#
+#create onefs node3
+  onefsv1node3:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref onefsAMIimageid  # Replace with the appropriate AMI ID
+      InstanceType: !Ref onefsInstanceType
+      PlacementGroupName: !Ref ClusterPlacementGroup
+      IamInstanceProfile: !Ref onefsruntimeinstanceprofile
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref node3int1 #node3 internal id 
+          DeviceIndex: 0
+        - NetworkInterfaceId: !Ref node3ext1 #node3 external id 
+          DeviceIndex: 1
+      BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: xvda  
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdb 
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdc
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvdd
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true
+        - DeviceName: xvde
+          Ebs:
+            VolumeSize: !Ref onefsvolumesize 
+            VolumeType: !Ref onefsvolumetype
+            DeleteOnTermination: true  
+#user data - node3
+      UserData:
+        Fn::Base64: 
+          Fn::ToJsonString:
+            hal_dongle_serialno: SV200-930073-0002
+            hal_volume_type: gp3
+            devices:
+              - ext-1: !Ref node1extip1
+                int-a: !Ref node1intip1
+                serial_number: SV200-930073-0000
+              - ext-1: !Ref node2extip1
+                int-a: !Ref node2intip1
+                serial_number: SV200-930073-0001
+              - ext-1: !Ref node3extip1
+                int-a: !Ref node3intip1
+                serial_number: SV200-930073-0002 
+              - ext-1: !Ref node4extip1
+                int-a: !Ref node4intip1
+                serial_number: SV200-930073-0003
+      Tags:
+        - Key: clustername
+          Value: !Ref clustername
+        - Key: Name
+          Value: !Sub '${clustername}-node-3'
+
+
+
+#create onefs node4
+  onefsv1node4:
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: !Ref onefsAMIimageid  # Replace with the appropriate AMI ID
+        InstanceType: !Ref onefsInstanceType
+        PlacementGroupName: !Ref ClusterPlacementGroup
+        IamInstanceProfile: !Ref onefsruntimeinstanceprofile
+        NetworkInterfaces:
+          - NetworkInterfaceId: !Ref node4int1 #node4 internal id 
+            DeviceIndex: 0
+          - NetworkInterfaceId: !Ref node4ext1 #node4 external id 
+            DeviceIndex: 1
+        BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+          - DeviceName: xvda  
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true
+          - DeviceName: xvdb 
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true
+          - DeviceName: xvdc
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true
+          - DeviceName: xvdd
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true
+          - DeviceName: xvde
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true  
+  #user data - node4
+        UserData:
+          Fn::Base64: 
+            Fn::ToJsonString:
+              hal_dongle_serialno: SV200-930073-0003
+              hal_volume_type: gp3
+              devices:
+                - ext-1: !Ref node1extip1
+                  int-a: !Ref node1intip1
+                  serial_number: SV200-930073-0000
+                - ext-1: !Ref node2extip1
+                  int-a: !Ref node2intip1
+                  serial_number: SV200-930073-0001
+                - ext-1: !Ref node3extip1
+                  int-a: !Ref node3intip1
+                  serial_number: SV200-930073-0002 
+                - ext-1: !Ref node4extip1
+                  int-a: !Ref node4intip1
+                  serial_number: SV200-930073-0003
+        Tags:
+          - Key: clustername
+            Value: !Ref clustername
+          - Key: Name
+            Value: !Sub '${clustername}-node-4'               
+
+#collect outputs          
+Outputs:
+  ExternalSecurityGroupIDOutput:
+    Description: The ID of the created external security group
+    Value: !Ref ExternalSecurityGroupID
+  InternalSecurityGroupIDOutput:
+    Description: The ID of the created internal security group
+    Value: !Ref InternalSecurityGroupID
+  node1ext1:
+    Description: The ID of node1 external ext-1 interface
+    Value: !Ref node1ext1
+  node1int1:
+    Description: The ID of node1 internal ext-1 interface
+    Value: !Ref node1int1
+  node2ext1:
+    Description: The ID of node1 external ext-1 interface
+    Value: !Ref node2ext1
+  node2int1:
+    Description: The ID of node1 internal ext-1 interface
+    Value: !Ref node2int1
+  node3ext1:
+    Description: The ID of node1 external ext-1 interface
+    Value: !Ref node3ext1
+  node3int1:
+    Description: The ID of node1 internal ext-1 interface
+    Value: !Ref node3int1
+  node4ext1:
+    Description: The ID of node1 external ext-1 interface
+    Value: !Ref node4ext1
+  node4int1:
+    Description: The ID of node1 internal ext-1 interface
+    Value: !Ref node4int1   
+  node1amiid:
+    Description: node 1 istance id
+    Value: !Ref onefsv1node1
+  node2amiid:
+    Description: node 2 istance id
+    Value: !Ref onefsv1node2   
+  node3amiid:
+    Description: node 3 istance id
+    Value: !Ref onefsv1node3   
+  node4amiid:
+    Description: node 4 istance id
+    Value: !Ref onefsv1node4           
