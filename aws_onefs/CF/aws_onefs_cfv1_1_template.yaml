@@ -10,47 +10,47 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 
 Transform: 'AWS::LanguageExtensions'
 
-# add tags
-Metadata:
-  Tags:
-    - Key: stackclustername
-      Value: onefs-v3
+
 
 #AWS VPC and OneFS cluster info required info:
 # cluster parameters:
-# vpc id = 
-# clustername = 
-# onefsruntimeinstanceprofile = 
-# instance type = 
-# AMI ID = 
-# EBS volume size = 
-# EBS voleume type = 
-# internal subnet cidr = 
-# external subnet cidr =
-# internal interface ip =
-# external interface ip =
-# internal subnet id = 
-# external subnet id = 
+# vpc id = VPC ID cluster to be deployed into
+# clustername = clustername to be deployed
+# onefsruntimeinstanceprofile = IAM resources instance profile name 
+# instance type = instance type to be deployed
+# AMI ID = AMI ID to be deployed
+# EBS volume size = volume size
+# EBS voleume type = volume type gp3 is default
+# internal subnet cidr = internal subnet cidr in x.x.x.x/x format
+# external subnet cidr = external subnet cidr in y.y.y.y/y format
+# internal interface ip range =  x.x.x.x - x.x.x.x
+# external interface ip = y.y.y.y = y.y.y.y
+# internal subnet id = aws internal sun=bnet id
+# external subnet id = awd external subnet id
 # vpcendpointregion = eg: com.amazonaws.us-east-1.ec2
 
 
 #Set paramters here for cloudformation template:
-#replace #<variable> with your values for the VPC and deployment
+#replace #<variable># with your values for the VPC and deployment
 
-
+# add tags
+Metadata:
+  Tags:
+    - Key: stackclustername
+      Value: #<stack name tag>#
 
 Parameters:
 #VPC ID
   vpcid:
     Type: String
     Description: VPC ID 
-    Default: #<vpc-id>  
+    Default: #<vpc-id>#  
 
 #name of onefs cluster to be deployed
   clustername:
     Type: String
     Description: onefs cluster name 
-    Default: #<onefs clustername>
+    Default: #<onefs clustername>#
 
 #ec2 node instance type
   onefsInstanceType:
@@ -68,14 +68,14 @@ Parameters:
 #onefs AMI ID
   onefsAMIimageid:
     Type: String
-    Description: onefs cluster AMI ID
+    Description: onefs cluster AMI ID for region
     Default: #<ami-id>
 
 #onefs volumesize
   onefsvolumesize:
     Type: String
-    Description: onefs volumesize
-    Default: #<ebs volume size>
+    Description: onefs volumesize - numeric value
+    Default: #<ebs volume size>#
 
  #onefs volumetype
   onefsvolumetype:
@@ -86,84 +86,84 @@ Parameters:
       - gp3
       - st1
 
-#instance profile name - pre-requisite, assumes already complete for vpc per deployment doc
+#instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc
   onefsruntimeinstanceprofile:
     Type: String
     Description: onefs cluster instance profile
-    Default: #<run time policyname>
+    Default: #<iam run time policyname from aws>#
 
 #onefs cluster placement group
   onefsplacementgroup:
     Type: String
     Description: onefs placement group 
-    Default: #<placement group name>
+    Default: #<placement group name>#
 
 
 #external security group name
   externalsgname:
     Type: String
     Description: onefs external security group 
-    Default: #<external security group name>
+    Default: #<external security group name>#
 
 #internal security group name
   internalsgname:
     Type: String
     Description: onefs internal security group 
-    Default: #<internal security group name>
+    Default: #<internal security group name>#
 
 #external subnet id - node ext1 interfaces will be created here
   onefsexternalsubnetid:
     Type: String
     Description: onefs external subnet
-    Default: #<external subnet id>
+    Default: #<aws external subnet id>#
 
 #internal subnet id- node int1 interfaces will be created here
   onefsinternalsubnetid:
     Type: String
     Description: onefs internal subnet
-    Default: #<internal subnet id> 
+    Default: #<aws internal subnet id># 
 
 #external subnet cidr
   externalsubnetcidr:
     Type: String
     Description: external subnet/cidr
-    Default: #<external subnet cidr x.x.x.x/y>  
+    Default: #<aws external subnet cidr x.x.x.x/y>#  
 
 #internal subnet cidr
   internalsubnetcidr:
     Type: String
     Description: internal subnet/cidr
-    Default: #<internal subnet cidr x.x.x.x/y>  
+    Default: #<aws internal subnet cidr x.x.x.x/y>#  
 
 #dns search domains
   dnsDomain:
     Type: String
     Description: dns search domain
-    Default: #<dns search domain>
+    Default: #<dns search domain>#
 
 #dns servers
   dnsServer:
     Type: String
     Description: dns server
-    Default: #<dns server ip>
+    Default: #<dns server ip>#
 
 #external gateway of external subnet
   externalGateway:
     Type: String
     Description: default gateway
-    Default: #<default gateway>
+    Default: #<default gateway>#
 
 #external network mask of external subnet
   externalNetmask:
     Type: String
     Description: external 
-    Default: #<external subnet mask x.x.x.x>
+    Default: #<external subnet mask x.x.x.x>#
 
 #internal network mask of external subnet
   internalNetmask:
     Type: String
     Description: internal network netmask 
-    Default: #<internal subnet mask y.y.y.y>
+    Default: #<internal subnet mask y.y.y.y>#
 
 
 #external interfaces - assign IPs
@@ -171,54 +171,55 @@ Parameters:
   node1extip1:
     Type: String
     Description: node1 external ip
-    Default: #<node1-external ip x.x.x.x>
+    Default: #<node1-external ip x.x.x.x>#
 #node2 ext-1    
   node2extip1:
     Type: String
     Description: node2 external ip
-    Default: #<node2-external ip x.x.x.x>
+    Default: #<node2-external ip x.x.x.x>#
 #node3 ext-1  
   node3extip1:
     Type: String
     Description: node3 external ip
-    Default: #<node3-external ip x.x.x.x>
+    Default: #<node3-external ip x.x.x.x>#
 #node4 ext-1    
   node4extip1:
     Type: String
     Description: node4 external ip
-    Default: #<node4-external ip x.x.x.x>  
+    Default: #<node4-external ip x.x.x.x>#  
+
 
 #internal interfaces - assign IPs
 #node1 int-1
   node1intip1:
     Type: String
     Description: node1 internal ip
-    Default: #<node1-internal ip y.y.y.y>
+    Default: #<node1-internal ip y.y.y.y>#
 #node2 int-1    
   node2intip1:
     Type: String
     Description: node2 internal ip
-    Default: #<node2-internal ip y.y.y.y>
+    Default: #<node2-internal ip y.y.y.y>#
 #node3 int-1     
   node3intip1:
     Type: String
     Description: node3 internal ip
-    Default: #<node3-internal ip y.y.y.y>
+    Default: #<node3-internal ip y.y.y.y>#
 #node4 int-1     
   node4intip1:
     Type: String
     Description: node4 internal ip
-    Default: #<node4-internal ip y.y.y.y>
+    Default: #<node4-internal ip y.y.y.y>#
 
-#VPC Endpint Region     
+#VPC Endpint Region - required when deploying in private subnet   
   vpcendpointregion:
     Type: String
     Description: VPC Endpoint Region 
-    Default: #<region>  eg: com.amazonaws.us-east-1.ec2   
+    Default: #<region>#  eg: com.amazonaws.us-east-1.ec2   
 
 
 ####
-#resoures to be deployed
+#resoures to be deployed via CF template
 ####
 
 Resources:
