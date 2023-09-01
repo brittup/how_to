@@ -20,7 +20,7 @@ Metadata:
 # cluster parameters:
 # vpc id = 
 # clustername = 
-# onefs placement group =
+# onefsruntimeinstanceprofile = 
 # instance type = 
 # AMI ID = 
 # EBS volume size = 
@@ -29,6 +29,9 @@ Metadata:
 # external subnet cidr =
 # internal interface ip =
 # external interface ip =
+# internal subnet id = 
+# external subnet id = 
+# vpcendpointregion = eg: com.amazonaws.us-east-1.ec2
 
 
 #Set paramters here for cloudformation template:
@@ -55,6 +58,7 @@ Parameters:
     Type: String
     Default:  m5dn.8xlarge
     AllowedValues:
+      - m5d.large  # test/dev only unsupported
       - m5dn.8xlarge
       - m5dn.12xlarge
       - m5dn.16xlarge
@@ -204,7 +208,13 @@ Parameters:
   node4intip1:
     Type: String
     Description: node4 internal ip
-    Default: #<node4-internal ip y.y.y.y>   
+    Default: #<node4-internal ip y.y.y.y>
+
+#VPC Endpint Region     
+  vpcendpointregion:
+    Type: String
+    Description: VPC Endpoint Region 
+    Default: #<region>  eg: com.amazonaws.us-east-1.ec2   
 
 
 ####
@@ -474,7 +484,7 @@ Resources:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       VpcEndpointType: 'Interface'
-      ServiceName: com.amazonaws.us-east-1.ec2
+      ServiceName: !Ref vpcendpointregion  
       VpcId: !Ref vpcid
       SubnetIds: 
         - !Ref onefsexternalsubnetid
