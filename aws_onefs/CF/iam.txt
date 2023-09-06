@@ -1,0 +1,49 @@
+##Cluster Creation Overview
+###
+### Use the following doc as a template file for the setup and deployment of onefs vNodes
+### replace variable ids with aws specific values
+### i use an aws profile to connect aws cli with - udsawsadmin
+###
+
+###Once per VPC
+1.Create the IAM policy 
+2.Create the IAM assume role
+3.attach the policy to the role
+4.create the instance profile
+5.attach the role to the instance profile
+
+###Per vCluster
+6.modify CF template
+7.deploy CF
+8.Logon and evaluate cluster; start node adds
+
+
+#########################################################################################################################################################
+###create IAM resources using the aws sdk cli
+###using aws profile --profile=<profile_id>
+###aws id <aws_id>
+
+export aws_sdk_profile=<profile_id>
+
+##########################################################################################################################################################
+####only needed once!
+1.Create the IAM policy 
+###aws id <aws_id> - modify onefs-runtime-policy.json 
+aws iam --profile=$aws_sdk_profile create-policy --policy-name onefs-runtime-policy --policy-document file://onefs-runtime-policy.json 
+
+2.Create the IAM assume role
+aws iam --profile=$aws_sdk_profile create-role --role-name onefs-runtime-role --assume-role-policy-document file://onefs-runtime-assume-role.json  
+
+3.attach the policy to the role
+###aws iam --profile=udsawsadmin attach-role-policy --role-name onefs-runtime-role --policy-arn 
+###<from step 1>  arn = arn:aws:iam::<aws_id>:policy/onefs-runtime-policy 
+aws iam --profile=$aws_sdk_profile attach-role-policy --role-name onefs-runtime-role --policy-arn arn:aws:iam::<aws_id>:policy/onefs-runtime-policy 
+
+4.create the instance profile
+aws iam --profile=$aws_sdk_profile create-instance-profile --instance-profile-name onefs-runtime-instance-profile
+
+5.attach the role to the instance profile
+aws iam --profile=$aws_sdk_profile add-role-to-instance-profile --instance-profile-name onefs-runtime-instance-profile --role-name onefs-runtime-role 
+####
+####only needed once per vpc!
+##########################################################################################################################################################
