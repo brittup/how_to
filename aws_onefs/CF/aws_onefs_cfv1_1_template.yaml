@@ -86,11 +86,11 @@ Parameters:
       - gp3
       - st1
 
-#instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc
+#instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc - CF uses instance-profile name
   onefsruntimeinstanceprofile:
     Type: String
     Description: onefs cluster instance profile
-    Default: #<iam run time policyname from aws>#
+    Default: #<iam instance profile name from aws>#
 
 #onefs cluster placement group
   onefsplacementgroup:

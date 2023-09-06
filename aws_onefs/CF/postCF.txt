@@ -6,7 +6,7 @@ post CF install setup v1.0 - add nodes
 ###aws id <aws_id>
 
 export aws_sdk_profile=<profile_id>
-aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key==`Name`]|[0].Value,State:State.Name,IP:PublicIpAddress, IP2:PrivateIpAddress}'     --output table 
+aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key==`Name`]|[0].Value,State:State.Name,IP:PublicIpAddress, IP2:PrivateIpAddress}'  --output table 
 
 
 
@@ -40,8 +40,6 @@ isi devices node add SV200-930073-0003 --async
 
 isi status
 
-
-
 isi network groupnets view groupnet0
 isi network subnets view groupnet0.subnet0 
 isi network pools view groupnet0.subnet0.pool0 
@@ -57,11 +55,79 @@ isi network pools modify  groupnet0.subnet0.pool0 --sc-dns-zone=sc3.foo.com.ec2.
 isi network subnets view groupnet0.subnet0 
 isi network pools view groupnet0.subnet0.pool0 
 
-isi_for_array ifconfig | grep 222 -A 2 -B 6
+isi_for_array ifconfig | grep <SC_IP> -A 2 -B 6
 
-nslookup sc1.foo.com.ec2.internal 10.15.2.222
-
+nslookup sc1.foo.com.ec2.internal <SC_IP>
 
 isi services nfs enable
 isi services smb enable
 isi services
+
+
+
+
+
+
+
+###Review 
+###using aws profile --profile=<profile_id>
+###aws id <aws_id>
+
+export aws_sdk_profile=<profile_id>
+
+policy_name="onefs-runtime-policy"
+tag_key="clustername"
+tag_value="onefs-v1"
+
+
+### VPC and subnet info
+aws ec2 --profile=$aws_sdk_profile describe-vpcs --query "Vpcs[*].{VpcId:VpcId, Name:Tags[?Key=='Name']|[0].Value, CidrBlock:CidrBlock, State:State}" --output table
+aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetId:SubnetId, Name:Tags[?Key=='Name']|[0].Value, VpcId:VpcId, CidrBlock:CidrBlock, AvailabilityZone:AvailabilityZone}" --output table
+
+
+### IAM resources
+export policy_name="onefs-runtime-policy"
+aws iam --profile=$aws_sdk_profile get-policy --policy-arn $(aws iam --profile=$aws_sdk_profile list-policies --scope All --query "Policies[?PolicyName=='$policy_name'].Arn" --output text) --output table
+
+aws iam --profile=$aws_sdk_profile get-role --role-name onefs-runtime-role --output table
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles-for-role --role-name onefs-runtime-role --output table
+
+aws ec2 --profile=$aws_sdk_profile describe-placement-groups --query "PlacementGroups[*].GroupName" --output table
+
+aws ec2 --profile=$aws_sdk_profile describe-placement-groups --filters "Name=tag:$tag_key,Values=$tag_value" --output table
+
+
+###Cluster Resources
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --filters "Name=tag:$tag_key,Values=$tag_value" --query "SecurityGroups[*].{GroupId:GroupId, GroupName:GroupName}"
+
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --filters "Name=tag:$tag_key,Values=$tag_value" 
+
+aws ec2 --profile=$aws_sdk_profile describe-network-interfaces --filters "Name=tag:$tag_key,Values=$tag_value" --query "NetworkInterfaces[*].{id:NetworkInterfaceId, Name:PrivateDnsName}"
+
+aws ec2 --profile=$aws_sdk_profile describe-network-interfaces --filters "Name=tag:$tag_key,Values=$tag_value" --output table
+
+
+aws ec2 --profile=$aws_sdk_profile describe-vpc-endpoints --query "VpcEndpoints[*].VpcEndpointId" 
+
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" --query "Reservations[*].Instances[*].{id:InstanceId, Name:Tags[?Key=='Name']|[0].Value}"
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" 
+
+
+
+
+
+###get volume mapping for an instance
+###get instance name & id
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" --query "Reservations[*].Instances[*].{id:InstanceId, Name:Tags[?Key=='Name']|[0].Value}" --output table
+
+
+-modify node name value to query specific node: Name,Values=onefs-v1-node1
+
+instance_id=$(aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId}'  --output text  --filters "Name=tag:Name,Values=onefs-v1-node1")
+aws ec2 describe-volumes --profile=$aws_sdk_profile --filters "Name=attachment.instance-id,Values=$instance_id" --output table
+  
+
+
