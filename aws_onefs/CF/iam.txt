@@ -47,3 +47,12 @@ aws iam --profile=$aws_sdk_profile add-role-to-instance-profile --instance-profi
 ####
 ####only needed once per vpc!
 ##########################################################################################################################################################
+
+
+
+
+###Profile name needed for CF template:
+###aws id <aws_id>
+export aws_sdk_profile=<profile_id>
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
