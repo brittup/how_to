@@ -15,6 +15,12 @@ Transform: 'AWS::LanguageExtensions'
 #AWS VPC and OneFS cluster info required info:
 # cluster parameters:
 # vpc id = VPC ID cluster to be deployed into
+#
+# subnet provioned in region
+# internal subnet id = aws internal sun=bnet id
+# external subnet id = awd external subnet id
+#
+# cluster configuration to be built by CF
 # clustername = clustername to be deployed
 # onefsruntimeinstanceprofile = IAM resources instance profile name 
 # instance type = instance type to be deployed
@@ -25,8 +31,6 @@ Transform: 'AWS::LanguageExtensions'
 # external subnet cidr = external subnet cidr in y.y.y.y/y format
 # internal interface ip range =  x.x.x.x - x.x.x.x
 # external interface ip = y.y.y.y = y.y.y.y
-# internal subnet id = aws internal sun=bnet id
-# external subnet id = awd external subnet id
 # vpcendpointregion = eg: com.amazonaws.us-east-1.ec2
 
 
