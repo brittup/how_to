@@ -2,7 +2,7 @@
 ###
 ### Use the following doc as a template file for the setup and deployment of onefs vNodes
 ### replace variable ids with aws specific values
-### i use an aws profile to connect aws cli with - udsawsadmin
+### i use an aws profile to connect aws cli with = aws sdk profile id
 ###
 
 ###Once per VPC
