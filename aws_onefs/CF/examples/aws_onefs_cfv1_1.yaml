@@ -12,7 +12,7 @@ Transform: 'AWS::LanguageExtensions'
 Metadata:
   Tags:
     - Key: stackclustername
-      Value: onefs-v3
+      Value: onefs-v3   #update to stack name
 
 #AWS VPC and OneFS cluster info required info:
 # cluster parameters:
