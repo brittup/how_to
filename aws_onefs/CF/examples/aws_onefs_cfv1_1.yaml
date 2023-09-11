@@ -1,60 +1,54 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to deploy AWS vOneFS cluster
-#version1.1
-#base CF cluster deployment template
+#version1.0
+#base CF cluster deployment template 
 #4 node cluster
-#template assumes all IAM resources created and exist
-#template uses existing subnets in vpc
-#will deploy 4 node cluster
+
 
 Transform: 'AWS::LanguageExtensions'
-
-
-
-#AWS VPC and OneFS cluster info required info:
-# cluster parameters:
-# vpc id = VPC ID cluster to be deployed into
-#
-# subnet provioned in region
-# internal subnet id = aws internal sun=bnet id
-# external subnet id = awd external subnet id
-#
-# cluster configuration to be built by CF
-# clustername = clustername to be deployed
-# onefsruntimeinstanceprofile = IAM resources instance profile name 
-# instance type = instance type to be deployed
-# AMI ID = AMI ID to be deployed
-# EBS volume size = volume size
-# EBS voleume type = volume type gp3 is default
-# internal subnet cidr = internal subnet cidr in x.x.x.x/x format
-# external subnet cidr = external subnet cidr in y.y.y.y/y format
-# internal interface ip range =  x.x.x.x - x.x.x.x
-# external interface ip = y.y.y.y = y.y.y.y
-# vpcendpointregion = eg: com.amazonaws.us-east-1.ec2
-
-
-#Set paramters here for cloudformation template:
-#replace #<variable># with your values for the VPC and deployment
 
 # add tags
 Metadata:
   Tags:
     - Key: stackclustername
-      Value: #<stack name tag>#
+      Value: onefs-v3
+
+#AWS VPC and OneFS cluster info required info:
+# cluster parameters:
+
+# vpc id = vpc-00c460111111111
+# clustername = onefs-v3
+# onefsruntimeinstanceprofile = onefs-runtime-instance-profile
+# onefs placement group = onefs-v3-onefs-placement-group
+# instance type = m5dn.8xlarge
+# AMI ID = ami-01234567891011
+# EBS volume size = 50
+# EBS voleume type = gp3
+# internal subnet cidr 10.15.3/24
+# external subnet cidr 10.15.2/24
+# internal subnet id = subnet-01931111111111111
+# external subnet id = subnet-02972222222222222
+# internal interface ip 10.15.3.200 - 206
+# external interface ip 10.15.2.200 - 206
+# vpcendpointregion = eg: com.amazonaws.us-east-1.ec2
+
+
+
+#Set paramters here for cloudformation template:
 
 Parameters:
 #VPC ID
   vpcid:
     Type: String
     Description: VPC ID 
-    Default: #<vpc-id>#  
+    Default: vpc-00c460111111111  
 
 #name of onefs cluster to be deployed
   clustername:
     Type: String
     Description: onefs cluster name 
-    Default: #<onefs clustername>#
+    Default: onefs-v3
 
 #ec2 node instance type
   onefsInstanceType:
@@ -72,14 +66,14 @@ Parameters:
 #onefs AMI ID
   onefsAMIimageid:
     Type: String
-    Description: onefs cluster AMI ID for region
-    Default: #<ami-id>
+    Description: onefs cluster AMI ID
+    Default: ami-01234567891011
 
 #onefs volumesize
   onefsvolumesize:
     Type: String
-    Description: onefs volumesize - numeric value
-    Default: #<ebs volume size>#
+    Description: onefs volumesize
+    Default: 50
 
  #onefs volumetype
   onefsvolumetype:
@@ -90,84 +84,84 @@ Parameters:
       - gp3
       - st1
 
-#instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc - CF uses instance-profile name
+#instance profile name - pre-requisite, assume already complete for vpc per deployment doc
   onefsruntimeinstanceprofile:
     Type: String
     Description: onefs cluster instance profile
-    Default: #<iam instance profile name from aws>#
+    Default: onefs-runtime-instance-profile
 
 #onefs cluster placement group
   onefsplacementgroup:
     Type: String
     Description: onefs placement group 
-    Default: #<placement group name>#
+    Default: onefs-v3-onefs-placement-group
 
 
 #external security group name
   externalsgname:
     Type: String
     Description: onefs external security group 
-    Default: #<external security group name>#
+    Default: onefs-v3-external-sg  
 
 #internal security group name
   internalsgname:
     Type: String
     Description: onefs internal security group 
-    Default: #<internal security group name>#
+    Default: onefs-v3-internal-sg
 
 #external subnet id - node ext1 interfaces will be created here
   onefsexternalsubnetid:
     Type: String
     Description: onefs external subnet
-    Default: #<aws external subnet id>#
+    Default: subnet-01931111111111111
 
 #internal subnet id- node int1 interfaces will be created here
   onefsinternalsubnetid:
     Type: String
     Description: onefs internal subnet
-    Default: #<aws internal subnet id># 
+    Default: subnet-02972222222222222 
 
 #external subnet cidr
   externalsubnetcidr:
     Type: String
     Description: external subnet/cidr
-    Default: #<aws external subnet cidr x.x.x.x/y>#  
+    Default: 10.15.2.0/24  
 
 #internal subnet cidr
   internalsubnetcidr:
     Type: String
     Description: internal subnet/cidr
-    Default: #<aws internal subnet cidr x.x.x.x/y>#  
+    Default: 10.15.3.0/24  
 
 #dns search domains
   dnsDomain:
     Type: String
     Description: dns search domain
-    Default: #<dns search domain>#
+    Default: ec2.internal
 
 #dns servers
   dnsServer:
     Type: String
     Description: dns server
-    Default: #<dns server ip>#
+    Default: 10.15.0.2
 
 #external gateway of external subnet
   externalGateway:
     Type: String
     Description: default gateway
-    Default: #<default gateway>#
+    Default: 10.15.2.1
 
 #external network mask of external subnet
   externalNetmask:
     Type: String
     Description: external 
-    Default: #<external subnet mask x.x.x.x>#
+    Default: 255.255.255.0
 
 #internal network mask of external subnet
   internalNetmask:
     Type: String
     Description: internal network netmask 
-    Default: #<internal subnet mask y.y.y.y>#
+    Default: 255.255.255.0
 
 
 #external interfaces - assign IPs
@@ -175,55 +169,54 @@ Parameters:
   node1extip1:
     Type: String
     Description: node1 external ip
-    Default: #<node1-external ip x.x.x.x>#
+    Default: 10.15.2.200
 #node2 ext-1    
   node2extip1:
     Type: String
     Description: node2 external ip
-    Default: #<node2-external ip x.x.x.x>#
+    Default: 10.15.2.201
 #node3 ext-1  
   node3extip1:
     Type: String
     Description: node3 external ip
-    Default: #<node3-external ip x.x.x.x>#
+    Default: 10.15.2.202
 #node4 ext-1    
   node4extip1:
     Type: String
     Description: node4 external ip
-    Default: #<node4-external ip x.x.x.x>#  
-
+    Default: 10.15.2.203    
 
 #internal interfaces - assign IPs
 #node1 int-1
   node1intip1:
     Type: String
     Description: node1 internal ip
-    Default: #<node1-internal ip y.y.y.y>#
+    Default: 10.15.3.200
 #node2 int-1    
   node2intip1:
     Type: String
     Description: node2 internal ip
-    Default: #<node2-internal ip y.y.y.y>#
+    Default: 10.15.3.201
 #node3 int-1     
   node3intip1:
     Type: String
     Description: node3 internal ip
-    Default: #<node3-internal ip y.y.y.y>#
+    Default: 10.15.3.202
 #node4 int-1     
   node4intip1:
     Type: String
     Description: node4 internal ip
-    Default: #<node4-internal ip y.y.y.y>#
+    Default: 10.15.3.203  
 
-#VPC Endpint Region - required when deploying in private subnet   
+#VPC Endpint Region     
   vpcendpointregion:
     Type: String
     Description: VPC Endpoint Region 
-    Default: #<region>#  eg: com.amazonaws.us-east-1.ec2   
+    Default: com.amazonaws.us-east-1.ec2    
 
 
 ####
-#resoures to be deployed via CF template
+#resoures to be deployed
 ####
 
 Resources:
@@ -538,8 +531,8 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true  
-#userdata - node1 - need for acs
-#using default_plain_text_password
+#user data - node1
+#using default_plain_text_password  
       UserData:
         Fn::Base64: 
           Fn::ToJsonString:
