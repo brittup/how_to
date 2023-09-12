@@ -96,7 +96,6 @@ Parameters:
     Description: ebs volume iops
     Default: 3000   
 
-
 #instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc - CF uses instance-profile name
   onefsruntimeinstanceprofile:
     Type: String
