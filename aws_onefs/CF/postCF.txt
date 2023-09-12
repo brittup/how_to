@@ -14,8 +14,10 @@ isi status
 isi auth user list
 isi devices node list
 
-### to shut a node down
+
+### to shut a node down!!!
 isi cluster shutdown --node-lnn=<node-lnn>
+###
 
 
 isi devices node add SV200-930073-0001 --async
@@ -38,8 +40,52 @@ isi devices node add SV200-930073-0003 --async
 
 ###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before proceeding
 
+
+
+###node 5 & 6
+isi network groupnets view groupnet0
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+
+###to add nodes 5 & 6, we need to expand the internal and external defined IP ranges to include the IP's assigned to node5 & node6
+
+###modify the internal IP range
+isi config
+
+iprange
+
+iprange int-a 10.15.3.200-10.15.3.205
+
+exit
+
+
+#You have made the following configuration changes:
+#
+#int-a IP ranges: { 10.15.3.200-10.15.3.203 } -> { 10.15.3.200-10.15.3.205 }
+#
+#Would you like to commit your changes before quitting? [yes]
+#>>> yes
+
+
+
+###modify the external IP range
+isi network pools modify groupnet0.subnet0.pool0 --ranges=10.15.2.200-10.15.2.205
+isi network pools view groupnet0.subnet0.pool0 
+
+
+###add nodes
+isi devices node add SV200-930073-0004 --async
 isi status
 
+
+isi devices node add SV200-930073-0005 --async
+isi status
+
+
+
+###useful commands
+isi status
 isi network groupnets view groupnet0
 isi network subnets view groupnet0.subnet0 
 isi network pools view groupnet0.subnet0.pool0 
