@@ -552,7 +552,7 @@ Resources:
                 encoding: utf-8
                 l3_cache:
                  ssd_l3_cache_default_enabled: false
-                name: onefs-v3
+                name: !Ref clustername
                 nodes:
                   - serial_number: SV200-930073-0000
                 password: a
