@@ -242,7 +242,7 @@ Parameters:
 #VPC Endpint Region - required when deploying in private subnet   
   vpcendpointregion:
     Type: String
-    Description: VPC Endpoint Region 
+    Description: VPC Endpoint Region
     Default: #<region>#  eg: com.amazonaws.us-east-1.ec2
 
 
@@ -757,7 +757,7 @@ Resources:
                   interface: ext-1
                   ip_address_ranges:
                   - low: !Ref node1extip1
-                    high: !Ref node4extip1
+                    high: !Ref node6extip1
                   mtu: 1500
                   netmask: !Ref externalNetmask
                 internal_as_external: false
@@ -766,7 +766,7 @@ Resources:
                   - interface: int-a
                     ip_address_ranges:
                       - low:  !Ref node1intip1
-                        high: !Ref node4intip1
+                        high: !Ref node6intip1
                     netmask: !Ref  internalNetmask
                 internal_mtu: 9001
               join_mode: auto
