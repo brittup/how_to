@@ -90,6 +90,13 @@ Parameters:
       - gp3
       - st1
 
+#ebs iops - only supported on gp3: 3,000-16,000 IOPS - aws default is 3000
+  ebsvolumeiops:
+    Type: String
+    Description: ebs volume iops
+    Default: 3000   
+
+
 #instance profile name - pre-requisite, assumes IAM resources already complete for vpc per deployment doc - CF uses instance-profile name
   onefsruntimeinstanceprofile:
     Type: String
@@ -518,26 +525,31 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
-            DeleteOnTermination: true  
+            DeleteOnTermination: true 
+            Iops: !Ref ebsvolumeiops   
 #userdata - node1 - need for acs
 #using default_plain_text_password
       UserData:
@@ -623,11 +635,13 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -638,11 +652,13 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
-            DeleteOnTermination: true  
+            DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops    
 #user data - node2
       UserData:
         Fn::Base64: 
@@ -668,8 +684,6 @@ Resources:
         - Key: Name
           Value: !Sub '${clustername}-node-2'    
 
-
-#
 #create onefs node3
   onefsv1node3:
     Type: AWS::EC2::Instance
@@ -689,26 +703,31 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops  
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
-            DeleteOnTermination: true  
+            DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops    
 #user data - node3
       UserData:
         Fn::Base64: 
@@ -735,7 +754,6 @@ Resources:
           Value: !Sub '${clustername}-node-3'
 
 
-
 #create onefs node4
   onefsv1node4:
       Type: AWS::EC2::Instance
@@ -755,26 +773,31 @@ Resources:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops  
           - DeviceName: xvdb 
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops  
           - DeviceName: xvdc
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops  
           - DeviceName: xvdd
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops  
           - DeviceName: xvde
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true  
+              DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops    
   #user data - node4
         UserData:
           Fn::Base64: 
