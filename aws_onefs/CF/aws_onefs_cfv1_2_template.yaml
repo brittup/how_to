@@ -67,7 +67,6 @@ Parameters:
       - m5dn.24xlarge
     ConstraintDescription: must be a supported instance type
 
-
 #onefs AMI ID
   onefsAMIimageid:
     Type: String
@@ -88,12 +87,6 @@ Parameters:
     AllowedValues:
       - gp3
       - st1
-
-#ebs iops - only supported on gp3: 3,000-16,000 IOPS - aws default is 3000
-  ebsvolumeiops:
-    Type: String
-    Description: ebs volume iops
-    Default: 3000
 
 #instance profile name - pre-requisite: assumes IAM resources already complete for vpc per deployment doc - CF uses instance-profile name
   onefsruntimeinstanceprofile:
@@ -245,6 +238,12 @@ Parameters:
     Description: VPC Endpoint Region
     Default: #<region>#  eg: com.amazonaws.us-east-1.ec2
 
+#added to 1.2 template
+#ebs iops - only supported on gp3: 3,000-16,000 IOPS - aws default is 3000
+  ebsvolumeiops:
+    Type: String
+    Description: ebs volume iops
+    Default: 3000
 
 ####
 #resoures to be deployed via CF template
@@ -595,8 +594,9 @@ Resources:
         - NetworkInterfaceId: !Ref node1ext1 #node1 external id 
           DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
         - DeviceName: xvda  
@@ -796,8 +796,6 @@ Resources:
           Value: !Sub '${clustername}-node-1'       
 
 
-
-#
 #create onefs node2
   onefsv1node2:
     Type: AWS::EC2::Instance
@@ -812,8 +810,9 @@ Resources:
         - NetworkInterfaceId: !Ref node2ext1 #node2 external id 
           DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
         - DeviceName: xvda  
@@ -989,8 +988,9 @@ Resources:
         - NetworkInterfaceId: !Ref node3ext1 #node3 external id 
           DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
         - DeviceName: xvda  
@@ -1167,8 +1167,9 @@ Resources:
           - NetworkInterfaceId: !Ref node4ext1 #node4 external id 
             DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
         BlockDeviceMappings:  
           - DeviceName: xvda
@@ -1343,8 +1344,9 @@ Resources:
         - NetworkInterfaceId: !Ref node5ext1 #node5 external id 
           DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
         - DeviceName: xvda  
@@ -1476,7 +1478,7 @@ Resources:
 #20 ebs volumes 
 #user data - node5
       UserData:
-        Fn::Base64: 
+        Fn::Base64:
           Fn::ToJsonString:
             hal_dongle_serialno: SV200-930073-0004
             hal_volume_type: gp3
@@ -1519,8 +1521,9 @@ Resources:
         - NetworkInterfaceId: !Ref node6ext1 #node6 external id 
           DeviceIndex: 1
 #add and modify the associated block device mappings - gp3 can be 5,6,10,12,15,18,20
-##add and modify the associated block device mappings - gp3 can be 5,6
+#add and modify the associated block device mappings - st1 can be 5,6
 #remove volumes as needed
+#remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
         - DeviceName: xvda  
