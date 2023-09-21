@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": 
+  [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AssignPrivateIpAddresses"
+      ],
+      "Resource": "arn:aws:ec2:*:<aws_id>:network-interface/*"
+    }
+  ]
+}
