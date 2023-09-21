@@ -11,22 +11,9 @@ It is a distillation of the deployment guide to it's simplest form, use in conju
 <br>
 
 * CF -- contains a demo CoudFormation template and additional code snips
-<br>
 
- - cf templates - cloudformation templates<br>
- - ima.txt - deploy iam resources<br>
- - iam templates<br>
 
 <br>
 
 * onefs-v2 -- contains the aws cli template scripts and required json mappings  
-<br>
 
- - aws-install-onefs-v2.txt  -- the aws cli command template to create and build all aws resources per the deployment guide<br> 
- - block-device-mappings-vonefs.json -- the block device mapping template used by each node <br> 
- - user-data-node-1-vonefs.json -- node1 bootstrap template used by node1<br>
- - user-data-node-2-vonefs.json -- node2 bootstrap template used by node2<br>
- - user-data-node-3-vonefs.json -- node3 bootstrap template used by node3<br>
- - user-data-node-4-vonefs.json -- node4 bootstrap template used by node4<br>
- - user-data-node-5-vonefs.json -- node5 bootstrap template used by node5<br>
- - user-data-node-6-vonefs.json -- node6 bootstrap template used by node6<br>
