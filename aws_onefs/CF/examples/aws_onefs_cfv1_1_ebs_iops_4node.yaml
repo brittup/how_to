@@ -7,6 +7,7 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
 #will deploy 4 node+ 5 ebs vol node cluster
+#added iops
 
 
 Transform: 'AWS::LanguageExtensions'
@@ -45,7 +46,7 @@ Parameters:
   vpcid:
     Type: String
     Description: VPC ID 
-    Default: vpc-00c460111111111  
+    Default: vpc-00c460111111111
 
 #name of onefs cluster to be deployed
   clustername:
@@ -78,7 +79,7 @@ Parameters:
     Description: onefs volumesize
     Default: 50
 
- #onefs volumetype
+#onefs volumetype
   onefsvolumetype:
     Type: String
     Description: onefs volumetype
@@ -86,6 +87,12 @@ Parameters:
     AllowedValues:
       - gp3
       - st1
+
+#ebs iops - only supported on gp3: 3,000-16,000 IOPS  - aws default is 3000
+  ebsvolumeiops:
+    Type: String
+    Description: ebs volume iops
+    Default: 3000   
 
 #instance profile name - pre-requisite, assume already complete for vpc per deployment doc
   onefsruntimeinstanceprofile:
@@ -514,26 +521,31 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
 #user data - node1
 #using default_plain_text_password
       UserData:
@@ -619,26 +631,31 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops        
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops            
 #user data - node2
       UserData:
         Fn::Base64: 
@@ -685,26 +702,31 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops           
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops              
 #user data - node3
       UserData:
         Fn::Base64: 
@@ -751,27 +773,32 @@ Resources:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvdb 
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvdc
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvdd
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvde
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-  #user data - node4
+              Iops: !Ref ebsvolumeiops
+#user data - node4
         UserData:
           Fn::Base64: 
             Fn::ToJsonString:
