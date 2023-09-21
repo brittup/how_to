@@ -7,6 +7,7 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #5 - 20 ebs volumes modify all nodes block device mapping as needed
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
+#remove resources as need to create cluster configuration
 #added iops for ebs volumes
 
 Transform: 'AWS::LanguageExtensions'

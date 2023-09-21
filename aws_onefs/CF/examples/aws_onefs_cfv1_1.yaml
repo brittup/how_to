@@ -2,8 +2,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to deploy AWS vOneFS cluster
 #version1.0
-#base CF cluster deployment template 
+#base CF cluster deployment template
 #4 node cluster
+#template assumes all IAM resources created and exist
+#template uses existing subnets in vpc
+#will deploy 4 node+ 5 ebs vol node cluster
 
 
 Transform: 'AWS::LanguageExtensions'
