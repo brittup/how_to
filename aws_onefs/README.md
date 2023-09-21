@@ -12,9 +12,9 @@ It is a distillation of the deployment guide to it's simplest form, use in conju
 
 * CF -- contains a demo CoudFormation template and additional code snips
 <br>
--cf templates - cloudformation templates
--ima.txt - deploy iam resources
--iam templates
+-cf templates - cloudformation templates<br>
+-ima.txt - deploy iam resources<br>
+-iam templates<br>
 
 <br>
 
