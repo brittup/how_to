@@ -9,14 +9,16 @@ It is a distillation of the deployment guide to it's simplest form, use in conju
 * onefs-runtime-assume-role.json -- assume role template required for deployment  
 * onefs-runtime-policy.json -- runtime policy template required for deployment  
 <br>
+
 * CF -- contains a demo CoudFormation template and additional code snips
 <br>
+
 * onefs-v2 -- contains the aws cli template scripts and required json mappings  
 <br>
+
 * aws-install-onefs-v2.txt  -- the aws cli command template to create and build all aws resources per the deployment guide  
 * block-device-mappings-vonefs.json -- the block device mapping template used by each node  
 <br>
-
 * user-data-node-1-vonefs.json -- node1 bootstrap template used by node1
 * user-data-node-2-vonefs.json -- node2 bootstrap template used by node2
 * user-data-node-3-vonefs.json -- node3 bootstrap template used by node3
