@@ -228,7 +228,7 @@ echo "source <(kubectl completion bash)" >> ~/.bashrc
 ###
 ###################################################################################################################################################
 
-###CSM & CSI Opertors and driver install
+###CSM & CSI Operators and driver install
 ### On K8 linux:
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
@@ -243,7 +243,7 @@ chmod 700 get_helm.sh
 
 ###################################################################################################################################################
 ###The mount propagation in Docker must be configured on all Kubernetes nodes before installing CSI Driver for PowerScale.
-###add the following
+###add the following if using docker
 vi /etc/systemd/system/multi-user.target.wants/docker.service
 
 [Service]
@@ -299,8 +299,7 @@ kubectl get ns
 ###configure the csi values & secret files
 ###add release version to linked directory
 
-mkdir cd ~/git/csi-latest/isilon
-
+mkdir ~/git/csi-latest/isilon
 cd ~/git/csi-latest/isilon
 curl -fsSL -o secret-2-8.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.8.0/samples/secret/secret.yaml
 curl -fsSL -o empty-secret-2-8.yaml  https://raw.github.com/dell/csi-powerscale/v2.8.0/samples/secret/empty-secret.yaml
@@ -325,10 +324,8 @@ vi secret-2-8.yaml
 ###create isilon-creds secret 
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-8.yaml -o yaml --dry-run=client | kubectl apply -f -
 
-
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
 cat empty-secret-2-8.yaml
-
 kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-8.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
@@ -342,18 +339,18 @@ kubectl get secret isilon-creds -o yaml -n isilon
 kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
-curl -fsSL -o my-isilon-settings-2-8.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v280.yaml
+curl -fsSL -o my-isilon-settings-2-8.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v280.yaml
 
 
 ### review api auth on onefs - session or basic
+### 2.8 fixed session based auth
 isi_gconfig -t web-config
-isi_gconfig -t web-config auth_basic=true = 0
-isi_gconfig -t web-config auth_basic=false = 1
-session auth = 1
-basic auth  = 0
-https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+#isi_gconfig -t web-config auth_basic=true = 0
+#isi_gconfig -t web-config auth_basic=false = 1
+#session auth = 1
+#basic auth  = 0
+#https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
 ###
-
 
 vi my-isilon-settings-2-8.yaml
 
