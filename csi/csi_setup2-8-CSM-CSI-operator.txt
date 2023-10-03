@@ -23,12 +23,10 @@ hostnamectl set-hostname hdfs02.demo.local
 hostnamectl set-hostname hdfs03.demo.local
 hostnamectl
 
-
 yum install -y yum-utils yum-utils device-mapper-persistent-data lvm2 nfs-utils nfs-utils-lib git wget
 systemctl start rpcbind
 systemctl enable rpcbind
 systemctl status rpcbind
-
 
 ###################################################################################################################################################
 ###isilon setup 
@@ -290,14 +288,28 @@ kubectl get pods -n dell-csm-operator
 
 
 ###################################################################################################################################################
+
+###################################################################################################################################################
+##Installing CSI Driver for PowerScale via Dell CSM Operator
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###setup for the csi driver
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###create a K8 namespace for csi driver 
 
 kubectl create namespace isilon
 kubectl get ns
 
-###configure the csi values & secret files
-###add release version to linked directory
+### review api auth on onefs - session or basic
+### 2.8 fixed session based auth with 9.5.4.0
+isi_gconfig -t web-config
+#isi_gconfig -t web-config auth_basic=true
+#isi_gconfig -t web-config auth_basic=false
+#set basic or session in my-settings.yaml
+#session auth = 1 = true
+#basic auth  = 0 = false
+#https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
+###
+
 
 mkdir ~/git/csi-latest/isilon
 cd ~/git/csi-latest/isilon
@@ -341,17 +353,6 @@ kubectl get csm --all-namespaces
 cd ~/git/csi-latest/isilon
 curl -fsSL -o my-isilon-settings-2-8.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v280.yaml
 
-
-### review api auth on onefs - session or basic
-### 2.8 fixed session based auth
-isi_gconfig -t web-config
-#isi_gconfig -t web-config auth_basic=true = 0
-#isi_gconfig -t web-config auth_basic=false = 1
-#session auth = 1
-#basic auth  = 0
-#https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
-###
-
 vi my-isilon-settings-2-8.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
@@ -361,9 +362,9 @@ vi my-isilon-settings-2-8.yaml
 
  authSecret: isilon-creds 
 
-allowedNetworks: [192.168.1.0/24]
+allowedNetworks: "[192.168.1.0/24]"
 
-ISICLIENT_AUTH_TYPE      - use session (1) based if basic(0) not enabled
+ISICLIENT_AUTH_TYPE value: "1"    - use session (1) based if basic(0) not enabled
 
 controllerCount: 2    - if only 1 host, 2 is 2
 
@@ -376,13 +377,11 @@ isiPath: /ifs/csi
 ###add another session, to watch pod deployments during install
 watch kubectl get pods -A  
 
-
-
 ###install csi driver via csm 
-
+docker login
 kubectl create -f my-isilon-settings-2-8.yaml
 
-###
+###Review installation
 
 kubectl get csm -A
 kubectl get csm/isilon -n isilon -o yaml
@@ -392,8 +391,9 @@ kubectl describe csm isilon -n isilon
 kubectl edit csm/isilon -n isilon
 
 
+###
 ###uninstall
-kubectl delete csm/isilon -n isilon         --- uninstall CSI Operator
+kubectl delete csm/isilon -n isilon         --- uninstall CSI driver
 cd ~git/git/csm-operator
 bash scripts/uninstall.sh                   --- uninstall CSM Operator
 
@@ -405,10 +405,8 @@ kubectl get csm -A
 kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
-
-
 ###################################################################################################################################################
-####if you hit rate limit issue - logon to dockerhub if you have not
+###if you hit rate limit issue - logon to dockerhub if you have not
 docker login
 username
 password
@@ -440,7 +438,8 @@ https://k9scli.io/topics/commands/
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-8.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
-
+###################################################################################################################################################
+USING the CSI Driver
 ###################################################################################################################################################
 ###Steps to create storage class: 
 ###There are samples storage class yaml files available under helm/samples/storageclass
@@ -451,9 +450,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-8.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
- ### default sc name is isilon, can use or add version if needed; will need to modify samples and pvc files to support sc name
- 
- 
+### default sc name is isilon, can use or add version if needed; will need to modify samples and pvc files to support sc name
  
  AccessZone: System         < -- AZ you create exports in
 
@@ -465,26 +462,25 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-8.yaml
 
 
 ###add mount options if needed
-mountOptions: []
+mountOptions: [vers=3]
 
 
 ###Other options can be reviewed and tested as needed
 
-
-
 ###copy and create a sample storageclass - sc-2-8  for driver version
 kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-8.yaml
-kubectl get sc 
+kubectl get sc
+kubectl describe sc isilon
 
 
 ###################################################################################################################################################
 ###Testing CSI with samples
-###sample test files:  ~/git/csi-powerscale-2-8/samples
+###sample test files:  ~/git/csi-latest/samples
 ###create a testing namespace
 
 kubectl create namespace test
 
-cd ~/git/csi-powerscale-2-8/samples
+cd ~/git/csi-latest/samples
 
 ###create a pvc
 vi persistentvolumeclaim/pvc.yaml
@@ -493,7 +489,6 @@ kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test
 kubectl get pv -n test
 kubectl describe pv <pv name> -n test
-
 
 ###create sample pod and attach to pvc
 kubectl create -f pod/nginx.yaml -n test
@@ -525,7 +520,7 @@ ls -al
 ###test csi snapshot snapshots
 ###VolumeSnapshotClass is needed for creating the volume snapshots
 
-cd ~/git/csi-isilon/samples
+cd ~/git/csi-latest/samples
 vi volumesnapshotclass/isilon-volumesnapshotclass-v1.yaml
 
 ###modify path as needed
