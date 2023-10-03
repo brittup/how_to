@@ -255,9 +255,11 @@ systemctl restart docker
 ###################################################################################################################################################
 ###Installing CSI Driver for PowerScale via Dell CSM Operator
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation-on-a-cluster-without-olm
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
+mkdir git
 cd ~/git
 git clone -b v2.8.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2-8
@@ -340,7 +342,7 @@ kubectl get secret isilon-creds -o yaml -n isilon
 kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
-curl -fsSL -o my-isilon-settings-2-8.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v270.yaml
+curl -fsSL -o my-isilon-settings-2-8.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v280.yaml
 
 
 ### review api auth on onefs - session or basic
