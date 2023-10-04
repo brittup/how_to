@@ -370,6 +370,8 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
+volume-name-prefix=k8s   'this is consistent, with the old csi drivers'
+
 ###replication if using
 
 
@@ -458,7 +460,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-8.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not system if using a different zone
+ AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not System if using a different zone
 
 
 ###add mount options if needed
