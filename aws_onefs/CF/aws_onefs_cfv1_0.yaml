@@ -9,6 +9,8 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #template uses existing subnets in vpc
 #base demo template
 # creates all interfaces for 4 node cluster; additional nodes can be added by adding node creation block and collecting output
+# use default root/admin password of a - can be reset in node1 creation acs
+
 
 Transform: 'AWS::LanguageExtensions'
 
