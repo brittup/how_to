@@ -55,4 +55,8 @@ aws iam --profile=$aws_sdk_profile add-role-to-instance-profile --instance-profi
 ###aws id <aws_id>
 export aws_sdk_profile=<profile_id>
 
-aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output tableaws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
+
+#remove if needed
+aws iam --profile=udsawsadmin delete-instance-profile --instance-profile-name onefs-runtime-instance-profile
