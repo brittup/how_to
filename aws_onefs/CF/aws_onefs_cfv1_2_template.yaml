@@ -9,7 +9,7 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #template uses existing subnets in vpc
 #remove resources as need to create cluster configuration
 #added iops for ebs volumes
-# use default root/admin password of a - can be reset in node1 creation acs
+#use default root/admin password of a - can be reset in node1 creation acs
 
 Transform: 'AWS::LanguageExtensions'
 
