@@ -286,6 +286,9 @@ bash scripts/install.sh
 
 kubectl get pods -n dell-csm-operator
 
+###if needed
+##bash scripts/uninstall.sh
+###
 
 ###################################################################################################################################################
 
@@ -352,6 +355,8 @@ kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
 curl -fsSL -o my-isilon-settings-2-8.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v280.yaml
+#or copy from the csm 
+cp  ~/git/csm-operator-1-3-0/samples/storage_csm_powerscale_v280.yaml my-isilon-settings-2-8.yaml
 
 vi my-isilon-settings-2-8.yaml
 
@@ -394,7 +399,7 @@ kubectl edit csm/isilon -n isilon
 
 
 ###
-###uninstall
+###uninstall csi driver with CSM
 kubectl delete csm/isilon -n isilon         --- uninstall CSI driver
 cd ~git/git/csm-operator
 bash scripts/uninstall.sh                   --- uninstall CSM Operator
