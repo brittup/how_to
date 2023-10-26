@@ -4,7 +4,7 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #version1.1
 #base CF cluster deployment template
 #1 node cluster
-#5 ebs volumes 
+#5 ebs volumes
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
 #base demo template
@@ -221,6 +221,17 @@ Parameters:
     Type: String
     Description: VPC Endpoint Region
     Default: com.amazonaws.us-east-1.ec2
+
+#ebs iops - only supported on gp3: 3,000-16,000 IOPS - aws default is 3000
+  ebsvolumeiops:
+    Type: String
+    Description: ebs volume iops
+    Default: 3000
+#ebs encryption 
+  ebsencryption:
+    Type: String
+    Description: ebs encryption
+    Default: True
 
 
 ####
@@ -519,26 +530,36 @@ Resources:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
 #userdata - node1 - need for acs
 #using default_plain_text_password
       UserData:
