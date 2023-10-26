@@ -3,13 +3,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to deploy AWS vOneFS cluster
 #version1.0
 #base CF cluster deployment template
-#add node5
+#4 node cluster
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
 #will deploy 4 node+ 5 ebs vol node cluster
-#added iops
-#this template can be used to add node5 to an existing 4 node cluster also
-
 
 
 Transform: 'AWS::LanguageExtensions'
@@ -48,7 +45,7 @@ Parameters:
   vpcid:
     Type: String
     Description: VPC ID 
-    Default: vpc-00c460111111111
+    Default: vpc-00c460111111111  
 
 #name of onefs cluster to be deployed
   clustername:
@@ -81,7 +78,7 @@ Parameters:
     Description: onefs volumesize
     Default: 50
 
-#onefs volumetype
+ #onefs volumetype
   onefsvolumetype:
     Type: String
     Description: onefs volumetype
@@ -89,12 +86,6 @@ Parameters:
     AllowedValues:
       - gp3
       - st1
-
-#ebs iops - only supported on gp3: 3,000-16,000 IOPS  - aws default is 3000
-  ebsvolumeiops:
-    Type: String
-    Description: ebs volume iops
-    Default: 3000   
 
 #instance profile name - pre-requisite, assume already complete for vpc per deployment doc
   onefsruntimeinstanceprofile:
@@ -197,12 +188,6 @@ Parameters:
     Type: String
     Description: node4 external ip
     Default: 10.15.2.203
-##add node5   
-#node5 ext-1    
-  node5extip1:
-    Type: String
-    Description: node5 external ip
-    Default: 10.15.2.204  
 
 #internal interfaces - assign IPs
 #node1 int-1
@@ -225,18 +210,25 @@ Parameters:
     Type: String
     Description: node4 internal ip
     Default: 10.15.3.203
-##add node5     
-#node5 int-1     
-  node5intip1:
-    Type: String
-    Description: node5 internal ip
-    Default: 10.15.3.204
 
 #VPC Endpint Region     
   vpcendpointregion:
     Type: String
     Description: VPC Endpoint Region 
     Default: com.amazonaws.us-east-1.ec2    
+
+
+#ebs iops - only supported on gp3: 3,000-16,000 IOPS - aws default is 3000
+  ebsvolumeiops:
+    Type: String
+    Description: ebs volume iops
+    Default: 3000
+
+#ebs encryption 
+  ebsencryption:
+    Type: String
+    Description: ebs encryption
+    Default: True
 
 
 ####
@@ -436,20 +428,6 @@ Resources:
       - Key: name
         Value: !Sub '${clustername}-node4-ext-1'        
 
-#create node 5 external network interface
-  node5ext1:
-    Type: AWS::EC2::NetworkInterface
-    Properties:
-      Description: !Sub '${clustername}-node5-ext-1'
-      SubnetId: !Ref onefsexternalsubnetid
-      GroupSet:
-        - !Ref ExternalSecurityGroupID
-      PrivateIpAddress: !Ref node5extip1
-      Tags:
-      - Key: clustername
-        Value: !Ref clustername
-      - Key: name
-        Value: !Sub '${clustername}-node5-ext-1'   
 
 #create internal interfaces
 #
@@ -513,20 +491,6 @@ Resources:
       - Key: name
         Value: !Sub '${clustername}-node4-int-1'     
 
-#create node 5 internal network interface
-  node5int1:
-    Type: AWS::EC2::NetworkInterface
-    Properties:
-      Description: !Sub '${clustername}-node5-int-1'
-      SubnetId: !Ref onefsinternalsubnetid
-      GroupSet:
-        - !Ref InternalSecurityGroupID
-      PrivateIpAddress: !Ref node5intip1
-      Tags:
-      - Key: clustername
-        Value: !Ref clustername
-      - Key: name
-        Value: !Sub '${clustername}-node5-int-1'    
 
 #Create interface endpoint if you are using a private VPC - if an endpoint for the subnet already exists 
 #this will create a new vpc endpoint, if subnet vpc endpoint already exists, you can add the external security group to that interface endpoint
@@ -563,31 +527,36 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #user data - node1
 #using default_plain_text_password
       UserData:
@@ -673,31 +642,36 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops        
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops            
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #user data - node2
       UserData:
         Fn::Base64: 
@@ -744,31 +718,36 @@ Resources:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops              
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #user data - node3
       UserData:
         Fn::Base64: 
@@ -815,31 +794,36 @@ Resources:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
+              Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
           - DeviceName: xvdb 
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvdc
+          Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
           - DeviceName: xvdd
+          Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
+              Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
           - DeviceName: xvde
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
   #user data - node4
         UserData:
           Fn::Base64: 
@@ -864,78 +848,6 @@ Resources:
             Value: !Ref clustername
           - Key: Name
             Value: !Sub '${clustername}-node-4'               
-
-#add onefs node5
-  onefsv1node5:
-      Type: AWS::EC2::Instance
-      Properties:
-        ImageId: !Ref onefsAMIimageid  # Replace with the appropriate AMI ID
-        InstanceType: !Ref onefsInstanceType
-        PlacementGroupName: !Ref ClusterPlacementGroup
-        IamInstanceProfile: !Ref onefsruntimeinstanceprofile
-        NetworkInterfaces:
-          - NetworkInterfaceId: !Ref node5int1 #node5 internal id 
-            DeviceIndex: 0
-          - NetworkInterfaceId: !Ref node5ext1 #node5 external id 
-            DeviceIndex: 1
-        BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
-          - DeviceName: xvda  
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
-          - DeviceName: xvdb 
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
-          - DeviceName: xvdc
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
-          - DeviceName: xvdd
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
-          - DeviceName: xvde
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true 
-              Iops: !Ref ebsvolumeiops
-  #user data - node5
-        UserData:
-          Fn::Base64: 
-            Fn::ToJsonString:
-              hal_dongle_serialno: SV200-930073-0004
-              hal_volume_type: gp3
-              devices:
-                - ext-1: !Ref node1extip1
-                  int-a: !Ref node1intip1
-                  serial_number: SV200-930073-0000
-                - ext-1: !Ref node2extip1
-                  int-a: !Ref node2intip1
-                  serial_number: SV200-930073-0001
-                - ext-1: !Ref node3extip1
-                  int-a: !Ref node3intip1
-                  serial_number: SV200-930073-0002 
-                - ext-1: !Ref node4extip1
-                  int-a: !Ref node4intip1
-                  serial_number: SV200-930073-0003
-                - ext-1: !Ref node5extip1
-                  int-a: !Ref node5intip1
-                  serial_number: SV200-930073-0004
-        Tags:
-          - Key: clustername
-            Value: !Ref clustername
-          - Key: Name
-            Value: !Sub '${clustername}-node-5'        
 
 #collect outputs          
 Outputs:
@@ -968,13 +880,7 @@ Outputs:
     Value: !Ref node4ext1
   node4int1:
     Description: The ID of node1 internal ext-1 interface
-    Value: !Ref node4int1
-  node5ext1:
-    Description: The ID of node1 external ext-1 interface
-    Value: !Ref node5ext1
-  node5int1:
-    Description: The ID of node1 internal ext-1 interface
-    Value: !Ref node5int1    
+    Value: !Ref node4int1   
   node1amiid:
     Description: node 1 instance id
     Value: !Ref onefsv1node1
@@ -987,6 +893,3 @@ Outputs:
   node4amiid:
     Description: node 4 instance id
     Value: !Ref onefsv1node4           
-  node5amiid:
-    Description: node 5 instance id
-    Value: !Ref onefsv1node5  
