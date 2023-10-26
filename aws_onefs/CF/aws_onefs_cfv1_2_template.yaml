@@ -247,6 +247,11 @@ Parameters:
     Description: ebs volume iops
     Default: 3000
 
+#ebs encryption 
+  ebsencryption:
+    Type: String
+    Description: ebs encryption
+    Default: True
 ####
 #resoures to be deployed via CF template
 ####
@@ -607,30 +612,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #5 ebs volumes
         - DeviceName: xvdf
           Ebs:
@@ -638,6 +648,7 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #6 ebs volumes
         - DeviceName: xvdg
           Ebs:
@@ -645,24 +656,28 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdh
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdi
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdj
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #10 ebs volumes
         - DeviceName: xvdk
           Ebs:
@@ -670,12 +685,14 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdl
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #12 ebs volumes          
         - DeviceName: xvdm
           Ebs:
@@ -683,18 +700,21 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdn
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdo
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #15 ebs volumes  
         - DeviceName: xvdp
           Ebs:
@@ -702,18 +722,21 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdq
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdr
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #18 ebs volumes   
         - DeviceName: xvds
           Ebs:
@@ -721,12 +744,14 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdt
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #20 ebs volumes 
 #userdata - node1 - need for acs
 #using default_plain_text_password
@@ -823,30 +848,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #5 ebs volumes
         - DeviceName: xvdf
           Ebs:
@@ -854,6 +884,7 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #6 ebs volumes
         - DeviceName: xvdg
           Ebs:
@@ -861,88 +892,102 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdh
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdi
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdj
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #10 ebs volumes
         - DeviceName: xvdk
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops               
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption               
         - DeviceName: xvdl
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #12 ebs volumes          
         - DeviceName: xvdm
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption   
         - DeviceName: xvdn
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption          
         - DeviceName: xvdo
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #15 ebs volumes  
         - DeviceName: xvdp
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdq
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdr
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #18 ebs volumes   
         - DeviceName: xvds
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdt
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #20 ebs volumes 
 #user data - node2
       UserData:
@@ -1001,30 +1046,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #5 ebs volumes
         - DeviceName: xvdf
           Ebs:
@@ -1032,6 +1082,7 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #6 ebs volumes
         - DeviceName: xvdg
           Ebs:
@@ -1039,88 +1090,102 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdh
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdi
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdj
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #10 ebs volumes
         - DeviceName: xvdk
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops               
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption           
         - DeviceName: xvdl
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #12 ebs volumes          
         - DeviceName: xvdm
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption  
         - DeviceName: xvdn
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdo
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #15 ebs volumes  
         - DeviceName: xvdp
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdq
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdr
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #18 ebs volumes   
         - DeviceName: xvds
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdt
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #20 ebs volumes
 #user data - node3
       UserData:
@@ -1180,30 +1245,35 @@ Resources:
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdb 
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdc
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdd
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvde
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #5 ebs volumes
           - DeviceName: xvdf
             Ebs:
@@ -1211,6 +1281,7 @@ Resources:
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #6 ebs volumes
           - DeviceName: xvdg
             Ebs:
@@ -1218,88 +1289,102 @@ Resources:
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdh
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdi
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdj
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #10 ebs volumes
           - DeviceName: xvdk
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops               
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption            
           - DeviceName: xvdl
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops 
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #12 ebs volumes          
           - DeviceName: xvdm
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops   
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdn
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops           
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption         
           - DeviceName: xvdo
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #15 ebs volumes  
           - DeviceName: xvdp
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops   
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdq
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops   
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption 
           - DeviceName: xvdr
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops 
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
   #18 ebs volumes   
           - DeviceName: xvds
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops 
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdt
             Ebs:
               VolumeSize: !Ref onefsvolumesize
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
-              Iops: !Ref ebsvolumeiops 
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
 #20 ebs volumes
 #user data - node4
         UserData:
@@ -1357,30 +1442,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #5 ebs volumes
         - DeviceName: xvdf
           Ebs:
@@ -1388,6 +1478,7 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #6 ebs volumes
         - DeviceName: xvdg
           Ebs:
@@ -1395,88 +1486,102 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdh
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdi
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdj
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #10 ebs volumes
         - DeviceName: xvdk
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops               
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption            
         - DeviceName: xvdl
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #12 ebs volumes          
         - DeviceName: xvdm
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdn
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption          
         - DeviceName: xvdo
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #15 ebs volumes  
         - DeviceName: xvdp
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdq
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdr
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #18 ebs volumes   
         - DeviceName: xvds
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdt
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #20 ebs volumes 
 #user data - node5
       UserData:
@@ -1534,30 +1639,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #5 ebs volumes
         - DeviceName: xvdf
           Ebs:
@@ -1565,6 +1675,7 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #6 ebs volumes
         - DeviceName: xvdg
           Ebs:
@@ -1572,88 +1683,102 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdh
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdi
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdj
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #10 ebs volumes
         - DeviceName: xvdk
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops               
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption              
         - DeviceName: xvdl
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #12 ebs volumes          
         - DeviceName: xvdm
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdn
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops           
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption        
         - DeviceName: xvdo
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #15 ebs volumes  
         - DeviceName: xvdp
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption  
         - DeviceName: xvdq
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops   
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption 
         - DeviceName: xvdr
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #18 ebs volumes   
         - DeviceName: xvds
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdt
           Ebs:
             VolumeSize: !Ref onefsvolumesize
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
-            Iops: !Ref ebsvolumeiops 
+            Iops: !Ref ebsvolumeiops
+            Encrypted: !Ref ebsencryption
 #20 ebs volumes 
 #user data - node6
       UserData:

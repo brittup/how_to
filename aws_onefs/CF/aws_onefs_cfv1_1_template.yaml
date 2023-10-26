@@ -533,35 +533,35 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdd
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true 
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption   
+            Encrypted: !Ref ebsencryption
 #userdata - node1 - need for acs
 #using default_plain_text_password
       UserData:
@@ -648,14 +648,14 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdb 
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvdc
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -669,14 +669,14 @@ Resources:
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption  
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvde
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
             VolumeType: !Ref onefsvolumetype
             DeleteOnTermination: true
             Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption    
+            Encrypted: !Ref ebsencryption
 #user data - node2
       UserData:
         Fn::Base64: 
