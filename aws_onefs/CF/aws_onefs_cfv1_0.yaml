@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to deploy AWS vOneFS cluster
 #version1.1
 #base CF cluster deployment template
-#1 node cluster
+#1 node test cluster
 #5 ebs volumes
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
@@ -51,7 +51,7 @@ Parameters:
   vpcid:
     Type: String
     Description: VPC ID 
-    Default:  
+    Default: #<vpc id> 
 
 #name of onefs cluster to be deployed
   clustername:
@@ -75,13 +75,13 @@ Parameters:
   onefsAMIimageid:
     Type: String
     Description: onefs cluster AMI ID
-    Default: ami-05b474855849ccfd7
+    Default: #<ami-id>
 
 #onefs volumesize
   onefsvolumesize:
     Type: String
     Description: onefs volumesize
-    Default: 50
+    Default: #<volume size>
 
  #onefs volumetype
   onefsvolumetype:
@@ -121,25 +121,25 @@ Parameters:
   onefsexternalsubnetid:
     Type: String
     Description: onefs external subnet
-    Default: 
+    Default: #<external subnet id> 
 
 #internal subnet id- node int1 interfaces will be created here
   onefsinternalsubnetid:
     Type: String
     Description: onefs internal subnet
-    Default:  
+    Default: #<internal subnet id> 
 
 #external subnet cidr
   externalsubnetcidr:
     Type: String
     Description: external subnet/cidr
-    Default: 10.15.2.0/24  
+    Default: #<external subnet mask x.x.x.x>#  
 
 #internal subnet cidr
   internalsubnetcidr:
     Type: String
     Description: internal subnet/cidr
-    Default: 10.15.3.0/24  
+    Default: #<internal subnet mask x.x.x.x># 
 
 #dns search domains
   dnsDomain:
@@ -151,25 +151,25 @@ Parameters:
   dnsServer:
     Type: String
     Description: dns server
-    Default: 10.15.0.2
+    Default: #<dns IP>
 
 #external gateway of external subnet
   externalGateway:
     Type: String
     Description: default gateway
-    Default: 10.15.2.1
+    Default: #<default gateway>#
 
 #external network mask of external subnet
   externalNetmask:
     Type: String
     Description: external 
-    Default: 255.255.255.0
+    Default: #<external subnet mask x.x.x.x>#
 
 #internal network mask of external subnet
   internalNetmask:
     Type: String
     Description: internal network netmask 
-    Default: 255.255.255.0
+    Default: #<internal subnet mask y.y.y.y>#
 
 
 #external interfaces - assign IPs
@@ -177,44 +177,46 @@ Parameters:
   node1extip1:
     Type: String
     Description: node1 external ip
-    Default: 10.15.2.200
+    Default: #<node1-external ip x.x.x.x>#
 #node2 ext-1    
   node2extip1:
     Type: String
     Description: node2 external ip
-    Default: 10.15.2.201
+    Default: #<node2-external ip x.x.x.x>#
 #node3 ext-1  
   node3extip1:
     Type: String
     Description: node3 external ip
-    Default: 10.15.2.202
+    Default: #<node3-external ip x.x.x.x>#
 #node4 ext-1    
   node4extip1:
     Type: String
     Description: node4 external ip
-    Default: 10.15.2.203
+    Default: #<node4-external ip x.x.x.x># 
+
 
 #internal interfaces - assign IPs
 #node1 int-1
   node1intip1:
     Type: String
     Description: node1 internal ip
-    Default: 10.15.3.200
+    Default: #<node1-internal ip y.y.y.y>#
 #node2 int-1    
   node2intip1:
     Type: String
     Description: node2 internal ip
-    Default: 10.15.3.201
+    Default: #<node2-internal ip y.y.y.y>#
 #node3 int-1     
   node3intip1:
     Type: String
     Description: node3 internal ip
-    Default: 10.15.3.202
+    Default: #<node3-internal ip y.y.y.y>#
 #node4 int-1     
   node4intip1:
     Type: String
     Description: node4 internal ip
-    Default: 10.15.3.203
+    Default: #<node4-internal ip y.y.y.y>#
+
 
 #VPC Endpint Region     
   vpcendpointregion:
@@ -227,6 +229,7 @@ Parameters:
     Type: String
     Description: ebs volume iops
     Default: 3000
+
 #ebs encryption 
   ebsencryption:
     Type: String
