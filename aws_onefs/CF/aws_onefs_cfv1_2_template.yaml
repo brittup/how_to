@@ -606,6 +606,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize
@@ -842,6 +845,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize
@@ -1040,6 +1046,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -1239,6 +1248,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
         BlockDeviceMappings:  
+          - DeviceName: /dev/sda1
+            Ebs: 
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvda
             Ebs:
               VolumeSize: !Ref onefsvolumesize
@@ -1436,6 +1448,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize
@@ -1633,6 +1648,9 @@ Resources:
 #remove Iops: !Ref ebsvolumeiops from all st1 volumes
 #all nodes must have matching volume count and configuration, remove from all nodes
       BlockDeviceMappings:  
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize 

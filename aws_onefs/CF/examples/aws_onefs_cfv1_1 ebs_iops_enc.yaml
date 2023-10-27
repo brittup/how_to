@@ -522,6 +522,9 @@ Resources:
         - NetworkInterfaceId: !Ref node1ext1 #node1 external id 
           DeviceIndex: 1
       BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -637,6 +640,9 @@ Resources:
         - NetworkInterfaceId: !Ref node2ext1 #node2 external id 
           DeviceIndex: 1
       BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -713,6 +719,9 @@ Resources:
         - NetworkInterfaceId: !Ref node3ext1 #node3 external id 
           DeviceIndex: 1
       BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize 
@@ -789,41 +798,44 @@ Resources:
           - NetworkInterfaceId: !Ref node4ext1 #node4 external id 
             DeviceIndex: 1
         BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+          - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
           - DeviceName: xvda  
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdb 
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvdc
-          Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption
-            Ebs:
-              VolumeSize: !Ref onefsvolumesize 
-              VolumeType: !Ref onefsvolumetype
-              DeleteOnTermination: true
-          - DeviceName: xvdd
-          Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption
+              Encrypted: !Ref ebsencryption
+          - DeviceName: xvdd
+            Ebs:
+              VolumeSize: !Ref onefsvolumesize 
+              VolumeType: !Ref onefsvolumetype
+              DeleteOnTermination: true
+              Iops: !Ref ebsvolumeiops
+              Encrypted: !Ref ebsencryption
           - DeviceName: xvde
             Ebs:
               VolumeSize: !Ref onefsvolumesize 
               VolumeType: !Ref onefsvolumetype
               DeleteOnTermination: true
               Iops: !Ref ebsvolumeiops
-            Encrypted: !Ref ebsencryption
+              Encrypted: !Ref ebsencryption
   #user data - node4
         UserData:
           Fn::Base64: 

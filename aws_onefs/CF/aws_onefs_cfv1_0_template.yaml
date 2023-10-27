@@ -528,6 +528,9 @@ Resources:
         - NetworkInterfaceId: !Ref node1ext1 #node1 external id 
           DeviceIndex: 1
       BlockDeviceMappings:  #add and modify the associated block device mappings - this is a 5 volume disk deployment
+        - DeviceName: /dev/sda1
+          Ebs: 
+            Encrypted: !Ref ebsencryption
         - DeviceName: xvda  
           Ebs:
             VolumeSize: !Ref onefsvolumesize
