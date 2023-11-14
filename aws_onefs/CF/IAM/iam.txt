@@ -4,6 +4,8 @@
 ### replace variable ids with aws specific values
 ### i use an aws profile to connect aws cli with = aws sdk profile id
 ###
+### can just use cloudshell directly
+###
 
 ###Once per VPC
 1.Create the IAM policy 
@@ -26,6 +28,17 @@
 ### if using aws cloudshell, remove reference to the --profile=$aws_sdk_profile from the cli commands as they are not needed 
 
 export aws_sdk_profile=<profile_id>
+
+
+###get template files
+wget https://raw.githubusercontent.com/brittup/how_to/master/aws_onefs/CF/IAM/onefs-runtime-assume-role.json
+
+wget https://raw.githubusercontent.com/brittup/how_to/master/aws_onefs/CF/IAM/onefs-runtime-policy.json
+
+###modify the template files as per deployment doc for aws_id
+
+
+
 
 ##########################################################################################################################################################
 ####only needed once!
