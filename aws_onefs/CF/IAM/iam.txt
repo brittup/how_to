@@ -8,6 +8,9 @@
 ###
 
 ###Once per VPC
+###download template files
+###modify template file - add aws id
+
 1.Create the IAM policy 
 2.Create the IAM assume role
 3.attach the policy to the role
@@ -35,7 +38,7 @@ wget https://raw.githubusercontent.com/brittup/how_to/master/aws_onefs/CF/IAM/on
 
 wget https://raw.githubusercontent.com/brittup/how_to/master/aws_onefs/CF/IAM/onefs-runtime-policy.json
 
-###modify the template files as per deployment doc for aws_id
+###modify the template files as per deployment doc for aws_id - replace <aws_id> with AWS ID
 
 
 
