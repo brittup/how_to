@@ -8,8 +8,8 @@ IAM - contains the IAM cli code to create the required roles and profiles that a
 examples - contains some demo populated templates with sample data
 <br>
 <br>
-* aws_onefs_cfv1_0.yaml - create a 1 node test cluster; this template still creates interfaces for node 2-4 should they be needed later
-* aws_onefs_cfv1_1_template.yaml - 4 + 5 ebs vol node cluster
+* aws_onefs_cfv1_0.yaml - creates a 1 node test cluster; this template still creates interfaces for node 2-4 should they be needed later
+* aws_onefs_cfv1_1_template.yaml - 4 + 5 ebs vol node cluster - - srecommended POC testing template 
 * aws_onefs_cfv1_2_template.yaml - MASTER - contains all resources for 6 node + 20 ebs vol cluster; remove nodes & volumes definitions as needed
 * postCF.txt  - post deployment code and commands
 <br>
