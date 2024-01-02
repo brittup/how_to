@@ -70,7 +70,7 @@ exit
 
 
 ###modify the external IP range
-isi network pools modify groupnet0.subnet0.pool0 --ranges=10.15.2.200-10.15.2.205
+isi network pools modify groupnet0.subnet0.pool0 --add-ranges=10.15.2.200-10.15.2.205
 isi network pools view groupnet0.subnet0.pool0 
 
 
