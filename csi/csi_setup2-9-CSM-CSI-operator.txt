@@ -269,18 +269,20 @@ touch csi-latest/2-9.txt
 cd ~/git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.2.2
+git checkout v6.2.3
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get pods -A
+kubectl get crd
 
 ###################################################################################################################################################
 ###CSM Operator Installation on cluster without OLM
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
-git clone -b v1.3.0 https://github.com/dell/csm-operator.git
+git clone -b v1.4.0 https://github.com/dell/csm-operator.git
 cd ~/git/csm-operator
 bash scripts/install.sh
 
