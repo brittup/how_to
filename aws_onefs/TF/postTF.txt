@@ -1,0 +1,201 @@
+#################
+post TF install setup v1.0 - add nodes
+#################
+
+###using aws profile --profile=<profile_id>
+###aws id <aws_id>
+
+export aws_sdk_profile=<profile_id>
+aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key==`Name`]|[0].Value,State:State.Name,IP:PublicIpAddress, IP2:PrivateIpAddress}'  --output table 
+aws ec2 describe-instances  --profile=$aws_sdk_profile  --instance-ids <instance-id>  --output table 
+
+terraform output --json
+
+
+isi status
+isi auth user list
+isi devices node list
+
+
+### to shut a node down!!!
+isi cluster shutdown --node-lnn=<node-lnn>
+###
+
+### modify the IP ranges as created
+Modify the cluster internal network IP range to the internal_ip_addresses as defined by tf deploy
+
+isi cluster internal-networks view
+isi cluster internal-networks modify --int-a-ip-addresses <internal_network_low_ip>-<internal_network_high_ip>
+isi cluster internal-networks modify --int-a-ip-addresses 10.15.3.5-10.15.3.8
+#node will reboot, may take a few secs to initiate
+isi cluster internal-networks view
+
+
+#Add additional nodes’ external IP addresses external_ip_addresses to the default 
+isi network pools view groupnet0.subnet0.pool0
+
+#add ranges or IP's of nodes
+#isi network pools modify groupnet0.subnet0.pool0 --add-ranges X.X.X.B-X.X.X.D
+isi network pools modify groupnet0.subnet0.pool0 --add-ranges 10.0.32.5-10.0.32.8 
+
+
+
+###add node2
+isi devices node list
+isi devices node add SV200-930073-0001 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before you proceed
+
+isi status
+
+###Run the following command to add the third node:
+isi devices node list
+isi devices node add SV200-930073-0002 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before proceeding
+
+isi status
+
+###Run the following command to add the fourth node:
+isi devices node list
+isi devices node add SV200-930073-0003 --async
+
+###Check the cluster status by running the following command and wait for the cluster and node health to report a status of OK before proceeding
+
+
+
+###node 5 & 6 - may require chnages to the defined ip pools to accomodate all nodes, validate
+isi network groupnets view groupnet0
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+
+###to add nodes 5 & 6, we need to expand the internal and external defined IP ranges to include the IP's assigned to node5 & node6
+
+###modify the internal IP range
+isi config
+
+iprange
+
+iprange int-a 10.15.3.200-10.15.3.205
+
+exit
+
+
+#You have made the following configuration changes:
+#
+#int-a IP ranges: { 10.15.3.200-10.15.3.203 } -> { 10.15.3.200-10.15.3.205 }
+#
+#Would you like to commit your changes before quitting? [yes]
+#>>> yes
+
+
+
+###modify the external IP range
+isi network pools modify groupnet0.subnet0.pool0 --ranges=10.15.2.200-10.15.2.205
+isi network pools view groupnet0.subnet0.pool0 
+
+
+###add nodes
+isi devices node add SV200-930073-0004 --async
+isi status
+
+
+isi devices node add SV200-930073-0005 --async
+isi status
+
+
+
+###useful commands
+isi status
+isi network groupnets view groupnet0
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+isi network interfaces list
+
+isi network subnets modify groupnet0.subnet0 --sc-service-addrs=X.X.X.X
+
+isi network subnets modify groupnet0.subnet0 --sc-service-name=ssip3.foo.com.ec2.internal
+
+isi network pools modify  groupnet0.subnet0.pool0 --sc-dns-zone=sc3.foo.com.ec2.internal
+
+isi network subnets view groupnet0.subnet0 
+isi network pools view groupnet0.subnet0.pool0 
+
+isi_for_array ifconfig | grep <SC_IP> -A 2 -B 6
+
+nslookup sc1.foo.com.ec2.internal <SC_IP>
+
+isi services nfs enable
+isi services smb enable
+isi services
+
+
+
+
+
+
+
+###Review 
+###using aws profile --profile=<profile_id>
+###aws id <aws_id>
+
+export aws_sdk_profile=<profile_id>
+
+policy_name="onefs-runtime-policy"
+tag_key="clustername"
+tag_value="onefs-v1"
+
+
+### VPC and subnet info
+aws ec2 --profile=$aws_sdk_profile describe-vpcs --query "Vpcs[*].{VpcId:VpcId, Name:Tags[?Key=='Name']|[0].Value, CidrBlock:CidrBlock, State:State}" --output table
+aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetId:SubnetId, Name:Tags[?Key=='Name']|[0].Value, VpcId:VpcId, CidrBlock:CidrBlock, AvailabilityZone:AvailabilityZone}" --output table
+
+
+### IAM resources
+export policy_name="onefs-runtime-policy"
+aws iam --profile=$aws_sdk_profile get-policy --policy-arn $(aws iam --profile=$aws_sdk_profile list-policies --scope All --query "Policies[?PolicyName=='$policy_name'].Arn" --output text) --output table
+
+aws iam --profile=$aws_sdk_profile get-role --role-name onefs-runtime-role --output table
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
+
+aws iam --profile=$aws_sdk_profile list-instance-profiles-for-role --role-name onefs-runtime-role --output table
+
+aws ec2 --profile=$aws_sdk_profile describe-placement-groups --query "PlacementGroups[*].GroupName" --output table
+
+aws ec2 --profile=$aws_sdk_profile describe-placement-groups --filters "Name=tag:$tag_key,Values=$tag_value" --output table
+
+
+###Cluster Resources
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --filters "Name=tag:$tag_key,Values=$tag_value" --query "SecurityGroups[*].{GroupId:GroupId, GroupName:GroupName}"
+
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --filters "Name=tag:$tag_key,Values=$tag_value" 
+
+aws ec2 --profile=$aws_sdk_profile describe-network-interfaces --filters "Name=tag:$tag_key,Values=$tag_value" --query "NetworkInterfaces[*].{id:NetworkInterfaceId, Name:PrivateDnsName}"
+
+aws ec2 --profile=$aws_sdk_profile describe-network-interfaces --filters "Name=tag:$tag_key,Values=$tag_value" --output table
+
+
+aws ec2 --profile=$aws_sdk_profile describe-vpc-endpoints --query "VpcEndpoints[*].VpcEndpointId" 
+
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" --query "Reservations[*].Instances[*].{id:InstanceId, Name:Tags[?Key=='Name']|[0].Value}"
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" 
+
+
+
+
+
+###get volume mapping for an instance
+###get instance name & id
+aws ec2 --profile=$aws_sdk_profile describe-instances --filters "Name=tag:$tag_key,Values=$tag_value" --query "Reservations[*].Instances[*].{id:InstanceId, Name:Tags[?Key=='Name']|[0].Value}" --output table
+
+
+-modify node name value to query specific node: Name,Values=onefs-v1-node1
+
+instance_id=$(aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId}'  --output text  --filters "Name=tag:Name,Values=onefs-v1-node1")
+aws ec2 describe-volumes --profile=$aws_sdk_profile --filters "Name=attachment.instance-id,Values=$instance_id" --output table
+  
+
+
