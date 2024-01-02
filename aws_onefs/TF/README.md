@@ -11,7 +11,7 @@ The following files contain simple basic Terraform templates and CLI commands to
 [terraform-aws-onefs/docs at rel/v1.0.0 · dell/terraform-aws-onefs (github.com)  -- DOCS here] (https://github.com/dell/terraform-aws-onefs/tree/rel/v1.0.0/docs)
 <br>
 <br>
-[terraform-aws-onefs/docs/POWERSCALE_CLUSTER.md at rel/v1.0.0 · dell/terraform-aws-onefs (github.com)  -- DEPLOY] (https://github.com/dell/terraform-aws-onefs/blob/rel/v1.0.0/docs/POST_DEPLOY_STEPS.md)
+[terraform-aws-onefs/docs/POWERSCALE_CLUSTER.md at rel/v1.0.0 · dell/terraform-aws-onefs (github.com)  -- DEPLOY] (https://github.com/dell/terraform-aws-onefs/blob/rel/v1.0.0/docs/POWERSCALE_CLUSTER.md)
 <br>
 <br>
 [terraform-aws-onefs/docs/POST_DEPLOY_STEPS.md at rel/v1.0.0 · dell/terraform-aws-onefs (github.com)   --- POST] (https://github.com/dell/terraform-aws-onefs/blob/rel/v1.0.0/docs/POST_DEPLOY_STEPS.md)
