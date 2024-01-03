@@ -331,7 +331,7 @@ vi secret-2-9.yaml
 
       password: "Password123!"
 
-      endpoint: "https://csi.demo.local"       < --- This is the System Zone, for the driver to make API cals to
+      endpoint: "https://csi.demo.local"       < --- This is the System Zone IP or FQDN, for the driver to make API calls to
 
       isDefault: true
 
