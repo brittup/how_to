@@ -358,7 +358,7 @@ kubectl get csm --all-namespaces
 cd ~/git/csi-latest/isilon
 curl -fsSL -o my-isilon-settings-2-9.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v290.yaml
 #or copy from the csm 
-cp  ~/git/csm-operator-1-3-0/samples/storage_csm_powerscale_v290.yaml my-isilon-settings-2-9.yaml
+cp  ~/git/csm-operator/samples/storage_csm_powerscale_v290.yaml my-isilon-settings-2-9.yaml
 
 vi my-isilon-settings-2-9.yaml
 
@@ -377,7 +377,7 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
-volume-name-prefix=k8s   'this is consistent, with the old csi drivers'
+["--volume-name-prefix=k8s"]   'this is consistent, with the old csi drivers', optional
 
 ###replication if using
 
@@ -387,7 +387,9 @@ volume-name-prefix=k8s   'this is consistent, with the old csi drivers'
 watch kubectl get pods -A  
 
 ###install csi driver via csm 
-docker login
+docker login  (On all k8 nodes)
+
+
 kubectl create -f my-isilon-settings-2-9.yaml
 
 ###Review installation
@@ -467,7 +469,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-9.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not System if using a different zone
+ AzServiceIP : csi.demo.local   < -- SCName or IP of the AZ you create nfs exports and access them, not System if using a different zone
 
 
 ###add mount options if needed
@@ -491,8 +493,8 @@ kubectl create namespace test
 
 cd ~/git/csi-latest/samples
 
-###create a pvc
-vi persistentvolumeclaim/pvc.yaml
+###create a pvc -- view and edit as needed
+cat persistentvolumeclaim/pvc.yaml   
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
 kubectl describe pvc test-pvc -n test

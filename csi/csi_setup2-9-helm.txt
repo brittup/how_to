@@ -383,7 +383,7 @@ watch kubectl get pods -A
 cd ~/git/csi-latest/dell-csi-helm-installer
 
 ###docker login, use your dockerhub user&pass on all hosts, this just seems to help
-docker login
+docker login  (On all k8 nodes)
 
 ##verify the csi my-isilon-seting.yaml and k8 cluster is ready for install
 
@@ -449,7 +449,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-9.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not system if using a different zone
+ AzServiceIP : SCFQDN or 192.168.1.1   < -- SCName or IP of the AZ you create nfs exports and access them, not system if using a different zone
 
 
 ###add mount options if needed
@@ -476,7 +476,7 @@ kubectl create namespace test
 cd ~/git/csi-latest/samples
 
 
-###create a pvc
+###create a pvc  -- view and edit as needed
 cat persistentvolumeclaim/pvc.yaml
 kubectl create -f persistentvolumeclaim/pvc.yaml -n test
 kubectl get pvc -n test
