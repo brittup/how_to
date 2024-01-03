@@ -1,0 +1,302 @@
+###terraform code to create the internal security group resources only
+#assumes aws cli and terraform setup complete
+#create aws logon variables
+
+export AWS_ACCESS_KEY_ID=<aws key id>
+export AWS_SECRET_ACCESS_KEY=<key>
+echo $AWS_ACCESS_KEY_ID
+echo $AWS_SECRET_ACCESS_KEY
+
+
+###int-security-group module
+
+cd into <code>
+examples/int-security-group
+
+#create terraform.tfvars.json  -- define VPC, or tf will prompt for VPC id
+#create:  terraform.tfvars.json
+
+#example terraform.tfvars.json 
+
+{
+    "vpc_id": "vpc-777777777777"
+}
+
+#setup and validate
+terraform init
+terraform validate
+terraform plan
+
+
+#create sg 
+terraform apply
+
+stever4@W102X0BFB3:~/git/terraform-aws-onefs/examples/int-security-group$ terraform apply
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be created
+  + resource "random_pet" "cluster_id" {
+      + id        = (known after apply)
+      + length    = 2
+      + separator = "-"
+    }
+
+  # module.int-sec-group.aws_security_group.internal will be created
+  + resource "aws_security_group" "internal" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = (known after apply)
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = (known after apply)
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-777777777777"
+    }
+
+  # module.int-sec-group.aws_security_group_rule.internal_egress will be created
+  + resource "aws_security_group_rule" "internal_egress" {
+      + from_port                = 0
+      + id                       = (known after apply)
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = true
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "egress"
+    }
+
+  # module.int-sec-group.aws_security_group_rule.internal_ingress will be created
+  + resource "aws_security_group_rule" "internal_ingress" {
+      + from_port                = 0
+      + id                       = (known after apply)
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = true
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + cluster_id     = (known after apply)
+  + internal_sg_id = (known after apply)
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+random_pet.cluster_id: Creating...
+random_pet.cluster_id: Creation complete after 0s [id=grateful-pug]
+module.int-sec-group.aws_security_group.internal: Creating...
+module.int-sec-group.aws_security_group.internal: Creation complete after 3s [id=sg-0c8a05570cbc9300c]
+module.int-sec-group.aws_security_group_rule.internal_egress: Creating...
+module.int-sec-group.aws_security_group_rule.internal_ingress: Creating...
+module.int-sec-group.aws_security_group_rule.internal_ingress: Creation complete after 0s [id=sgrule-3537839850]
+module.int-sec-group.aws_security_group_rule.internal_egress: Creation complete after 1s [id=sgrule-1818645027]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_id = "grateful-pug"
+internal_sg_id = "sg-0c8a05570cbc9300c"
+
+
+#show tf output
+
+terraform show
+# random_pet.cluster_id:
+resource "random_pet" "cluster_id" {
+    id        = "grateful-pug"
+    length    = 2
+    separator = "-"
+}
+
+
+# module.int-sec-group.aws_security_group.internal:
+resource "aws_security_group" "internal" {
+    arn                    = "arn:aws:ec2:us-east-1:777777777777:security-group/sg-0c8a05570cbc9300c"
+    description            = "Managed by Terraform"
+    egress                 = []
+    id                     = "sg-0c8a05570cbc9300c"
+    ingress                = []
+    name                   = "grateful-pug-sg-internal-iface"
+    owner_id               = "777777777777"
+    revoke_rules_on_delete = false
+    tags                   = {
+        "Name" = "grateful-pug-sg-ingress"
+    }
+    tags_all               = {
+        "Name" = "grateful-pug-sg-ingress"
+    }
+    vpc_id                 = "vpc-777777777777"
+}
+
+# module.int-sec-group.aws_security_group_rule.internal_egress:
+resource "aws_security_group_rule" "internal_egress" {
+    from_port              = 0
+    id                     = "sgrule-1818645027"
+    protocol               = "-1"
+    security_group_id      = "sg-0c8a05570cbc9300c"
+    security_group_rule_id = "sgr-08a23ca9f403734dc"
+    self                   = true
+    to_port                = 0
+    type                   = "egress"
+}
+
+# module.int-sec-group.aws_security_group_rule.internal_ingress:
+resource "aws_security_group_rule" "internal_ingress" {
+    from_port              = 0
+    id                     = "sgrule-3537839850"
+    protocol               = "-1"
+    security_group_id      = "sg-0c8a05570cbc9300c"
+    security_group_rule_id = "sgr-08268763690b809e4"
+    self                   = true
+    to_port                = 0
+    type                   = "ingress"
+}
+
+
+Outputs:
+
+cluster_id = "grateful-pug"
+internal_sg_id = "sg-0c8a05570cbc9300c"
+stever4@W102X0BFB3:~/git/terraform-aws-onefs/examples/int-security-group$ 
+
+
+#view sg
+export aws_sdk_profile=udsawsadmin 
+echo $aws_sdk_profile
+
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --group-ids=<sg-id>  --output yaml-stream
+
+
+terraform output
+terraform show
+
+#destroy resources
+terraform destroy
+
+
+terraform destroy
+random_pet.cluster_id: Refreshing state... [id=content-louse]
+module.int-sec-group.aws_security_group.internal: Refreshing state... [id=sg-0b37691a13d03f8b5]
+module.int-sec-group.aws_security_group_rule.internal_ingress: Refreshing state... [id=sgrule-451265873]
+module.int-sec-group.aws_security_group_rule.internal_egress: Refreshing state... [id=sgrule-2496127928]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be destroyed
+  - resource "random_pet" "cluster_id" {
+      - id        = "content-louse" -> null
+      - length    = 2 -> null
+      - separator = "-" -> null
+    }
+
+  # module.int-sec-group.aws_security_group.internal will be destroyed
+  - resource "aws_security_group" "internal" {
+      - arn                    = "arn:aws:ec2:us-east-1:777777777777:security-group/sg-0b37691a13d03f8b5" -> null
+      - description            = "Managed by Terraform" -> null
+      - egress                 = [
+          - {
+              - cidr_blocks      = []
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = true
+              - to_port          = 0
+            },
+        ] -> null
+      - id                     = "sg-0b37691a13d03f8b5" -> null
+      - ingress                = [
+          - {
+              - cidr_blocks      = []
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = true
+              - to_port          = 0
+            },
+        ] -> null
+      - name                   = "content-louse-sg-internal-iface" -> null
+      - owner_id               = "777777777777" -> null
+      - revoke_rules_on_delete = false -> null
+      - tags                   = {
+          - "Name" = "content-louse-sg-ingress"
+        } -> null
+      - tags_all               = {
+          - "Name" = "content-louse-sg-ingress"
+        } -> null
+      - vpc_id                 = "vpc-777777777777" -> null
+    }
+
+  # module.int-sec-group.aws_security_group_rule.internal_egress will be destroyed
+  - resource "aws_security_group_rule" "internal_egress" {
+      - from_port              = 0 -> null
+      - id                     = "sgrule-2496127928" -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-0b37691a13d03f8b5" -> null
+      - security_group_rule_id = "sgr-0a71c844f7aeb338e" -> null
+      - self                   = true -> null
+      - to_port                = 0 -> null
+      - type                   = "egress" -> null
+    }
+
+  # module.int-sec-group.aws_security_group_rule.internal_ingress will be destroyed
+  - resource "aws_security_group_rule" "internal_ingress" {
+      - from_port              = 0 -> null
+      - id                     = "sgrule-451265873" -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-0b37691a13d03f8b5" -> null
+      - security_group_rule_id = "sgr-0a71c844f7aeb338e" -> null
+      - self                   = true -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+Plan: 0 to add, 0 to change, 4 to destroy.
+
+Changes to Outputs:
+  - cluster_id     = "content-louse" -> null
+  - internal_sg_id = "sg-0b37691a13d03f8b5" -> null
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+module.int-sec-group.aws_security_group_rule.internal_ingress: Destroying... [id=sgrule-451265873]
+module.int-sec-group.aws_security_group_rule.internal_egress: Destroying... [id=sgrule-2496127928]
+module.int-sec-group.aws_security_group_rule.internal_egress: Destruction complete after 1s
+module.int-sec-group.aws_security_group_rule.internal_ingress: Destruction complete after 1s
+module.int-sec-group.aws_security_group.internal: Destroying... [id=sg-0b37691a13d03f8b5]
+module.int-sec-group.aws_security_group.internal: Destruction complete after 0s
+random_pet.cluster_id: Destroying... [id=content-louse]
+random_pet.cluster_id: Destruction complete after 0s
+
+Destroy complete! Resources: 4 destroyed.
+stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/int-security-group$ 
