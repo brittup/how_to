@@ -1,0 +1,490 @@
+###terraform code to create the IAM resources only
+#assumes aws cli and terraform setup complete
+#create aws logon variables
+
+export AWS_ACCESS_KEY_ID=<aws key id>
+export AWS_SECRET_ACCESS_KEY=<key>
+echo $AWS_ACCESS_KEY_ID
+echo $AWS_SECRET_ACCESS_KEY
+
+
+#IAM module
+cd into <tf code>
+cd examples/iam-resources/
+
+terraform init
+
+terraform validate
+
+terraform plan
+
+terraform apply
+
+terraform show
+
+terraform state list
+
+terraform destroy
+
+
+
+
+#setup and validate
+terraform init
+terraform validate
+terraform plan
+
+#create IAM resources
+terraform apply
+
+
+stever4@W102X0BFB3:~/git/terraform-aws-onefs/examples/iam-resources$ terraform apply
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Reading...
+module.onefs_iam_resources.data.aws_caller_identity.current: Reading...
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Read complete after 0s [id=2851119427]
+module.onefs_iam_resources.data.aws_caller_identity.current: Read complete after 0s [id=777777777777]
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy: Reading...
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy: Read complete after 0s [id=1268694196]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile will be created
+  + resource "aws_iam_instance_profile" "powerscale_iam_instance_profile" {
+      + arn         = (known after apply)
+      + create_date = (known after apply)
+      + id          = (known after apply)
+      + name        = "777777777777-powerscale-node-runtime-instance-profile"
+      + name_prefix = (known after apply)
+      + path        = "/"
+      + role        = "777777777777-powerscale-node-runtime-role"
+      + tags_all    = (known after apply)
+      + unique_id   = (known after apply)
+    }
+
+  # module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy will be created
+  + resource "aws_iam_policy" "powerscale_iam_instance_policy" {
+      + arn         = (known after apply)
+      + description = "powerscale IAM policy for create and destroy."
+      + id          = (known after apply)
+      + name        = "777777777777-powerscale-node-runtime-policy"
+      + name_prefix = (known after apply)
+      + path        = "/"
+      + policy      = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action   = "ec2:AssignPrivateIpAddresses"
+                      + Effect   = "Allow"
+                      + Resource = "arn:aws:ec2:*:777777777777:network-interface/*"
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + policy_id   = (known after apply)
+      + tags_all    = (known after apply)
+    }
+
+  # module.onefs_iam_resources.aws_iam_role.powerscale_iam_role will be created
+  + resource "aws_iam_role" "powerscale_iam_role" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ec2.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + description           = "powerscale IAM role for create and destroy."
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "777777777777-powerscale-node-runtime-role"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags_all              = (known after apply)
+      + unique_id             = (known after apply)
+    }
+
+  # module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment will be created
+  + resource "aws_iam_role_policy_attachment" "powerscale_iam_role_policy_attachment" {
+      + id         = (known after apply)
+      + policy_arn = (known after apply)
+      + role       = "777777777777-powerscale-node-runtime-role"
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + powerscale_iam_instance_profile_arn  = (known after apply)
+  + powerscale_iam_instance_profile_name = (known after apply)
+  + powerscale_iam_policy_arn            = (known after apply)
+  + powerscale_iam_role_arn              = (known after apply)
+  + powerscale_iam_role_name             = (known after apply)
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role: Creating...
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy: Creating...
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy: Creation complete after 1s [id=arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy]
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role: Creation complete after 1s [id=777777777777-powerscale-node-runtime-role]
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment: Creating...
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile: Creating...
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment: Creation complete after 0s [id=777777777777-powerscale-node-runtime-role-20230831211913174600000001]
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile: Creation complete after 1s [id=777777777777-powerscale-node-runtime-instance-profile]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+powerscale_iam_instance_profile_arn = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"  = 1
+powerscale_iam_instance_profile_name = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role" = 2
+powerscale_iam_policy_arn = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy" =3  < -- used below
+powerscale_iam_role_arn = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"  =4
+powerscale_iam_role_name = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role" =5       < -- used below
+
+
+###Review  IAM resources  via AWS CLI
+
+#Query IAM resources
+export policy_name="<=3> "
+export role_name="<=5>" 
+
+export policy_name="777777777777-powerscale-node-runtime-policy"
+export role_name="777777777777-powerscale-node-runtime-role"
+
+export aws_sdk_profile=udsawsadmin 
+echo $aws_sdk_profile
+
+#list VPC
+aws ec2 --profile=$aws_sdk_profile describe-vpcs --query "Vpcs[*].{VpcId:VpcId, Name:Tags[?Key=='Name']|[0].Value, CidrBlock:CidrBlock, State:State}" --output table
+
+#list subnets
+aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetId:SubnetId, Name:Tags[?Key=='Name']|[0].Value, VpcId:VpcId, CidrBlock:CidrBlock, AvailabilityZone:AvailabilityZone}" --output table
+
+#get policy
+aws iam --profile=$aws_sdk_profile get-policy --policy-arn $(aws iam --profile=$aws_sdk_profile list-policies --scope All --query "Policies[?PolicyName=='$policy_name'].Arn" --output text) --output table
+
+#get role
+aws iam --profile=$aws_sdk_profile get-role --role-name $role_name --output table
+
+#get instance profile
+aws iam --profile=$aws_sdk_profile list-instance-profiles --query "InstanceProfiles[*].InstanceProfileName" --output table
+
+#get role
+aws iam --profile=$aws_sdk_profile list-instance-profiles-for-role --role-name $role_name --output table
+
+
+
+#get info on created resources via tf
+
+terraform show
+# module.onefs_iam_resources.data.aws_caller_identity.current:
+data "aws_caller_identity" "current" {
+    account_id = "777777777777"
+    arn        = "arn:aws:iam::777777777777:user/udsawsadmin"
+    id         = "777777777777"
+    user_id    = "AIDA3KIXI5FWW6CJ6RWEQ"
+}
+
+# module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy:
+data "aws_iam_policy_document" "powerscale_instance_assume_role_policy" {
+    id      = "2851119427"
+    json    = jsonencode(
+        {
+            Statement = [
+                {
+                    Action    = "sts:AssumeRole"
+                    Effect    = "Allow"
+                    Principal = {
+                        Service = "ec2.amazonaws.com"
+                    }
+                },
+            ]
+            Version   = "2012-10-17"
+        }
+    )
+    version = "2012-10-17"
+
+    statement {
+        actions       = [
+            "sts:AssumeRole",
+        ]
+        effect        = "Allow"
+        not_actions   = []
+        not_resources = []
+        resources     = []
+
+        principals {
+            identifiers = [
+                "ec2.amazonaws.com",
+            ]
+            type        = "Service"
+        }
+    }
+}
+
+# module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy:
+data "aws_iam_policy_document" "powerscale_instance_policy" {
+    id      = "1268694196"
+    json    = jsonencode(
+        {
+            Statement = [
+                {
+                    Action   = "ec2:AssignPrivateIpAddresses"
+                    Effect   = "Allow"
+                    Resource = "arn:aws:ec2:*:777777777777:network-interface/*"
+                },
+            ]
+            Version   = "2012-10-17"
+        }
+    )
+    version = "2012-10-17"
+
+    statement {
+        actions       = [
+            "ec2:AssignPrivateIpAddresses",
+        ]
+        effect        = "Allow"
+        not_actions   = []
+        not_resources = []
+        resources     = [
+            "arn:aws:ec2:*:777777777777:network-interface/*",
+        ]
+    }
+}
+
+# module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile:
+resource "aws_iam_instance_profile" "powerscale_iam_instance_profile" {
+    arn         = "arn:aws:iam::777777777777:instance-profile/777777777777-powerscale-node-runtime-instance-profile"
+    create_date = "2023-08-31T21:19:14Z"
+    id          = "777777777777-powerscale-node-runtime-instance-profile"
+    name        = "777777777777-powerscale-node-runtime-instance-profile"
+    path        = "/"
+    role        = "777777777777-powerscale-node-runtime-role"
+    tags_all    = {}
+    unique_id   = "AIPA3KIXI5FW3O5A5S4NS"
+}
+
+# module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy:
+resource "aws_iam_policy" "powerscale_iam_instance_policy" {
+    arn         = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy"
+    description = "powerscale IAM policy for create and destroy."
+    id          = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy"
+    name        = "777777777777-powerscale-node-runtime-policy"
+    path        = "/"
+    policy      = jsonencode(
+        {
+            Statement = [
+                {
+                    Action   = "ec2:AssignPrivateIpAddresses"
+                    Effect   = "Allow"
+                    Resource = "arn:aws:ec2:*:777777777777:network-interface/*"
+                },
+            ]
+            Version   = "2012-10-17"
+        }
+    )
+    policy_id   = "ANPA3KIXI5FWVU45YQZF7"
+    tags_all    = {}
+}
+
+# module.onefs_iam_resources.aws_iam_role.powerscale_iam_role:
+resource "aws_iam_role" "powerscale_iam_role" {
+    arn                   = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"
+    assume_role_policy    = jsonencode(
+        {
+            Statement = [
+                {
+                    Action    = "sts:AssumeRole"
+                    Effect    = "Allow"
+                    Principal = {
+                        Service = "ec2.amazonaws.com"
+                    }
+                },
+            ]
+            Version   = "2012-10-17"
+        }
+    )
+    create_date           = "2023-08-31T21:19:13Z"
+    description           = "powerscale IAM role for create and destroy."
+    force_detach_policies = false
+    id                    = "777777777777-powerscale-node-runtime-role"
+    managed_policy_arns   = []
+    max_session_duration  = 3600
+    name                  = "777777777777-powerscale-node-runtime-role"
+    path                  = "/"
+    tags_all              = {}
+    unique_id             = "AROA3KIXI5FWTSPJVUHC2"
+}
+
+# module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment:
+resource "aws_iam_role_policy_attachment" "powerscale_iam_role_policy_attachment" {
+    id         = "777777777777-powerscale-node-runtime-role-20230831211913174600000001"
+    policy_arn = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy"
+    role       = "777777777777-powerscale-node-runtime-role"
+}
+
+
+Outputs:
+
+powerscale_iam_instance_profile_arn = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"
+powerscale_iam_instance_profile_name = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"
+powerscale_iam_policy_arn = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy"
+powerscale_iam_role_arn = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"
+powerscale_iam_role_name = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role"
+
+
+#get tf state
+terraform state list
+module.onefs_iam_resources.data.aws_caller_identity.current
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment
+
+
+
+
+#destroy resources
+terraform destroy
+module.onefs_iam_resources.data.aws_caller_identity.current: Reading...
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Reading...
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Read complete after 0s [id=2851119427]
+module.onefs_iam_resources.data.aws_caller_identity.current: Read complete after 0s [id=777777777777]
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy: Reading...
+module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_policy: Read complete after 0s [id=1268694196]
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy: Refreshing state... [id=arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy]
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role: Refreshing state... [id=777777777777-powerscale-node-runtime-role]
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile: Refreshing state... [id=777777777777-powerscale-node-runtime-instance-profile]
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment: Refreshing state... [id=777777777777-powerscale-node-runtime-role-20231220163737361200000001]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile will be destroyed
+  - resource "aws_iam_instance_profile" "powerscale_iam_instance_profile" {
+      - arn         = "arn:aws:iam::777777777777:instance-profile/777777777777-powerscale-node-runtime-instance-profile" -> null
+      - create_date = "2023-12-20T16:37:37Z" -> null
+      - id          = "777777777777-powerscale-node-runtime-instance-profile" -> null
+      - name        = "777777777777-powerscale-node-runtime-instance-profile" -> null
+      - path        = "/" -> null
+      - role        = "777777777777-powerscale-node-runtime-role" -> null
+      - tags        = {} -> null
+      - tags_all    = {} -> null
+      - unique_id   = "AIPA3KIXI5FW2JTPI3GUY" -> null
+    }
+
+  # module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy will be destroyed
+  - resource "aws_iam_policy" "powerscale_iam_instance_policy" {
+      - arn         = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy" -> null
+      - description = "powerscale IAM policy for create and destroy." -> null
+      - id          = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy" -> null
+      - name        = "777777777777-powerscale-node-runtime-policy" -> null
+      - path        = "/" -> null
+      - policy      = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action   = "ec2:AssignPrivateIpAddresses"
+                      - Effect   = "Allow"
+                      - Resource = "arn:aws:ec2:*:777777777777:network-interface/*"
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> null
+      - policy_id   = "ANPA3KIXI5FWXBW2SYCR3" -> null
+      - tags        = {} -> null
+      - tags_all    = {} -> null
+    }
+
+  # module.onefs_iam_resources.aws_iam_role.powerscale_iam_role will be destroyed
+  - resource "aws_iam_role" "powerscale_iam_role" {
+      - arn                   = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role" -> null
+      - assume_role_policy    = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action    = "sts:AssumeRole"
+                      - Effect    = "Allow"
+                      - Principal = {
+                          - Service = "ec2.amazonaws.com"
+                        }
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> null
+      - create_date           = "2023-12-20T16:37:36Z" -> null
+      - description           = "powerscale IAM role for create and destroy." -> null
+      - force_detach_policies = false -> null
+      - id                    = "777777777777-powerscale-node-runtime-role" -> null
+      - managed_policy_arns   = [
+          - "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy",
+        ] -> null
+      - max_session_duration  = 3600 -> null
+      - name                  = "777777777777-powerscale-node-runtime-role" -> null
+      - path                  = "/" -> null
+      - tags                  = {} -> null
+      - tags_all              = {} -> null
+      - unique_id             = "AROA3KIXI5FW7HH6TTQLA" -> null
+    }
+
+  # module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment will be destroyed
+  - resource "aws_iam_role_policy_attachment" "powerscale_iam_role_policy_attachment" {
+      - id         = "777777777777-powerscale-node-runtime-role-20231220163737361200000001" -> null
+      - policy_arn = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy" -> null
+      - role       = "777777777777-powerscale-node-runtime-role" -> null
+    }
+
+Plan: 0 to add, 0 to change, 4 to destroy.
+
+Changes to Outputs:
+  - powerscale_iam_instance_profile_arn  = "arn:aws:iam::777777777777:instance-profile/777777777777-powerscale-node-runtime-instance-profile" -> null
+  - powerscale_iam_instance_profile_name = "777777777777-powerscale-node-runtime-instance-profile" -> null
+  - powerscale_iam_policy_arn            = "arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy" -> null
+  - powerscale_iam_role_arn              = "arn:aws:iam::777777777777:role/777777777777-powerscale-node-runtime-role" -> null
+  - powerscale_iam_role_name             = "777777777777-powerscale-node-runtime-role" -> null
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment: Destroying... [id=777777777777-powerscale-node-runtime-role-20231220163737361200000001]
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile: Destroying... [id=777777777777-powerscale-node-runtime-instance-profile]
+module.onefs_iam_resources.aws_iam_role_policy_attachment.powerscale_iam_role_policy_attachment: Destruction complete after 1s
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy: Destroying... [id=arn:aws:iam::777777777777:policy/777777777777-powerscale-node-runtime-policy]
+module.onefs_iam_resources.aws_iam_instance_profile.powerscale_iam_instance_profile: Destruction complete after 1s
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role: Destroying... [id=777777777777-powerscale-node-runtime-role]
+module.onefs_iam_resources.aws_iam_policy.powerscale_iam_instance_policy: Destruction complete after 0s
+module.onefs_iam_resources.aws_iam_role.powerscale_iam_role: Destruction complete after 0s
+
+Destroy complete! Resources: 4 destroyed.
+stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/iam-resources$ aws iam --profile=$aws_sdk_profile list-instance-profiles-for-role --role-name $role_name --output table
+
+stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/iam-resources$ terraform state list
+
+
