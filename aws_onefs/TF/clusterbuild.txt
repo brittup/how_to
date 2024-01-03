@@ -1,0 +1,3792 @@
+###terraform code to create cluster build - https://github.com/dell/terraform-aws-onefs/blob/rel/v1.0.0/examples/complete-onefs/README.md
+#assumes aws cli and terraform setup complete
+#create aws logon variables
+#Will create all cluster resources: IAM roles, INT security grp, EXT security grp & ALL cluster resources
+#existing resouces can be used by including references in the tf varibales, see tf docs for more info
+
+#setup tf for AWS access 
+
+
+export AWS_ACCESS_KEY_ID=<aws key id>
+export AWS_SECRET_ACCESS_KEY=<key>
+echo $AWS_ACCESS_KEY_ID
+echo $AWS_SECRET_ACCESS_KEY
+
+
+### complete-onefs cluster build module
+
+cd into <code>
+examples/complete-onefs
+
+#Get VPC & Subnet Info
+
+export aws_sdk_profile=udsawsadmin 
+aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetId:SubnetId, Name:Tags[?Key=='Name']|[0].Value, VpcId:VpcId, CidrBlock:CidrBlock, AvailabilityZone:AvailabilityZone}" --output table
+----------------------------------------------------------------------------------------------------------
+|                                             DescribeSubnets                                            |
++------------------+---------------+--------------+----------------------------+-------------------------+
+| AvailabilityZone |   CidrBlock   |    Name      |         SubnetId           |          VpcId          |
++------------------+---------------+--------------+----------------------------+-------------------------+
+|  us-east-1b      |  10.15.1.0/24 |  uds-subnet1 |  subnet-11111111111111111  |  vpc-7777777777777777  |
+|  us-east-1b      |  10.15.2.0/24 |  uds-subnet2 |  subnet-22222222222222222  |  vpc-7777777777777777  |
+|  us-east-1b      |  10.15.3.0/24 |  uds-subnet3 |  subnet-33333333333333333  |  vpc-7777777777777777  |
++------------------+---------------+--------------+----------------------------+-------------------------+
+
+
+
+###create terraform.tfvars.json
+
+###add variables - requires AMI, VPC, internal_subnet, external_subnet - define disk size/quantity/type - use default unhashed passowrd
+
+###additional input variables can be modified: see docs for Info
+terraform.tfvars.json
+
+
+{
+    "nodes": 4,
+    "image_id": "ami-11111111111111111",
+    "vpc_id": "vpc-7777777777777777",
+    "internal_subnet_id": "subnet-33333333333333333",
+    "external_subnet_id": "subnet-22222222222222222",
+    "credentials_hashed": false,
+    "data_disk_type": "gp3",
+    "data_disks_per_node": "5",
+    "data_disk_size": "1024",
+    "instance_type": "m5dn.8xlarge",
+    "default_plain_text_password": "a",
+    "validate_nodes_count": false
+}
+
+### !!!!!
+### to use an existing IAM instance profile, must exist: add "iam_instance_profile": "<profile name>"   
+eg:
+"iam_instance_profile": "777777777777-powerscale-node-runtime-instance-profile" 
+
+
+
+#setup and validate
+terraform init
+terraform validate
+terraform plan
+
+
+#create cluster and all resources
+terraform apply
+
+<full output listed below>
+
+
+#view cluster
+export aws_sdk_profile=udsawsadmin 
+echo $aws_sdk_profile
+
+aws ec2 describe-instances  --profile=$aws_sdk_profile  --query 'Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key==`Name`]|[0].Value,State:State.Name,IP:PublicIpAddress, IP2:PrivateIpAddress}'  --output table 
+aws ec2 describe-instances  --profile=$aws_sdk_profile  --instance-ids <instance-id>  --output table 
+
+
+terraform output --json
+terraform show
+
+#destroy resources
+terraform destroy
+
+
+
+####################################################################################################################################
+###full output of apply
+####################################################################################################################################
+
+terraform apply
+
+stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/complete-onefs$ terraform apply
+data.aws_subnet.external_subnet: Reading...
+module.onefs.data.aws_subnet.internal_subnet: Reading...
+module.onefs.data.aws_subnet.external_subnet: Reading...
+data.aws_subnet.external_subnet: Read complete after 0s [id=subnet-22222222222222222]
+module.onefs.data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222]
+module.onefs.data.aws_subnet.internal_subnet: Read complete after 1s [id=subnet-33333333333333333]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be created
+  + resource "random_pet" "cluster_id" {
+      + id        = (known after apply)
+      + length    = 2
+      + separator = "-"
+    }
+
+  # module.external_security_group[0].aws_security_group.external will be created
+  + resource "aws_security_group" "external" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = (known after apply)
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = (known after apply)
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-07777777777777777"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.dhcp will be created
+  + resource "aws_security_group_rule" "dhcp" {
+      + cidr_blocks              = [
+          + "10.15.2.1/32",
+        ]
+      + from_port                = 67
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 68
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.egress will be created
+  + resource "aws_security_group_rule" "egress" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 0
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "egress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-echo-i4 will be created
+  + resource "aws_security_group_rule" "icmp-echo-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 8
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-frag-i4 will be created
+  + resource "aws_security_group_rule" "icmp-frag-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 3
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 4
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4 will be created
+  + resource "aws_security_group_rule" "icmp-ttl-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 11
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.microsoft-ds will be created
+  + resource "aws_security_group_rule" "microsoft-ds" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 445
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 445
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.nfsv3-rdma will be created
+  + resource "aws_security_group_rule" "nfsv3-rdma" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 20049
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 20049
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.papi will be created
+  + resource "aws_security_group_rule" "papi" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 8080
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 8080
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.s3-http will be created
+  + resource "aws_security_group_rule" "s3-http" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 9020
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 9020
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.s3-https will be created
+  + resource "aws_security_group_rule" "s3-https" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 9021
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 9021
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.ssh will be created
+  + resource "aws_security_group_rule" "ssh" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 22
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 22
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-dcerpc will be created
+  + resource "aws_security_group_rule" "tcp-dcerpc" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 135
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 135
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-dns will be created
+  + resource "aws_security_group_rule" "tcp-dns" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 53
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 53
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-lockd will be created
+  + resource "aws_security_group_rule" "tcp-lockd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 304
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 304
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-mountd will be created
+  + resource "aws_security_group_rule" "tcp-mountd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 300
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 300
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd will be created
+  + resource "aws_security_group_rule" "tcp-nfsmgmtd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 306
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 306
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad will be created
+  + resource "aws_security_group_rule" "tcp-nfsquotad" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 305
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 305
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind will be created
+  + resource "aws_security_group_rule" "tcp-rpc-bind" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 111
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 111
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-statd will be created
+  + resource "aws_security_group_rule" "tcp-statd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 302
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 302
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-dcerpc will be created
+  + resource "aws_security_group_rule" "udp-dcerpc" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 135
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 135
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-dns will be created
+  + resource "aws_security_group_rule" "udp-dns" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 53
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 53
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-lockd will be created
+  + resource "aws_security_group_rule" "udp-lockd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 304
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 304
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-mountd will be created
+  + resource "aws_security_group_rule" "udp-mountd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 300
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 300
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd will be created
+  + resource "aws_security_group_rule" "udp-nfsmgmtd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 306
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 306
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-nfsquotad will be created
+  + resource "aws_security_group_rule" "udp-nfsquotad" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 305
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 305
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-rpc-bind will be created
+  + resource "aws_security_group_rule" "udp-rpc-bind" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 111
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 111
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-statd will be created
+  + resource "aws_security_group_rule" "udp-statd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 302
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 302
+      + type                     = "ingress"
+    }
+
+  # module.int-sec-group[0].aws_security_group.internal will be created
+  + resource "aws_security_group" "internal" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = (known after apply)
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = (known after apply)
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-07777777777777777"
+    }
+
+  # module.int-sec-group[0].aws_security_group_rule.internal_egress will be created
+  + resource "aws_security_group_rule" "internal_egress" {
+      + from_port                = 0
+      + id                       = (known after apply)
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = true
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "egress"
+    }
+
+  # module.int-sec-group[0].aws_security_group_rule.internal_ingress will be created
+  + resource "aws_security_group_rule" "internal_ingress" {
+      + from_port                = 0
+      + id                       = (known after apply)
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = true
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[0] will be created
+  + resource "aws_instance" "onefs_node" {
+      + ami                                  = "ami-1111111111111111"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = (known after apply)
+      + availability_zone                    = "us-east-1b"
+      + cpu_core_count                       = (known after apply)
+      + cpu_threads_per_core                 = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = "onefs-runtime-instance-profile"
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "m5dn.8xlarge"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = (known after apply)
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = (known after apply)
+      + tags_all                             = (known after apply)
+      + tenancy                              = (known after apply)
+      + user_data                            = (known after apply)
+      + user_data_base64                     = (known after apply)
+      + user_data_replace_on_change          = false
+      + vpc_security_group_ids               = (known after apply)
+
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvda"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdb"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdc"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdd"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvde"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = "disabled"
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 0
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 1
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+
+      + root_block_device {
+          + delete_on_termination = true
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = "gp3"
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[1] will be created
+  + resource "aws_instance" "onefs_node" {
+      + ami                                  = "ami-1111111111111111"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = (known after apply)
+      + availability_zone                    = "us-east-1b"
+      + cpu_core_count                       = (known after apply)
+      + cpu_threads_per_core                 = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = "onefs-runtime-instance-profile"
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "m5dn.8xlarge"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = (known after apply)
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = (known after apply)
+      + tags_all                             = (known after apply)
+      + tenancy                              = (known after apply)
+      + user_data                            = (known after apply)
+      + user_data_base64                     = (known after apply)
+      + user_data_replace_on_change          = false
+      + vpc_security_group_ids               = (known after apply)
+
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvda"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdb"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdc"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdd"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvde"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = "disabled"
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 0
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 1
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+
+      + root_block_device {
+          + delete_on_termination = true
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = "gp3"
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[2] will be created
+  + resource "aws_instance" "onefs_node" {
+      + ami                                  = "ami-1111111111111111"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = (known after apply)
+      + availability_zone                    = "us-east-1b"
+      + cpu_core_count                       = (known after apply)
+      + cpu_threads_per_core                 = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = "onefs-runtime-instance-profile"
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "m5dn.8xlarge"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = (known after apply)
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = (known after apply)
+      + tags_all                             = (known after apply)
+      + tenancy                              = (known after apply)
+      + user_data                            = (known after apply)
+      + user_data_base64                     = (known after apply)
+      + user_data_replace_on_change          = false
+      + vpc_security_group_ids               = (known after apply)
+
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvda"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdb"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdc"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdd"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvde"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = "disabled"
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 0
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 1
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+
+      + root_block_device {
+          + delete_on_termination = true
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = "gp3"
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[3] will be created
+  + resource "aws_instance" "onefs_node" {
+      + ami                                  = "ami-1111111111111111"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = (known after apply)
+      + availability_zone                    = "us-east-1b"
+      + cpu_core_count                       = (known after apply)
+      + cpu_threads_per_core                 = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = "onefs-runtime-instance-profile"
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "m5dn.8xlarge"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = (known after apply)
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = (known after apply)
+      + tags_all                             = (known after apply)
+      + tenancy                              = (known after apply)
+      + user_data                            = (known after apply)
+      + user_data_base64                     = (known after apply)
+      + user_data_replace_on_change          = false
+      + vpc_security_group_ids               = (known after apply)
+
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvda"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdb"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdc"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvdd"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+      + ebs_block_device {
+          + delete_on_termination = true
+          + device_name           = "xvde"
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 1024
+          + volume_type           = "gp3"
+        }
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = "disabled"
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 0
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 1
+          + network_card_index    = 0
+          + network_interface_id  = (known after apply)
+        }
+
+      + root_block_device {
+          + delete_on_termination = true
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = "gp3"
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[0] will be created
+  + resource "aws_network_interface" "external_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = (known after apply)
+      + private_ips_count         = 1
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-22222222222222222"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[1] will be created
+  + resource "aws_network_interface" "external_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = (known after apply)
+      + private_ips_count         = 0
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-22222222222222222"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[2] will be created
+  + resource "aws_network_interface" "external_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = (known after apply)
+      + private_ips_count         = 0
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-22222222222222222"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[3] will be created
+  + resource "aws_network_interface" "external_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = (known after apply)
+      + private_ips_count         = 0
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-22222222222222222"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[0] will be created
+  + resource "aws_network_interface" "internal_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = [
+          + "10.15.3.5",
+        ]
+      + private_ips_count         = (known after apply)
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-33333333333333333"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[1] will be created
+  + resource "aws_network_interface" "internal_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = [
+          + "10.15.3.6",
+        ]
+      + private_ips_count         = (known after apply)
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-33333333333333333"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[2] will be created
+  + resource "aws_network_interface" "internal_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = [
+          + "10.15.3.7",
+        ]
+      + private_ips_count         = (known after apply)
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-33333333333333333"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[3] will be created
+  + resource "aws_network_interface" "internal_interface" {
+      + arn                       = (known after apply)
+      + id                        = (known after apply)
+      + interface_type            = (known after apply)
+      + ipv4_prefix_count         = (known after apply)
+      + ipv4_prefixes             = (known after apply)
+      + ipv6_address_count        = (known after apply)
+      + ipv6_address_list         = (known after apply)
+      + ipv6_address_list_enabled = false
+      + ipv6_addresses            = (known after apply)
+      + ipv6_prefix_count         = (known after apply)
+      + ipv6_prefixes             = (known after apply)
+      + mac_address               = (known after apply)
+      + outpost_arn               = (known after apply)
+      + owner_id                  = (known after apply)
+      + private_dns_name          = (known after apply)
+      + private_ip                = (known after apply)
+      + private_ip_list           = (known after apply)
+      + private_ip_list_enabled   = false
+      + private_ips               = [
+          + "10.15.3.8",
+        ]
+      + private_ips_count         = (known after apply)
+      + security_groups           = (known after apply)
+      + source_dest_check         = true
+      + subnet_id                 = "subnet-33333333333333333"
+      + tags                      = (known after apply)
+      + tags_all                  = (known after apply)
+    }
+
+  # module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group will be created
+  + resource "aws_placement_group" "onefs_placement_group" {
+      + arn                = (known after apply)
+      + id                 = (known after apply)
+      + name               = (known after apply)
+      + partition_count    = 0
+      + placement_group_id = (known after apply)
+      + spread_level       = (known after apply)
+      + strategy           = "spread"
+      + tags               = (known after apply)
+      + tags_all           = (known after apply)
+    }
+
+Plan: 45 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + additional_nodes_external_ip_addresses = [
+      + (known after apply),
+      + (known after apply),
+      + (known after apply),
+    ]
+  + cluster_id                             = (known after apply)
+  + first_node_external_ip_address         = (known after apply)
+  + first_node_instance_id                 = (known after apply)
+  + internal_network_high_ip               = "10.15.3.8"
+  + internal_network_low_ip                = "10.15.3.5"
+  + region                                 = "us-east-1"
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+random_pet.cluster_id: Creating...
+random_pet.cluster_id: Creation complete after 0s [id=enhanced-puma]
+module.int-sec-group[0].aws_security_group.internal: Creating...
+module.external_security_group[0].aws_security_group.external: Creating...
+module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group: Creating...
+module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group: Creation complete after 1s [id=enhanced-puma-onefs-placement-group]
+module.external_security_group[0].aws_security_group.external: Creation complete after 2s [id=sg-0e3746fa0d50edd64]
+module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-statd: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-statd: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-mountd: Creating...
+module.external_security_group[0].aws_security_group_rule.microsoft-ds: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-dns: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-dcerpc: Creating...
+module.external_security_group[0].aws_security_group_rule.nfsv3-rdma: Creating...
+module.int-sec-group[0].aws_security_group.internal: Creation complete after 2s [id=sg-0f0463391afbf87f2]
+module.external_security_group[0].aws_security_group_rule.dhcp: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-statd: Creation complete after 1s [id=sgrule-2361781192]
+module.external_security_group[0].aws_security_group_rule.papi: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-statd: Creation complete after 1s [id=sgrule-4060744016]
+module.external_security_group[0].aws_security_group_rule.udp-dcerpc: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-dns: Creation complete after 2s [id=sgrule-391162241]
+module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-mountd: Creation complete after 3s [id=sgrule-1452662269]
+module.external_security_group[0].aws_security_group_rule.icmp-echo-i4: Creating...
+module.external_security_group[0].aws_security_group_rule.microsoft-ds: Creation complete after 3s [id=sgrule-103364416]
+module.external_security_group[0].aws_security_group_rule.s3-http: Creating...
+module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4: Creation complete after 4s [id=sgrule-4102687848]
+module.external_security_group[0].aws_security_group_rule.udp-lockd: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd: Creation complete after 4s [id=sgrule-3809772003]
+module.external_security_group[0].aws_security_group_rule.tcp-mountd: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-dcerpc: Creation complete after 5s [id=sgrule-980786484]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad: Creating...
+module.external_security_group[0].aws_security_group_rule.nfsv3-rdma: Creation complete after 6s [id=sgrule-734758828]
+module.external_security_group[0].aws_security_group_rule.egress: Creating...
+module.external_security_group[0].aws_security_group_rule.dhcp: Creation complete after 5s [id=sgrule-2271105057]
+module.external_security_group[0].aws_security_group_rule.udp-rpc-bind: Creating...
+module.external_security_group[0].aws_security_group_rule.papi: Creation complete after 6s [id=sgrule-2924687966]
+module.external_security_group[0].aws_security_group_rule.ssh: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-dcerpc: Creation complete after 6s [id=sgrule-1153073068]
+module.external_security_group[0].aws_security_group_rule.tcp-lockd: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind: Creation complete after 6s [id=sgrule-63791882]
+module.external_security_group[0].aws_security_group_rule.s3-https: Creating...
+module.external_security_group[0].aws_security_group_rule.icmp-echo-i4: Creation complete after 5s [id=sgrule-1671262303]
+module.external_security_group[0].aws_security_group_rule.tcp-dns: Creating...
+module.external_security_group[0].aws_security_group_rule.s3-http: Creation complete after 6s [id=sgrule-3453960526]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-lockd: Creation complete after 5s [id=sgrule-960804822]
+module.external_security_group[0].aws_security_group_rule.icmp-frag-i4: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-mountd: Creation complete after 6s [id=sgrule-677003109]
+module.external_security_group[0].aws_security_group_rule.udp-nfsquotad: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad: Creation complete after 5s [id=sgrule-3340488052]
+module.int-sec-group[0].aws_security_group_rule.internal_egress: Creating...
+module.external_security_group[0].aws_security_group_rule.egress: Creation complete after 5s [id=sgrule-2768014033]
+module.int-sec-group[0].aws_security_group_rule.internal_ingress: Creating...
+module.int-sec-group[0].aws_security_group_rule.internal_egress: Creation complete after 1s [id=sgrule-990904693]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[2]: Creating...
+module.external_security_group[0].aws_security_group_rule.udp-rpc-bind: Creation complete after 5s [id=sgrule-2097316242]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[0]: Creating...
+module.int-sec-group[0].aws_security_group_rule.internal_ingress: Creation complete after 1s [id=sgrule-3343625311]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[1]: Creating...
+module.external_security_group[0].aws_security_group_rule.ssh: Creation complete after 5s [id=sgrule-1282357892]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[3]: Creating...
+module.onefs.module.onefsbase.aws_network_interface.external_interface[2]: Creation complete after 1s [id=eni-073e120d1fe2223f4]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[0]: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-lockd: Creation complete after 6s [id=sgrule-1200313678]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[2]: Creating...
+module.onefs.module.onefsbase.aws_network_interface.external_interface[0]: Creation complete after 2s [id=eni-0d3bf946e9604f4fe]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[1]: Creating...
+module.onefs.module.onefsbase.aws_network_interface.external_interface[1]: Creation complete after 1s [id=eni-0ee58d45915661aa4]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[3]: Creating...
+module.external_security_group[0].aws_security_group_rule.s3-https: Creation complete after 5s [id=sgrule-805174605]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[0]: Creation complete after 1s [id=eni-0e2db632a110331cb]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[3]: Creation complete after 1s [id=eni-0e171f0f9ac6a12fd]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[2]: Creation complete after 0s [id=eni-02c9ae588e0fdf575]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[1]: Creation complete after 1s [id=eni-0ce416ceae3c5cc72]
+module.external_security_group[0].aws_security_group_rule.tcp-dns: Creation complete after 6s [id=sgrule-1772047129]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[3]: Creation complete after 1s [id=eni-0cc869742bfbbd70a]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Creating...
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Creating...
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Creating...
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Creating...
+module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd: Creation complete after 5s [id=sgrule-2648400763]
+module.external_security_group[0].aws_security_group_rule.icmp-frag-i4: Creation complete after 6s [id=sgrule-2824157533]
+module.external_security_group[0].aws_security_group_rule.udp-nfsquotad: Creation complete after 5s [id=sgrule-3117690860]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still creating... [10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still creating... [10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still creating... [10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still creating... [10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Creation complete after 15s [id=i-0edd1cec89497f3b0]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Creation complete after 15s [id=i-0772b032f7427a5ad]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Creation complete after 16s [id=i-02924d14235f2f182]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Creation complete after 16s [id=i-0fdc6aadc3740e634]
+
+Apply complete! Resources: 45 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+additional_nodes_external_ip_addresses = [
+  "10.15.2.123",
+  "10.15.2.181",
+  "10.15.2.68",
+]
+cluster_id = "enhanced-puma"
+first_node_external_ip_address = "10.15.2.105"
+first_node_instance_id = "i-02924d14235f2f182"
+internal_network_high_ip = "10.15.3.8"
+internal_network_low_ip = "10.15.3.5"
+region = "us-east-1"
+
+
+
+####################################################################################################################################
+###full output of destroy
+####################################################################################################################################
+
+terraform destroy
+
+terraform destroy
+random_pet.cluster_id: Refreshing state... [id=ethical-ram]
+module.external_security_group[0].aws_security_group.external: Refreshing state... [id=sg-019f1b0af0e70445c]
+data.aws_subnet.external_subnet: Reading...
+module.int-sec-group[0].aws_security_group.internal: Refreshing state... [id=sg-0be56a24b3f57326f]
+module.onefs.data.aws_subnet.external_subnet: Reading...
+module.onefs.data.aws_subnet.internal_subnet: Reading...
+module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group: Refreshing state... [id=ethical-ram-onefs-placement-group]
+module.int-sec-group[0].aws_security_group_rule.internal_ingress: Refreshing state... [id=sgrule-1704284088]
+module.int-sec-group[0].aws_security_group_rule.internal_egress: Refreshing state... [id=sgrule-76698490]
+data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222]
+module.onefs.data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222]
+module.onefs.data.aws_subnet.internal_subnet: Read complete after 1s [id=subnet-33333333333333333]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[3]: Refreshing state... [id=eni-0d023f3ebdd499d6f]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[1]: Refreshing state... [id=eni-0e5c4c09e6b494484]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[0]: Refreshing state... [id=eni-0c4a481d052752471]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[2]: Refreshing state... [id=eni-09490b26f59cb56bc]
+module.external_security_group[0].aws_security_group_rule.udp-lockd: Refreshing state... [id=sgrule-599982220]
+module.external_security_group[0].aws_security_group_rule.nfsv3-rdma: Refreshing state... [id=sgrule-3335157513]
+module.external_security_group[0].aws_security_group_rule.udp-rpc-bind: Refreshing state... [id=sgrule-1736783560]
+module.external_security_group[0].aws_security_group_rule.udp-nfsquotad: Refreshing state... [id=sgrule-2740164790]
+module.external_security_group[0].aws_security_group_rule.dhcp: Refreshing state... [id=sgrule-217739132]
+module.external_security_group[0].aws_security_group_rule.s3-https: Refreshing state... [id=sgrule-984380475]
+module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4: Refreshing state... [id=sgrule-2239546470]
+module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind: Refreshing state... [id=sgrule-424334416]
+module.external_security_group[0].aws_security_group_rule.udp-statd: Refreshing state... [id=sgrule-2520931474]
+module.external_security_group[0].aws_security_group_rule.papi: Refreshing state... [id=sgrule-3137518376]
+module.external_security_group[0].aws_security_group_rule.egress: Refreshing state... [id=sgrule-3513573885]
+module.external_security_group[0].aws_security_group_rule.udp-mountd: Refreshing state... [id=sgrule-1276275367]
+module.external_security_group[0].aws_security_group_rule.microsoft-ds: Refreshing state... [id=sgrule-481198106]
+module.external_security_group[0].aws_security_group_rule.udp-dcerpc: Refreshing state... [id=sgrule-1581107446]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad: Refreshing state... [id=sgrule-3718019630]
+module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd: Refreshing state... [id=sgrule-4187174585]
+module.external_security_group[0].aws_security_group_rule.tcp-statd: Refreshing state... [id=sgrule-3901603338]
+module.external_security_group[0].aws_security_group_rule.tcp-mountd: Refreshing state... [id=sgrule-853379135]
+module.external_security_group[0].aws_security_group_rule.icmp-frag-i4: Refreshing state... [id=sgrule-1335681682]
+module.external_security_group[0].aws_security_group_rule.tcp-dcerpc: Refreshing state... [id=sgrule-552741486]
+module.external_security_group[0].aws_security_group_rule.udp-dns: Refreshing state... [id=sgrule-476888955]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd: Refreshing state... [id=sgrule-2271007777]
+module.external_security_group[0].aws_security_group_rule.icmp-echo-i4: Refreshing state... [id=sgrule-617674523]
+module.external_security_group[0].aws_security_group_rule.tcp-lockd: Refreshing state... [id=sgrule-1561125396]
+module.external_security_group[0].aws_security_group_rule.tcp-dns: Refreshing state... [id=sgrule-1654873571]
+module.external_security_group[0].aws_security_group_rule.s3-http: Refreshing state... [id=sgrule-3633236024]
+module.external_security_group[0].aws_security_group_rule.ssh: Refreshing state... [id=sgrule-1196633214]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[2]: Refreshing state... [id=eni-01f125a5544552603]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[0]: Refreshing state... [id=eni-0d75326db7837636f]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[1]: Refreshing state... [id=eni-0171af087b2f88cac]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[3]: Refreshing state... [id=eni-024743c868a30e068]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Refreshing state... [id=i-091a1ec0721961e76]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Refreshing state... [id=i-0e30a39e33f3bc4c7]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Refreshing state... [id=i-0292ba5f3c6bc503d]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Refreshing state... [id=i-08838fec8fbade6b1]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be destroyed
+  - resource "random_pet" "cluster_id" {
+      - id        = "ethical-ram" -> null
+      - length    = 2 -> null
+      - separator = "-" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group.external will be destroyed
+  - resource "aws_security_group" "external" {
+      - arn                    = "arn:aws:ec2:us-east-1:777777777777:security-group/sg-019f1b0af0e70445c" -> null
+      - description            = "Managed by Terraform" -> null
+      - egress                 = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+        ] -> null
+      - id                     = "sg-019f1b0af0e70445c" -> null
+      - ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 111
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 111
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 111
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 111
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 11
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 135
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 135
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 135
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 135
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 20049
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 20049
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 22
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 22
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 300
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 300
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 300
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 300
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 302
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 302
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 302
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 302
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 304
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 304
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 304
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 304
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 305
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 305
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 305
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 305
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 306
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 306
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 306
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 306
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 3
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 4
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 445
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 445
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 53
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 53
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 53
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 53
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 8080
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 8080
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 8
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 9020
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 9020
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 9021
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 9021
+            },
+          - {
+              - cidr_blocks      = [
+                  - "10.15.2.1/32",
+                ]
+              - description      = ""
+              - from_port        = 67
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 68
+            },
+        ] -> null
+      - name                   = "ethical-ram-sg-external" -> null
+      - owner_id               = "777777777777" -> null
+      - revoke_rules_on_delete = false -> null
+      - tags                   = {
+          - "Name" = "ethical-ram-sg-external"
+        } -> null
+      - tags_all               = {
+          - "Name" = "ethical-ram-sg-external"
+        } -> null
+      - vpc_id                 = "vpc-07777777777777777" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.dhcp will be destroyed
+  - resource "aws_security_group_rule" "dhcp" {
+      - cidr_blocks            = [
+          - "10.15.2.1/32",
+        ] -> null
+      - from_port              = 67 -> null
+      - id                     = "sgrule-217739132" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-08753c7d96af8cafc" -> null
+      - self                   = false -> null
+      - to_port                = 68 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.egress will be destroyed
+  - resource "aws_security_group_rule" "egress" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 0 -> null
+      - id                     = "sgrule-3513573885" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-08e6feca0f4f2c0e6" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "egress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-echo-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-echo-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 8 -> null
+      - id                     = "sgrule-617674523" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-05dcbe23674784e54" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-frag-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-frag-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 3 -> null
+      - id                     = "sgrule-1335681682" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0228ce2e20a926add" -> null
+      - self                   = false -> null
+      - to_port                = 4 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-ttl-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 11 -> null
+      - id                     = "sgrule-2239546470" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0b123f3b78ed0b5a2" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.microsoft-ds will be destroyed
+  - resource "aws_security_group_rule" "microsoft-ds" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 445 -> null
+      - id                     = "sgrule-481198106" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-005b7ef862120722b" -> null
+      - self                   = false -> null
+      - to_port                = 445 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.nfsv3-rdma will be destroyed
+  - resource "aws_security_group_rule" "nfsv3-rdma" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 20049 -> null
+      - id                     = "sgrule-3335157513" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-04f1fac954dc21df7" -> null
+      - self                   = false -> null
+      - to_port                = 20049 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.papi will be destroyed
+  - resource "aws_security_group_rule" "papi" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 8080 -> null
+      - id                     = "sgrule-3137518376" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-00859030adc16e28d" -> null
+      - self                   = false -> null
+      - to_port                = 8080 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.s3-http will be destroyed
+  - resource "aws_security_group_rule" "s3-http" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 9020 -> null
+      - id                     = "sgrule-3633236024" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-02c6dd190d2b09f2b" -> null
+      - self                   = false -> null
+      - to_port                = 9020 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.s3-https will be destroyed
+  - resource "aws_security_group_rule" "s3-https" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 9021 -> null
+      - id                     = "sgrule-984380475" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0864df36262463d21" -> null
+      - self                   = false -> null
+      - to_port                = 9021 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.ssh will be destroyed
+  - resource "aws_security_group_rule" "ssh" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 22 -> null
+      - id                     = "sgrule-1196633214" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0a4137f34140df863" -> null
+      - self                   = false -> null
+      - to_port                = 22 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-dcerpc will be destroyed
+  - resource "aws_security_group_rule" "tcp-dcerpc" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 135 -> null
+      - id                     = "sgrule-552741486" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0f15599c0f74eecbf" -> null
+      - self                   = false -> null
+      - to_port                = 135 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-dns will be destroyed
+  - resource "aws_security_group_rule" "tcp-dns" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 53 -> null
+      - id                     = "sgrule-1654873571" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0b8865f8fa354ad58" -> null
+      - self                   = false -> null
+      - to_port                = 53 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-lockd will be destroyed
+  - resource "aws_security_group_rule" "tcp-lockd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 304 -> null
+      - id                     = "sgrule-1561125396" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-052d479d350436993" -> null
+      - self                   = false -> null
+      - to_port                = 304 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-mountd will be destroyed
+  - resource "aws_security_group_rule" "tcp-mountd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 300 -> null
+      - id                     = "sgrule-853379135" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-08599ab551f986f72" -> null
+      - self                   = false -> null
+      - to_port                = 300 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd will be destroyed
+  - resource "aws_security_group_rule" "tcp-nfsmgmtd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 306 -> null
+      - id                     = "sgrule-2271007777" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-06bb3508b630c6186" -> null
+      - self                   = false -> null
+      - to_port                = 306 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad will be destroyed
+  - resource "aws_security_group_rule" "tcp-nfsquotad" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 305 -> null
+      - id                     = "sgrule-3718019630" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0fab7fb6d4f332290" -> null
+      - self                   = false -> null
+      - to_port                = 305 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind will be destroyed
+  - resource "aws_security_group_rule" "tcp-rpc-bind" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 111 -> null
+      - id                     = "sgrule-424334416" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-09d54eeb0d3bfa85d" -> null
+      - self                   = false -> null
+      - to_port                = 111 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.tcp-statd will be destroyed
+  - resource "aws_security_group_rule" "tcp-statd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 302 -> null
+      - id                     = "sgrule-3901603338" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-052a7f3b0efc6610c" -> null
+      - self                   = false -> null
+      - to_port                = 302 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-dcerpc will be destroyed
+  - resource "aws_security_group_rule" "udp-dcerpc" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 135 -> null
+      - id                     = "sgrule-1581107446" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0c99553c8cd1d172d" -> null
+      - self                   = false -> null
+      - to_port                = 135 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-dns will be destroyed
+  - resource "aws_security_group_rule" "udp-dns" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 53 -> null
+      - id                     = "sgrule-476888955" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0b20c1a52cba12d2f" -> null
+      - self                   = false -> null
+      - to_port                = 53 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-lockd will be destroyed
+  - resource "aws_security_group_rule" "udp-lockd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 304 -> null
+      - id                     = "sgrule-599982220" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-08080969fd01e3dc8" -> null
+      - self                   = false -> null
+      - to_port                = 304 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-mountd will be destroyed
+  - resource "aws_security_group_rule" "udp-mountd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 300 -> null
+      - id                     = "sgrule-1276275367" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0716a62ef7a1908c4" -> null
+      - self                   = false -> null
+      - to_port                = 300 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd will be destroyed
+  - resource "aws_security_group_rule" "udp-nfsmgmtd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 306 -> null
+      - id                     = "sgrule-4187174585" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-08f2f60ce5c1592a0" -> null
+      - self                   = false -> null
+      - to_port                = 306 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-nfsquotad will be destroyed
+  - resource "aws_security_group_rule" "udp-nfsquotad" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 305 -> null
+      - id                     = "sgrule-2740164790" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0ba4846b3742f6f15" -> null
+      - self                   = false -> null
+      - to_port                = 305 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-rpc-bind will be destroyed
+  - resource "aws_security_group_rule" "udp-rpc-bind" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 111 -> null
+      - id                     = "sgrule-1736783560" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0bd76cd21bfd7638f" -> null
+      - self                   = false -> null
+      - to_port                = 111 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group[0].aws_security_group_rule.udp-statd will be destroyed
+  - resource "aws_security_group_rule" "udp-statd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 302 -> null
+      - id                     = "sgrule-2520931474" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-019f1b0af0e70445c" -> null
+      - security_group_rule_id = "sgr-0be0591dc749fd73d" -> null
+      - self                   = false -> null
+      - to_port                = 302 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.int-sec-group[0].aws_security_group.internal will be destroyed
+  - resource "aws_security_group" "internal" {
+      - arn                    = "arn:aws:ec2:us-east-1:777777777777:security-group/sg-0be56a24b3f57326f" -> null
+      - description            = "Managed by Terraform" -> null
+      - egress                 = [
+          - {
+              - cidr_blocks      = []
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = true
+              - to_port          = 0
+            },
+        ] -> null
+      - id                     = "sg-0be56a24b3f57326f" -> null
+      - ingress                = [
+          - {
+              - cidr_blocks      = []
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = true
+              - to_port          = 0
+            },
+        ] -> null
+      - name                   = "ethical-ram-sg-internal-iface" -> null
+      - owner_id               = "777777777777" -> null
+      - revoke_rules_on_delete = false -> null
+      - tags                   = {
+          - "Name" = "ethical-ram-sg-ingress"
+        } -> null
+      - tags_all               = {
+          - "Name" = "ethical-ram-sg-ingress"
+        } -> null
+      - vpc_id                 = "vpc-07777777777777777" -> null
+    }
+
+  # module.int-sec-group[0].aws_security_group_rule.internal_egress will be destroyed
+  - resource "aws_security_group_rule" "internal_egress" {
+      - from_port              = 0 -> null
+      - id                     = "sgrule-76698490" -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-0be56a24b3f57326f" -> null
+      - security_group_rule_id = "sgr-0fa9013d51d073e53" -> null
+      - self                   = true -> null
+      - to_port                = 0 -> null
+      - type                   = "egress" -> null
+    }
+
+  # module.int-sec-group[0].aws_security_group_rule.internal_ingress will be destroyed
+  - resource "aws_security_group_rule" "internal_ingress" {
+      - from_port              = 0 -> null
+      - id                     = "sgrule-1704284088" -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-0be56a24b3f57326f" -> null
+      - security_group_rule_id = "sgr-0fa9013d51d073e53" -> null
+      - self                   = true -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[0] will be destroyed
+  - resource "aws_instance" "onefs_node" {
+      - ami                                  = "ami-1111111111111111" -> null
+      - arn                                  = "arn:aws:ec2:us-east-1:777777777777:instance/i-0292ba5f3c6bc503d" -> null
+      - associate_public_ip_address          = false -> null
+      - availability_zone                    = "us-east-1b" -> null
+      - cpu_core_count                       = 16 -> null
+      - cpu_threads_per_core                 = 2 -> null
+      - disable_api_stop                     = false -> null
+      - disable_api_termination              = false -> null
+      - ebs_optimized                        = false -> null
+      - get_password_data                    = false -> null
+      - hibernation                          = false -> null
+      - iam_instance_profile                 = "onefs-runtime-instance-profile" -> null
+      - id                                   = "i-0292ba5f3c6bc503d" -> null
+      - instance_initiated_shutdown_behavior = "stop" -> null
+      - instance_state                       = "running" -> null
+      - instance_type                        = "m5dn.8xlarge" -> null
+      - ipv6_address_count                   = 0 -> null
+      - ipv6_addresses                       = [] -> null
+      - monitoring                           = false -> null
+      - placement_group                      = "ethical-ram-onefs-placement-group" -> null
+      - placement_partition_number           = 0 -> null
+      - primary_network_interface_id         = "eni-0c4a481d052752471" -> null
+      - private_dns                          = "ip-10-15-3-5.ec2.internal" -> null
+      - private_ip                           = "10.15.3.5" -> null
+      - secondary_private_ips                = [] -> null
+      - security_groups                      = [] -> null
+      - source_dest_check                    = true -> null
+      - subnet_id                            = "subnet-33333333333333333" -> null
+      - tags                                 = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-0"
+        } -> null
+      - tags_all                             = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-0"
+        } -> null
+      - tenancy                              = "default" -> null
+      - user_data                            = (sensitive value) -> null
+      - user_data_replace_on_change          = false -> null
+      - vpc_security_group_ids               = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      - cpu_options {
+          - core_count       = 16 -> null
+          - threads_per_core = 2 -> null
+        }
+
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvda" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-0-0"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-09c590ba58fcf7df6" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdb" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-0-1"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0bde69bf6149c3ab6" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdc" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-0-2"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-011491a30d4d6e9bc" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdd" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-0-3"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-09ea00b8ff9d75ede" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvde" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-0-4"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0b7122205ff57dd57" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      - maintenance_options {
+          - auto_recovery = "default" -> null
+        }
+
+      - metadata_options {
+          - http_endpoint               = "enabled" -> null
+          - http_protocol_ipv6          = "disabled" -> null
+          - http_put_response_hop_limit = 1 -> null
+          - http_tokens                 = "required" -> null
+          - instance_metadata_tags      = "disabled" -> null
+        }
+
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 0 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-0c4a481d052752471" -> null
+        }
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 1 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-0d75326db7837636f" -> null
+        }
+
+      - private_dns_name_options {
+          - enable_resource_name_dns_a_record    = false -> null
+          - enable_resource_name_dns_aaaa_record = false -> null
+          - hostname_type                        = "ip-name" -> null
+        }
+
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/sda1" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-os-0"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0f02dea4ef4b54193" -> null
+          - volume_size           = 48 -> null
+          - volume_type           = "gp3" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[1] will be destroyed
+  - resource "aws_instance" "onefs_node" {
+      - ami                                  = "ami-1111111111111111" -> null
+      - arn                                  = "arn:aws:ec2:us-east-1:777777777777:instance/i-0e30a39e33f3bc4c7" -> null
+      - associate_public_ip_address          = false -> null
+      - availability_zone                    = "us-east-1b" -> null
+      - cpu_core_count                       = 16 -> null
+      - cpu_threads_per_core                 = 2 -> null
+      - disable_api_stop                     = false -> null
+      - disable_api_termination              = false -> null
+      - ebs_optimized                        = false -> null
+      - get_password_data                    = false -> null
+      - hibernation                          = false -> null
+      - iam_instance_profile                 = "onefs-runtime-instance-profile" -> null
+      - id                                   = "i-0e30a39e33f3bc4c7" -> null
+      - instance_initiated_shutdown_behavior = "stop" -> null
+      - instance_state                       = "running" -> null
+      - instance_type                        = "m5dn.8xlarge" -> null
+      - ipv6_address_count                   = 0 -> null
+      - ipv6_addresses                       = [] -> null
+      - monitoring                           = false -> null
+      - placement_group                      = "ethical-ram-onefs-placement-group" -> null
+      - placement_partition_number           = 0 -> null
+      - primary_network_interface_id         = "eni-0e5c4c09e6b494484" -> null
+      - private_dns                          = "ip-10-15-3-6.ec2.internal" -> null
+      - private_ip                           = "10.15.3.6" -> null
+      - secondary_private_ips                = [] -> null
+      - security_groups                      = [] -> null
+      - source_dest_check                    = true -> null
+      - subnet_id                            = "subnet-33333333333333333" -> null
+      - tags                                 = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-1"
+        } -> null
+      - tags_all                             = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-1"
+        } -> null
+      - tenancy                              = "default" -> null
+      - user_data                            = (sensitive value) -> null
+      - user_data_replace_on_change          = false -> null
+      - vpc_security_group_ids               = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      - cpu_options {
+          - core_count       = 16 -> null
+          - threads_per_core = 2 -> null
+        }
+
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvda" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-1-0"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0afc298d92e1fc206" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdb" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-1-1"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-09b5db128b4aa8c9c" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdc" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-1-2"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-06dd7d70b3cd97653" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdd" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-1-3"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-08ca16fd81d2c01e2" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvde" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-1-4"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0b65800e4779c76d1" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      - maintenance_options {
+          - auto_recovery = "default" -> null
+        }
+
+      - metadata_options {
+          - http_endpoint               = "enabled" -> null
+          - http_protocol_ipv6          = "disabled" -> null
+          - http_put_response_hop_limit = 1 -> null
+          - http_tokens                 = "required" -> null
+          - instance_metadata_tags      = "disabled" -> null
+        }
+
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 0 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-0e5c4c09e6b494484" -> null
+        }
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 1 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-0171af087b2f88cac" -> null
+        }
+
+      - private_dns_name_options {
+          - enable_resource_name_dns_a_record    = false -> null
+          - enable_resource_name_dns_aaaa_record = false -> null
+          - hostname_type                        = "ip-name" -> null
+        }
+
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/sda1" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-os-1"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-05b1a64479edbc8cd" -> null
+          - volume_size           = 48 -> null
+          - volume_type           = "gp3" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[2] will be destroyed
+  - resource "aws_instance" "onefs_node" {
+      - ami                                  = "ami-1111111111111111" -> null
+      - arn                                  = "arn:aws:ec2:us-east-1:777777777777:instance/i-091a1ec0721961e76" -> null
+      - associate_public_ip_address          = false -> null
+      - availability_zone                    = "us-east-1b" -> null
+      - cpu_core_count                       = 16 -> null
+      - cpu_threads_per_core                 = 2 -> null
+      - disable_api_stop                     = false -> null
+      - disable_api_termination              = false -> null
+      - ebs_optimized                        = false -> null
+      - get_password_data                    = false -> null
+      - hibernation                          = false -> null
+      - iam_instance_profile                 = "onefs-runtime-instance-profile" -> null
+      - id                                   = "i-091a1ec0721961e76" -> null
+      - instance_initiated_shutdown_behavior = "stop" -> null
+      - instance_state                       = "running" -> null
+      - instance_type                        = "m5dn.8xlarge" -> null
+      - ipv6_address_count                   = 0 -> null
+      - ipv6_addresses                       = [] -> null
+      - monitoring                           = false -> null
+      - placement_group                      = "ethical-ram-onefs-placement-group" -> null
+      - placement_partition_number           = 0 -> null
+      - primary_network_interface_id         = "eni-09490b26f59cb56bc" -> null
+      - private_dns                          = "ip-10-15-3-7.ec2.internal" -> null
+      - private_ip                           = "10.15.3.7" -> null
+      - secondary_private_ips                = [] -> null
+      - security_groups                      = [] -> null
+      - source_dest_check                    = true -> null
+      - subnet_id                            = "subnet-33333333333333333" -> null
+      - tags                                 = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-2"
+        } -> null
+      - tags_all                             = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-2"
+        } -> null
+      - tenancy                              = "default" -> null
+      - user_data                            = (sensitive value) -> null
+      - user_data_replace_on_change          = false -> null
+      - vpc_security_group_ids               = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      - cpu_options {
+          - core_count       = 16 -> null
+          - threads_per_core = 2 -> null
+        }
+
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvda" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-2-0"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0e559c0061f32630c" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdb" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-2-1"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-00bffd451ff4292d8" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdc" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-2-2"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-02255a9064c83a6a6" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdd" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-2-3"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0ee84bcfa813e3ac6" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvde" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-2-4"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0c46bc9eb2ad7c352" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      - maintenance_options {
+          - auto_recovery = "default" -> null
+        }
+
+      - metadata_options {
+          - http_endpoint               = "enabled" -> null
+          - http_protocol_ipv6          = "disabled" -> null
+          - http_put_response_hop_limit = 1 -> null
+          - http_tokens                 = "required" -> null
+          - instance_metadata_tags      = "disabled" -> null
+        }
+
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 0 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-09490b26f59cb56bc" -> null
+        }
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 1 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-01f125a5544552603" -> null
+        }
+
+      - private_dns_name_options {
+          - enable_resource_name_dns_a_record    = false -> null
+          - enable_resource_name_dns_aaaa_record = false -> null
+          - hostname_type                        = "ip-name" -> null
+        }
+
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/sda1" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-os-2"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-05b5af55b63d9ebfa" -> null
+          - volume_size           = 48 -> null
+          - volume_type           = "gp3" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_instance.onefs_node[3] will be destroyed
+  - resource "aws_instance" "onefs_node" {
+      - ami                                  = "ami-1111111111111111" -> null
+      - arn                                  = "arn:aws:ec2:us-east-1:777777777777:instance/i-08838fec8fbade6b1" -> null
+      - associate_public_ip_address          = false -> null
+      - availability_zone                    = "us-east-1b" -> null
+      - cpu_core_count                       = 16 -> null
+      - cpu_threads_per_core                 = 2 -> null
+      - disable_api_stop                     = false -> null
+      - disable_api_termination              = false -> null
+      - ebs_optimized                        = false -> null
+      - get_password_data                    = false -> null
+      - hibernation                          = false -> null
+      - iam_instance_profile                 = "onefs-runtime-instance-profile" -> null
+      - id                                   = "i-08838fec8fbade6b1" -> null
+      - instance_initiated_shutdown_behavior = "stop" -> null
+      - instance_state                       = "running" -> null
+      - instance_type                        = "m5dn.8xlarge" -> null
+      - ipv6_address_count                   = 0 -> null
+      - ipv6_addresses                       = [] -> null
+      - monitoring                           = false -> null
+      - placement_group                      = "ethical-ram-onefs-placement-group" -> null
+      - placement_partition_number           = 0 -> null
+      - primary_network_interface_id         = "eni-0d023f3ebdd499d6f" -> null
+      - private_dns                          = "ip-10-15-3-8.ec2.internal" -> null
+      - private_ip                           = "10.15.3.8" -> null
+      - secondary_private_ips                = [] -> null
+      - security_groups                      = [] -> null
+      - source_dest_check                    = true -> null
+      - subnet_id                            = "subnet-33333333333333333" -> null
+      - tags                                 = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-3"
+        } -> null
+      - tags_all                             = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-node-3"
+        } -> null
+      - tenancy                              = "default" -> null
+      - user_data                            = (sensitive value) -> null
+      - user_data_replace_on_change          = false -> null
+      - vpc_security_group_ids               = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      - cpu_options {
+          - core_count       = 16 -> null
+          - threads_per_core = 2 -> null
+        }
+
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvda" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-3-0"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-00602dceee1ad19a9" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdb" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-3-1"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0eab823fcafa58706" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdc" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-3-2"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0bafaced8af459f0d" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvdd" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-3-3"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0f53a5b31746cbd22" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+      - ebs_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "xvde" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-data-3-4"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-0dc7143c44521ceec" -> null
+          - volume_size           = 1024 -> null
+          - volume_type           = "gp3" -> null
+        }
+
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      - maintenance_options {
+          - auto_recovery = "default" -> null
+        }
+
+      - metadata_options {
+          - http_endpoint               = "enabled" -> null
+          - http_protocol_ipv6          = "disabled" -> null
+          - http_put_response_hop_limit = 1 -> null
+          - http_tokens                 = "required" -> null
+          - instance_metadata_tags      = "disabled" -> null
+        }
+
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 0 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-0d023f3ebdd499d6f" -> null
+        }
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 1 -> null
+          - network_card_index    = 0 -> null
+          - network_interface_id  = "eni-024743c868a30e068" -> null
+        }
+
+      - private_dns_name_options {
+          - enable_resource_name_dns_a_record    = false -> null
+          - enable_resource_name_dns_aaaa_record = false -> null
+          - hostname_type                        = "ip-name" -> null
+        }
+
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/sda1" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "ClusterID" = "ethical-ram"
+              - "Name"      = "ethical-ram-node-os-3"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-08eda39cb020e7200" -> null
+          - volume_size           = 48 -> null
+          - volume_type           = "gp3" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[0] will be destroyed
+  - resource "aws_network_interface" "external_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-0d75326db7837636f" -> null
+      - id                        = "eni-0d75326db7837636f" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:0b:13:ca:f1:b3" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-2-73.ec2.internal" -> null
+      - private_ip                = "10.15.2.73" -> null
+      - private_ip_list           = [
+          - "10.15.2.73",
+          - "10.15.2.194",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.2.194",
+          - "10.15.2.73",
+        ] -> null
+      - private_ips_count         = 1 -> null
+      - security_groups           = [
+          - "sg-019f1b0af0e70445c",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-22222222222222222" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-0"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-0"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-0ffee743842b364f1" -> null
+          - device_index  = 1 -> null
+          - instance      = "i-0292ba5f3c6bc503d" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[1] will be destroyed
+  - resource "aws_network_interface" "external_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-0171af087b2f88cac" -> null
+      - id                        = "eni-0171af087b2f88cac" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:b8:a2:51:5a:61" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-2-229.ec2.internal" -> null
+      - private_ip                = "10.15.2.229" -> null
+      - private_ip_list           = [
+          - "10.15.2.229",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.2.229",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-019f1b0af0e70445c",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-22222222222222222" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-1"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-1"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-0a7cd87a96f04d997" -> null
+          - device_index  = 1 -> null
+          - instance      = "i-0e30a39e33f3bc4c7" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[2] will be destroyed
+  - resource "aws_network_interface" "external_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-01f125a5544552603" -> null
+      - id                        = "eni-01f125a5544552603" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:25:d2:19:9f:6f" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-2-248.ec2.internal" -> null
+      - private_ip                = "10.15.2.248" -> null
+      - private_ip_list           = [
+          - "10.15.2.248",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.2.248",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-019f1b0af0e70445c",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-22222222222222222" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-2"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-2"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-0dbb629f8b8b8d591" -> null
+          - device_index  = 1 -> null
+          - instance      = "i-091a1ec0721961e76" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.external_interface[3] will be destroyed
+  - resource "aws_network_interface" "external_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-024743c868a30e068" -> null
+      - id                        = "eni-024743c868a30e068" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:46:15:eb:41:79" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-2-54.ec2.internal" -> null
+      - private_ip                = "10.15.2.54" -> null
+      - private_ip_list           = [
+          - "10.15.2.54",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.2.54",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-019f1b0af0e70445c",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-22222222222222222" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-3"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-ext-3"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-015c4b9332bcbb580" -> null
+          - device_index  = 1 -> null
+          - instance      = "i-08838fec8fbade6b1" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[0] will be destroyed
+  - resource "aws_network_interface" "internal_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-0c4a481d052752471" -> null
+      - id                        = "eni-0c4a481d052752471" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:5a:48:ad:1b:9f" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-3-5.ec2.internal" -> null
+      - private_ip                = "10.15.3.5" -> null
+      - private_ip_list           = [
+          - "10.15.3.5",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.3.5",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-33333333333333333" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-0"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-0"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-041a50b7fb7a07cd9" -> null
+          - device_index  = 0 -> null
+          - instance      = "i-0292ba5f3c6bc503d" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[1] will be destroyed
+  - resource "aws_network_interface" "internal_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-0e5c4c09e6b494484" -> null
+      - id                        = "eni-0e5c4c09e6b494484" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:37:58:a9:88:eb" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-3-6.ec2.internal" -> null
+      - private_ip                = "10.15.3.6" -> null
+      - private_ip_list           = [
+          - "10.15.3.6",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.3.6",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-33333333333333333" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-1"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-1"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-093854cd917fd84e6" -> null
+          - device_index  = 0 -> null
+          - instance      = "i-0e30a39e33f3bc4c7" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[2] will be destroyed
+  - resource "aws_network_interface" "internal_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-09490b26f59cb56bc" -> null
+      - id                        = "eni-09490b26f59cb56bc" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:70:fc:b3:2d:15" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-3-7.ec2.internal" -> null
+      - private_ip                = "10.15.3.7" -> null
+      - private_ip_list           = [
+          - "10.15.3.7",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.3.7",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-33333333333333333" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-2"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-2"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-0a85df1f1c35deb1f" -> null
+          - device_index  = 0 -> null
+          - instance      = "i-091a1ec0721961e76" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_network_interface.internal_interface[3] will be destroyed
+  - resource "aws_network_interface" "internal_interface" {
+      - arn                       = "arn:aws:ec2:us-east-1:777777777777:network-interface/eni-0d023f3ebdd499d6f" -> null
+      - id                        = "eni-0d023f3ebdd499d6f" -> null
+      - interface_type            = "interface" -> null
+      - ipv4_prefix_count         = 0 -> null
+      - ipv4_prefixes             = [] -> null
+      - ipv6_address_count        = 0 -> null
+      - ipv6_address_list         = [] -> null
+      - ipv6_address_list_enabled = false -> null
+      - ipv6_addresses            = [] -> null
+      - ipv6_prefix_count         = 0 -> null
+      - ipv6_prefixes             = [] -> null
+      - mac_address               = "12:7f:97:d3:f6:65" -> null
+      - owner_id                  = "777777777777" -> null
+      - private_dns_name          = "ip-10-15-3-8.ec2.internal" -> null
+      - private_ip                = "10.15.3.8" -> null
+      - private_ip_list           = [
+          - "10.15.3.8",
+        ] -> null
+      - private_ip_list_enabled   = false -> null
+      - private_ips               = [
+          - "10.15.3.8",
+        ] -> null
+      - private_ips_count         = 0 -> null
+      - security_groups           = [
+          - "sg-0be56a24b3f57326f",
+        ] -> null
+      - source_dest_check         = true -> null
+      - subnet_id                 = "subnet-33333333333333333" -> null
+      - tags                      = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-3"
+        } -> null
+      - tags_all                  = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-nic-int-3"
+        } -> null
+
+      - attachment {
+          - attachment_id = "eni-attach-0518570fb86135955" -> null
+          - device_index  = 0 -> null
+          - instance      = "i-08838fec8fbade6b1" -> null
+        }
+    }
+
+  # module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group will be destroyed
+  - resource "aws_placement_group" "onefs_placement_group" {
+      - arn                = "arn:aws:ec2:us-east-1:777777777777:placement-group/ethical-ram-onefs-placement-group" -> null
+      - id                 = "ethical-ram-onefs-placement-group" -> null
+      - name               = "ethical-ram-onefs-placement-group" -> null
+      - partition_count    = 0 -> null
+      - placement_group_id = "pg-0ad5dfd38d5134284" -> null
+      - spread_level       = "rack" -> null
+      - strategy           = "spread" -> null
+      - tags               = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-onefs-placement-group"
+        } -> null
+      - tags_all           = {
+          - "ClusterID" = "ethical-ram"
+          - "Name"      = "ethical-ram-onefs-placement-group"
+        } -> null
+    }
+
+Plan: 0 to add, 0 to change, 45 to destroy.
+
+Changes to Outputs:
+  - additional_nodes_external_ip_addresses = [
+      - "10.15.2.229",
+      - "10.15.2.248",
+      - "10.15.2.54",
+    ] -> null
+  - cluster_id                             = "ethical-ram" -> null
+  - first_node_external_ip_address         = "10.15.2.73" -> null
+  - first_node_instance_id                 = "i-0292ba5f3c6bc503d" -> null
+  - internal_network_high_ip               = "10.15.3.8" -> null
+  - internal_network_low_ip                = "10.15.3.5" -> null
+  - region                                 = "us-east-1" -> null
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+module.int-sec-group[0].aws_security_group_rule.internal_egress: Destroying... [id=sgrule-76698490]
+module.external_security_group[0].aws_security_group_rule.udp-nfsquotad: Destroying... [id=sgrule-2740164790]
+module.external_security_group[0].aws_security_group_rule.tcp-dcerpc: Destroying... [id=sgrule-552741486]
+module.external_security_group[0].aws_security_group_rule.udp-dcerpc: Destroying... [id=sgrule-1581107446]
+module.int-sec-group[0].aws_security_group_rule.internal_ingress: Destroying... [id=sgrule-1704284088]
+module.external_security_group[0].aws_security_group_rule.s3-http: Destroying... [id=sgrule-3633236024]
+module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind: Destroying... [id=sgrule-424334416]
+module.external_security_group[0].aws_security_group_rule.udp-rpc-bind: Destroying... [id=sgrule-1736783560]
+module.external_security_group[0].aws_security_group_rule.udp-lockd: Destroying... [id=sgrule-599982220]
+module.external_security_group[0].aws_security_group_rule.nfsv3-rdma: Destroying... [id=sgrule-3335157513]
+module.int-sec-group[0].aws_security_group_rule.internal_egress: Destruction complete after 1s
+module.external_security_group[0].aws_security_group_rule.tcp-rpc-bind: Destruction complete after 1s
+module.external_security_group[0].aws_security_group_rule.tcp-mountd: Destroying... [id=sgrule-853379135]
+module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4: Destroying... [id=sgrule-2239546470]
+module.int-sec-group[0].aws_security_group_rule.internal_ingress: Destruction complete after 1s
+module.external_security_group[0].aws_security_group_rule.s3-http: Destruction complete after 1s
+module.external_security_group[0].aws_security_group_rule.icmp-echo-i4: Destroying... [id=sgrule-617674523]
+module.external_security_group[0].aws_security_group_rule.papi: Destroying... [id=sgrule-3137518376]
+module.external_security_group[0].aws_security_group_rule.udp-rpc-bind: Destruction complete after 2s
+module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd: Destroying... [id=sgrule-2271007777]
+module.external_security_group[0].aws_security_group_rule.tcp-dcerpc: Destruction complete after 2s
+module.external_security_group[0].aws_security_group_rule.dhcp: Destroying... [id=sgrule-217739132]
+module.external_security_group[0].aws_security_group_rule.udp-dcerpc: Destruction complete after 3s
+module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd: Destroying... [id=sgrule-4187174585]
+module.external_security_group[0].aws_security_group_rule.udp-nfsquotad: Destruction complete after 3s
+module.external_security_group[0].aws_security_group_rule.udp-mountd: Destroying... [id=sgrule-1276275367]
+module.external_security_group[0].aws_security_group_rule.udp-lockd: Destruction complete after 3s
+module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad: Destroying... [id=sgrule-3718019630]
+module.external_security_group[0].aws_security_group_rule.nfsv3-rdma: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.udp-statd: Destroying... [id=sgrule-2520931474]
+module.external_security_group[0].aws_security_group_rule.tcp-mountd: Destruction complete after 3s
+module.external_security_group[0].aws_security_group_rule.microsoft-ds: Destroying... [id=sgrule-481198106]
+module.external_security_group[0].aws_security_group_rule.icmp-ttl-i4: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.tcp-lockd: Destroying... [id=sgrule-1561125396]
+module.external_security_group[0].aws_security_group_rule.papi: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.s3-https: Destroying... [id=sgrule-984380475]
+module.external_security_group[0].aws_security_group_rule.icmp-echo-i4: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.udp-dns: Destroying... [id=sgrule-476888955]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsmgmtd: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.icmp-frag-i4: Destroying... [id=sgrule-1335681682]
+module.external_security_group[0].aws_security_group_rule.dhcp: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.tcp-statd: Destroying... [id=sgrule-3901603338]
+module.external_security_group[0].aws_security_group_rule.udp-nfsmgmtd: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.ssh: Destroying... [id=sgrule-1196633214]
+module.external_security_group[0].aws_security_group_rule.udp-mountd: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.egress: Destroying... [id=sgrule-3513573885]
+module.external_security_group[0].aws_security_group_rule.tcp-nfsquotad: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.tcp-dns: Destroying... [id=sgrule-1654873571]
+module.external_security_group[0].aws_security_group_rule.udp-statd: Destruction complete after 4s
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Destroying... [id=i-0292ba5f3c6bc503d]
+module.external_security_group[0].aws_security_group_rule.microsoft-ds: Destruction complete after 4s
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Destroying... [id=i-0e30a39e33f3bc4c7]
+module.external_security_group[0].aws_security_group_rule.tcp-lockd: Destruction complete after 4s
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Destroying... [id=i-08838fec8fbade6b1]
+module.external_security_group[0].aws_security_group_rule.s3-https: Destruction complete after 4s
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Destroying... [id=i-091a1ec0721961e76]
+module.external_security_group[0].aws_security_group_rule.udp-dns: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.icmp-frag-i4: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.tcp-statd: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.ssh: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.egress: Destruction complete after 4s
+module.external_security_group[0].aws_security_group_rule.tcp-dns: Destruction complete after 4s
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 40s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 40s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 40s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 40s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 50s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 50s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 50s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 50s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 1m0s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 1m0s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 1m0s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 1m0s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Still destroying... [id=i-0292ba5f3c6bc503d, 1m10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 1m10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 1m10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Still destroying... [id=i-091a1ec0721961e76, 1m10s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[0]: Destruction complete after 1m11s
+module.onefs.module.onefsbase.aws_instance.onefs_node[2]: Destruction complete after 1m11s
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 1m20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 1m20s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 1m30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Still destroying... [id=i-08838fec8fbade6b1, 1m30s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[3]: Destruction complete after 1m31s
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Still destroying... [id=i-0e30a39e33f3bc4c7, 1m40s elapsed]
+module.onefs.module.onefsbase.aws_instance.onefs_node[1]: Destruction complete after 1m42s
+module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group: Destroying... [id=ethical-ram-onefs-placement-group]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[2]: Destroying... [id=eni-09490b26f59cb56bc]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[0]: Destroying... [id=eni-0c4a481d052752471]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[0]: Destroying... [id=eni-0d75326db7837636f]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[2]: Destroying... [id=eni-01f125a5544552603]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[1]: Destroying... [id=eni-0171af087b2f88cac]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[3]: Destroying... [id=eni-0d023f3ebdd499d6f]
+module.onefs.module.onefsbase.aws_network_interface.external_interface[3]: Destroying... [id=eni-024743c868a30e068]
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[1]: Destroying... [id=eni-0e5c4c09e6b494484]
+module.onefs.module.onefsbase.aws_placement_group.onefs_placement_group: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[2]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.external_interface[1]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.external_interface[2]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.external_interface[3]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[1]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.external_interface[0]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[3]: Destruction complete after 1s
+module.onefs.module.onefsbase.aws_network_interface.internal_interface[0]: Destruction complete after 1s
+module.external_security_group[0].aws_security_group.external: Destroying... [id=sg-019f1b0af0e70445c]
+module.int-sec-group[0].aws_security_group.internal: Destroying... [id=sg-0be56a24b3f57326f]
+module.int-sec-group[0].aws_security_group.internal: Destruction complete after 0s
+module.external_security_group[0].aws_security_group.external: Destruction complete after 0s
+random_pet.cluster_id: Destroying... [id=ethical-ram]
+random_pet.cluster_id: Destruction complete after 0s
+
+Destroy complete! Resources: 45 destroyed.
+
+stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/complete-onefs$ terraform show
+The state file is empty. No resources are represented.

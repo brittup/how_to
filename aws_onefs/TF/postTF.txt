@@ -31,7 +31,9 @@ isi cluster internal-networks modify --int-a-ip-addresses 10.15.3.5-10.15.3.8
 isi cluster internal-networks view
 
 
-#Add additional nodes’ external IP addresses external_ip_addresses to the default 
+#Add additional nodes’ external IP addresses external_ip_addresses to the defaul
+isi network subnets view groupnet0.subnet0 
+
 isi network pools view groupnet0.subnet0.pool0
 
 #add ranges or IP's of nodes
