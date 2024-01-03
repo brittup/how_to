@@ -1,0 +1,1671 @@
+###terraform code to create the external security group resources only
+#assumes aws cli and terraform setup complete
+#create aws logon variables
+
+export AWS_ACCESS_KEY_ID=<aws key id>
+export AWS_SECRET_ACCESS_KEY=<key>
+echo $AWS_ACCESS_KEY_ID
+echo $AWS_SECRET_ACCESS_KEY
+
+## ext-security-group module
+cd into <code>
+examples/ext-security-group
+
+#Get Subnet Info
+
+export aws_sdk_profile=udsawsadmin 
+aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetId:SubnetId, Name:Tags[?Key=='Name']|[0].Value, VpcId:VpcId, CidrBlock:CidrBlock, AvailabilityZone:AvailabilityZone}" --output table
+----------------------------------------------------------------------------------------------------------
+|                                             DescribeSubnets                                            |
++------------------+---------------+--------------+----------------------------+-------------------------+
+| AvailabilityZone |   CidrBlock   |    Name      |         SubnetId           |          VpcId          |
++------------------+---------------+--------------+----------------------------+-------------------------+
+|  us-east-1b      |  10.15.1.0/24 |  uds-subnet1 |  subnet-01111111111111111  |  vpc-777777777777  |
+|  us-east-1b      |  10.15.2.0/24 |  uds-subnet2 |  subnet-22222222222222222  |  vpc-777777777777  |
+|  us-east-1b      |  10.15.3.0/24 |  uds-subnet3 |  subnet-33333333333333333  |  vpc-777777777777  |
++------------------+---------------+--------------+----------------------------+-------------------------+
+
+
+#For the minimal set of input parameters that needs to be passed to this Terraform module create the terraform.tfvars.json file and provide the following required input variables in that file:
+#create:  terraform.tfvars.json
+
+{
+    "vpc_id": "vpc-#################",
+    "external_subnet_id": "subnet-#################"
+}
+
+#create terraform.tfvars.json  -- to define VPC, or tf will prompt for VPC id, subnet
+
+
+Add terraform.tfvars.json
+
+{
+    "vpc_id": "vpc-777777777777",
+    "external_subnet_id": "subnet-22222222222222222 "
+}
+
+
+#setup and validate
+terraform init
+terraform validate
+terraform plan
+
+
+#create sg 
+terraform apply
+
+<output listed below>
+
+
+#view sg
+export aws_sdk_profile=udsawsadmin 
+echo $aws_sdk_profile
+aws ec2 --profile=$aws_sdk_profile describe-security-groups --group-ids=<sg-id>  --output yaml-stream
+
+terraform output
+terraform show
+
+
+#destroy resources
+terraform destroy
+
+
+
+
+
+####################################################################################################################################
+###full output of apply
+####################################################################################################################################
+terraform apply
+data.aws_subnet.external_subnet: Reading...
+data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222 ]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+
+Plan: 29 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + cluster_id     = (known after apply)
+  + external_sg_id = (known after apply)
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+
+...
+full output below
+...
+
+  Enter a value: yes
+
+random_pet.cluster_id: Creating...
+random_pet.cluster_id: Creation complete after 0s [id=valid-bedbug]
+module.external_security_group.aws_security_group.external: Creating...
+module.external_security_group.aws_security_group.external: Creation complete after 2s [id=sg-09d9f335243fb9348]
+module.external_security_group.aws_security_group_rule.ssh: Creating...
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Creating...
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Creating...
+module.external_security_group.aws_security_group_rule.dhcp: Creating...
+module.external_security_group.aws_security_group_rule.udp-mountd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Creating...
+module.external_security_group.aws_security_group_rule.udp-dns: Creating...
+module.external_security_group.aws_security_group_rule.tcp-statd: Creating...
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Creating...
+module.external_security_group.aws_security_group_rule.udp-statd: Creating...
+module.external_security_group.aws_security_group_rule.ssh: Creation complete after 1s [id=sgrule-93316509]
+module.external_security_group.aws_security_group_rule.udp-lockd: Creating...
+module.external_security_group.aws_security_group_rule.udp-mountd: Creation complete after 1s [id=sgrule-3690590784]
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Creating...
+module.external_security_group.aws_security_group_rule.dhcp: Creation complete after 2s [id=sgrule-839119679]
+module.external_security_group.aws_security_group_rule.tcp-mountd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-statd: Creation complete after 2s [id=sgrule-2137401069]
+module.external_security_group.aws_security_group_rule.papi: Creating...
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Creation complete after 3s [id=sgrule-1249370825]
+module.external_security_group.aws_security_group_rule.s3-http: Creating...
+module.external_security_group.aws_security_group_rule.udp-dns: Creation complete after 3s [id=sgrule-1588623000]
+module.external_security_group.aws_security_group_rule.s3-https: Creating...
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Creation complete after 4s [id=sgrule-3220507377]
+module.external_security_group.aws_security_group_rule.microsoft-ds: Creating...
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Creation complete after 4s [id=sgrule-4033785391]
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Creating...
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Creation complete after 5s [id=sgrule-567111099]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Creating...
+module.external_security_group.aws_security_group_rule.udp-statd: Creation complete after 6s [id=sgrule-27903093]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Creating...
+module.external_security_group.aws_security_group_rule.udp-lockd: Creation complete after 5s [id=sgrule-3022559339]
+module.external_security_group.aws_security_group_rule.tcp-lockd: Creating...
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Creation complete after 6s [id=sgrule-884473937]
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-mountd: Creation complete after 5s [id=sgrule-2771783896]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Creating...
+module.external_security_group.aws_security_group_rule.papi: Creation complete after 6s [id=sgrule-1424577182]
+module.external_security_group.aws_security_group_rule.egress: Creating...
+module.external_security_group.aws_security_group_rule.s3-http: Creation complete after 5s [id=sgrule-929374606]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Creating...
+module.external_security_group.aws_security_group_rule.s3-https: Creation complete after 6s [id=sgrule-3578240397]
+module.external_security_group.aws_security_group_rule.tcp-dns: Creating...
+module.external_security_group.aws_security_group_rule.microsoft-ds: Creation complete after 5s [id=sgrule-2336561405]
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Creating...
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Creation complete after 6s [id=sgrule-2911095552]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Creation complete after 6s [id=sgrule-3071914633]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Creation complete after 5s [id=sgrule-3386265617]
+module.external_security_group.aws_security_group_rule.tcp-lockd: Creation complete after 6s [id=sgrule-3404167923]
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Creation complete after 5s [id=sgrule-1853402718]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Creation complete after 6s [id=sgrule-407875194]
+module.external_security_group.aws_security_group_rule.egress: Creation complete after 5s [id=sgrule-1852041312]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Creation complete after 6s [id=sgrule-280448198]
+module.external_security_group.aws_security_group_rule.tcp-dns: Creation complete after 5s [id=sgrule-545231872]
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Creation complete after 6s [id=sgrule-2392935607]
+
+Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_id = "valid-bedbug"
+external_sg_id = "sg-09d9f335243fb9348"
+
+
+
+
+################################################################################################################################
+#full output of apply
+terraform apply
+data.aws_subnet.external_subnet: Reading...
+data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222 ]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be created
+  + resource "random_pet" "cluster_id" {
+      + id        = (known after apply)
+      + length    = 2
+      + separator = "-"
+    }
+
+  # module.external_security_group.aws_security_group.external will be created
+  + resource "aws_security_group" "external" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = (known after apply)
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = (known after apply)
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-777777777777"
+    }
+
+  # module.external_security_group.aws_security_group_rule.dhcp will be created
+  + resource "aws_security_group_rule" "dhcp" {
+      + cidr_blocks              = [
+          + "10.15.2.1/32",
+        ]
+      + from_port                = 67
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 68
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.egress will be created
+  + resource "aws_security_group_rule" "egress" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 0
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "-1"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "egress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-echo-i4 will be created
+  + resource "aws_security_group_rule" "icmp-echo-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 8
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-frag-i4 will be created
+  + resource "aws_security_group_rule" "icmp-frag-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 3
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 4
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-ttl-i4 will be created
+  + resource "aws_security_group_rule" "icmp-ttl-i4" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 11
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "icmp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 0
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.microsoft-ds will be created
+  + resource "aws_security_group_rule" "microsoft-ds" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 445
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 445
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.nfsv3-rdma will be created
+  + resource "aws_security_group_rule" "nfsv3-rdma" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 20049
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 20049
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.papi will be created
+  + resource "aws_security_group_rule" "papi" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 8080
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 8080
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.s3-http will be created
+  + resource "aws_security_group_rule" "s3-http" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 9020
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 9020
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.s3-https will be created
+  + resource "aws_security_group_rule" "s3-https" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 9021
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 9021
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.ssh will be created
+  + resource "aws_security_group_rule" "ssh" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 22
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 22
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-dcerpc will be created
+  + resource "aws_security_group_rule" "tcp-dcerpc" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 135
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 135
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-dns will be created
+  + resource "aws_security_group_rule" "tcp-dns" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 53
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 53
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-lockd will be created
+  + resource "aws_security_group_rule" "tcp-lockd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 304
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 304
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-mountd will be created
+  + resource "aws_security_group_rule" "tcp-mountd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 300
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 300
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd will be created
+  + resource "aws_security_group_rule" "tcp-nfsmgmtd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 306
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 306
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-nfsquotad will be created
+  + resource "aws_security_group_rule" "tcp-nfsquotad" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 305
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 305
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-rpc-bind will be created
+  + resource "aws_security_group_rule" "tcp-rpc-bind" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 111
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 111
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-statd will be created
+  + resource "aws_security_group_rule" "tcp-statd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 302
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "tcp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 302
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-dcerpc will be created
+  + resource "aws_security_group_rule" "udp-dcerpc" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 135
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 135
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-dns will be created
+  + resource "aws_security_group_rule" "udp-dns" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 53
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 53
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-lockd will be created
+  + resource "aws_security_group_rule" "udp-lockd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 304
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 304
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-mountd will be created
+  + resource "aws_security_group_rule" "udp-mountd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 300
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 300
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-nfsmgmtd will be created
+  + resource "aws_security_group_rule" "udp-nfsmgmtd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 306
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 306
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-nfsquotad will be created
+  + resource "aws_security_group_rule" "udp-nfsquotad" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 305
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 305
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-rpc-bind will be created
+  + resource "aws_security_group_rule" "udp-rpc-bind" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 111
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 111
+      + type                     = "ingress"
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-statd will be created
+  + resource "aws_security_group_rule" "udp-statd" {
+      + cidr_blocks              = [
+          + "0.0.0.0/0",
+        ]
+      + from_port                = 302
+      + id                       = (known after apply)
+      + ipv6_cidr_blocks         = []
+      + protocol                 = "udp"
+      + security_group_id        = (known after apply)
+      + security_group_rule_id   = (known after apply)
+      + self                     = false
+      + source_security_group_id = (known after apply)
+      + to_port                  = 302
+      + type                     = "ingress"
+    }
+
+Plan: 29 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + cluster_id     = (known after apply)
+  + external_sg_id = (known after apply)
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+random_pet.cluster_id: Creating...
+random_pet.cluster_id: Creation complete after 0s [id=valid-bedbug]
+module.external_security_group.aws_security_group.external: Creating...
+module.external_security_group.aws_security_group.external: Creation complete after 2s [id=sg-09d9f335243fb9348]
+module.external_security_group.aws_security_group_rule.ssh: Creating...
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Creating...
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Creating...
+module.external_security_group.aws_security_group_rule.dhcp: Creating...
+module.external_security_group.aws_security_group_rule.udp-mountd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Creating...
+module.external_security_group.aws_security_group_rule.udp-dns: Creating...
+module.external_security_group.aws_security_group_rule.tcp-statd: Creating...
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Creating...
+module.external_security_group.aws_security_group_rule.udp-statd: Creating...
+module.external_security_group.aws_security_group_rule.ssh: Creation complete after 1s [id=sgrule-93316509]
+module.external_security_group.aws_security_group_rule.udp-lockd: Creating...
+module.external_security_group.aws_security_group_rule.udp-mountd: Creation complete after 1s [id=sgrule-3690590784]
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Creating...
+module.external_security_group.aws_security_group_rule.dhcp: Creation complete after 2s [id=sgrule-839119679]
+module.external_security_group.aws_security_group_rule.tcp-mountd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-statd: Creation complete after 2s [id=sgrule-2137401069]
+module.external_security_group.aws_security_group_rule.papi: Creating...
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Creation complete after 3s [id=sgrule-1249370825]
+module.external_security_group.aws_security_group_rule.s3-http: Creating...
+module.external_security_group.aws_security_group_rule.udp-dns: Creation complete after 3s [id=sgrule-1588623000]
+module.external_security_group.aws_security_group_rule.s3-https: Creating...
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Creation complete after 4s [id=sgrule-3220507377]
+module.external_security_group.aws_security_group_rule.microsoft-ds: Creating...
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Creation complete after 4s [id=sgrule-4033785391]
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Creating...
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Creation complete after 5s [id=sgrule-567111099]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Creating...
+module.external_security_group.aws_security_group_rule.udp-statd: Creation complete after 6s [id=sgrule-27903093]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Creating...
+module.external_security_group.aws_security_group_rule.udp-lockd: Creation complete after 5s [id=sgrule-3022559339]
+module.external_security_group.aws_security_group_rule.tcp-lockd: Creating...
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Creation complete after 6s [id=sgrule-884473937]
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Creating...
+module.external_security_group.aws_security_group_rule.tcp-mountd: Creation complete after 5s [id=sgrule-2771783896]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Creating...
+module.external_security_group.aws_security_group_rule.papi: Creation complete after 6s [id=sgrule-1424577182]
+module.external_security_group.aws_security_group_rule.egress: Creating...
+module.external_security_group.aws_security_group_rule.s3-http: Creation complete after 5s [id=sgrule-929374606]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Creating...
+module.external_security_group.aws_security_group_rule.s3-https: Creation complete after 6s [id=sgrule-3578240397]
+module.external_security_group.aws_security_group_rule.tcp-dns: Creating...
+module.external_security_group.aws_security_group_rule.microsoft-ds: Creation complete after 5s [id=sgrule-2336561405]
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Creating...
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Creation complete after 6s [id=sgrule-2911095552]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Creation complete after 6s [id=sgrule-3071914633]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Creation complete after 5s [id=sgrule-3386265617]
+module.external_security_group.aws_security_group_rule.tcp-lockd: Creation complete after 6s [id=sgrule-3404167923]
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Creation complete after 5s [id=sgrule-1853402718]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Creation complete after 6s [id=sgrule-407875194]
+module.external_security_group.aws_security_group_rule.egress: Creation complete after 5s [id=sgrule-1852041312]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Creation complete after 6s [id=sgrule-280448198]
+module.external_security_group.aws_security_group_rule.tcp-dns: Creation complete after 5s [id=sgrule-545231872]
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Creation complete after 6s [id=sgrule-2392935607]
+
+Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_id = "valid-bedbug"
+external_sg_id = "sg-09d9f335243fb9348"
+
+
+
+
+
+
+################################################################################################################################
+#full output of destroy
+terraform destroy
+random_pet.cluster_id: Refreshing state... [id=valid-bedbug]
+data.aws_subnet.external_subnet: Reading...
+module.external_security_group.aws_security_group.external: Refreshing state... [id=sg-09d9f335243fb9348]
+data.aws_subnet.external_subnet: Read complete after 1s [id=subnet-22222222222222222 ]
+module.external_security_group.aws_security_group_rule.tcp-mountd: Refreshing state... [id=sgrule-2771783896]
+module.external_security_group.aws_security_group_rule.tcp-dns: Refreshing state... [id=sgrule-545231872]
+module.external_security_group.aws_security_group_rule.udp-lockd: Refreshing state... [id=sgrule-3022559339]
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Refreshing state... [id=sgrule-1853402718]
+module.external_security_group.aws_security_group_rule.udp-statd: Refreshing state... [id=sgrule-27903093]
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Refreshing state... [id=sgrule-2392935607]
+module.external_security_group.aws_security_group_rule.udp-mountd: Refreshing state... [id=sgrule-3690590784]
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Refreshing state... [id=sgrule-1249370825]
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Refreshing state... [id=sgrule-2911095552]
+module.external_security_group.aws_security_group_rule.ssh: Refreshing state... [id=sgrule-93316509]
+module.external_security_group.aws_security_group_rule.s3-https: Refreshing state... [id=sgrule-3578240397]
+module.external_security_group.aws_security_group_rule.dhcp: Refreshing state... [id=sgrule-839119679]
+module.external_security_group.aws_security_group_rule.egress: Refreshing state... [id=sgrule-1852041312]
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Refreshing state... [id=sgrule-884473937]
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Refreshing state... [id=sgrule-4033785391]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Refreshing state... [id=sgrule-3071914633]
+module.external_security_group.aws_security_group_rule.udp-dns: Refreshing state... [id=sgrule-1588623000]
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Refreshing state... [id=sgrule-567111099]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Refreshing state... [id=sgrule-280448198]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Refreshing state... [id=sgrule-407875194]
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Refreshing state... [id=sgrule-3220507377]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Refreshing state... [id=sgrule-3386265617]
+module.external_security_group.aws_security_group_rule.tcp-lockd: Refreshing state... [id=sgrule-3404167923]
+module.external_security_group.aws_security_group_rule.papi: Refreshing state... [id=sgrule-1424577182]
+module.external_security_group.aws_security_group_rule.s3-http: Refreshing state... [id=sgrule-929374606]
+module.external_security_group.aws_security_group_rule.tcp-statd: Refreshing state... [id=sgrule-2137401069]
+module.external_security_group.aws_security_group_rule.microsoft-ds: Refreshing state... [id=sgrule-2336561405]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # random_pet.cluster_id will be destroyed
+  - resource "random_pet" "cluster_id" {
+      - id        = "valid-bedbug" -> null
+      - length    = 2 -> null
+      - separator = "-" -> null
+    }
+
+  # module.external_security_group.aws_security_group.external will be destroyed
+  - resource "aws_security_group" "external" {
+      - arn                    = "arn:aws:ec2:us-east-1:777777777777:security-group/sg-09d9f335243fb9348" -> null
+      - description            = "Managed by Terraform" -> null
+      - egress                 = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 0
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "-1"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+        ] -> null
+      - id                     = "sg-09d9f335243fb9348" -> null
+      - ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 111
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 111
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 111
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 111
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 11
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 135
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 135
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 135
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 135
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 20049
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 20049
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 22
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 22
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 300
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 300
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 300
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 300
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 302
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 302
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 302
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 302
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 304
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 304
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 304
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 304
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 305
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 305
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 305
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 305
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 306
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 306
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 306
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 306
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 3
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 4
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 445
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 445
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 53
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 53
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 53
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 53
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 8080
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 8080
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 8
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "icmp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 0
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 9020
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 9020
+            },
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = ""
+              - from_port        = 9021
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 9021
+            },
+          - {
+              - cidr_blocks      = [
+                  - "10.15.2.1/32",
+                ]
+              - description      = ""
+              - from_port        = 67
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "udp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 68
+            },
+        ] -> null
+      - name                   = "valid-bedbug-sg-external" -> null
+      - owner_id               = "777777777777" -> null
+      - revoke_rules_on_delete = false -> null
+      - tags                   = {
+          - "Name" = "valid-bedbug-sg-external"
+        } -> null
+      - tags_all               = {
+          - "Name" = "valid-bedbug-sg-external"
+        } -> null
+      - vpc_id                 = "vpc-777777777777" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.dhcp will be destroyed
+  - resource "aws_security_group_rule" "dhcp" {
+      - cidr_blocks            = [
+          - "10.15.2.1/32",
+        ] -> null
+      - from_port              = 67 -> null
+      - id                     = "sgrule-839119679" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-049b663dffb0e56e0" -> null
+      - self                   = false -> null
+      - to_port                = 68 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.egress will be destroyed
+  - resource "aws_security_group_rule" "egress" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 0 -> null
+      - id                     = "sgrule-1852041312" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "-1" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-05d74044954f53445" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "egress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-echo-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-echo-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 8 -> null
+      - id                     = "sgrule-407875194" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-081d45f01c8f6219e" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-frag-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-frag-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 3 -> null
+      - id                     = "sgrule-567111099" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-05505710a6a53544c" -> null
+      - self                   = false -> null
+      - to_port                = 4 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.icmp-ttl-i4 will be destroyed
+  - resource "aws_security_group_rule" "icmp-ttl-i4" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 11 -> null
+      - id                     = "sgrule-3220507377" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "icmp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-01a849bfab8042ef4" -> null
+      - self                   = false -> null
+      - to_port                = 0 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.microsoft-ds will be destroyed
+  - resource "aws_security_group_rule" "microsoft-ds" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 445 -> null
+      - id                     = "sgrule-2336561405" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0b5ea132309f374c4" -> null
+      - self                   = false -> null
+      - to_port                = 445 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.nfsv3-rdma will be destroyed
+  - resource "aws_security_group_rule" "nfsv3-rdma" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 20049 -> null
+      - id                     = "sgrule-2911095552" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0f7a224210c0a5315" -> null
+      - self                   = false -> null
+      - to_port                = 20049 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.papi will be destroyed
+  - resource "aws_security_group_rule" "papi" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 8080 -> null
+      - id                     = "sgrule-1424577182" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0801ecd2bc462dca9" -> null
+      - self                   = false -> null
+      - to_port                = 8080 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.s3-http will be destroyed
+  - resource "aws_security_group_rule" "s3-http" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 9020 -> null
+      - id                     = "sgrule-929374606" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-085e0fd9cd601e123" -> null
+      - self                   = false -> null
+      - to_port                = 9020 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.s3-https will be destroyed
+  - resource "aws_security_group_rule" "s3-https" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 9021 -> null
+      - id                     = "sgrule-3578240397" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0c3b36feaedbfbd41" -> null
+      - self                   = false -> null
+      - to_port                = 9021 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.ssh will be destroyed
+  - resource "aws_security_group_rule" "ssh" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 22 -> null
+      - id                     = "sgrule-93316509" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0511fb0729e89bb28" -> null
+      - self                   = false -> null
+      - to_port                = 22 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-dcerpc will be destroyed
+  - resource "aws_security_group_rule" "tcp-dcerpc" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 135 -> null
+      - id                     = "sgrule-3071914633" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0b866554c09017b46" -> null
+      - self                   = false -> null
+      - to_port                = 135 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-dns will be destroyed
+  - resource "aws_security_group_rule" "tcp-dns" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 53 -> null
+      - id                     = "sgrule-545231872" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0142c97699b39ecf4" -> null
+      - self                   = false -> null
+      - to_port                = 53 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-lockd will be destroyed
+  - resource "aws_security_group_rule" "tcp-lockd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 304 -> null
+      - id                     = "sgrule-3404167923" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-01d323d3d5e47ccf0" -> null
+      - self                   = false -> null
+      - to_port                = 304 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-mountd will be destroyed
+  - resource "aws_security_group_rule" "tcp-mountd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 300 -> null
+      - id                     = "sgrule-2771783896" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-04c5a1a3b755f505e" -> null
+      - self                   = false -> null
+      - to_port                = 300 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd will be destroyed
+  - resource "aws_security_group_rule" "tcp-nfsmgmtd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 306 -> null
+      - id                     = "sgrule-280448198" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-02e7b733ca7146077" -> null
+      - self                   = false -> null
+      - to_port                = 306 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-nfsquotad will be destroyed
+  - resource "aws_security_group_rule" "tcp-nfsquotad" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 305 -> null
+      - id                     = "sgrule-1249370825" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0a14584b7802efc59" -> null
+      - self                   = false -> null
+      - to_port                = 305 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-rpc-bind will be destroyed
+  - resource "aws_security_group_rule" "tcp-rpc-bind" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 111 -> null
+      - id                     = "sgrule-2392935607" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0e8459c160fceb901" -> null
+      - self                   = false -> null
+      - to_port                = 111 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.tcp-statd will be destroyed
+  - resource "aws_security_group_rule" "tcp-statd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 302 -> null
+      - id                     = "sgrule-2137401069" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "tcp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0e89f5d9cdef12860" -> null
+      - self                   = false -> null
+      - to_port                = 302 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-dcerpc will be destroyed
+  - resource "aws_security_group_rule" "udp-dcerpc" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 135 -> null
+      - id                     = "sgrule-3386265617" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0b0ee86de560e25e6" -> null
+      - self                   = false -> null
+      - to_port                = 135 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-dns will be destroyed
+  - resource "aws_security_group_rule" "udp-dns" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 53 -> null
+      - id                     = "sgrule-1588623000" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0a4f338947dcfac2b" -> null
+      - self                   = false -> null
+      - to_port                = 53 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-lockd will be destroyed
+  - resource "aws_security_group_rule" "udp-lockd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 304 -> null
+      - id                     = "sgrule-3022559339" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-082348721140e3e0e" -> null
+      - self                   = false -> null
+      - to_port                = 304 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-mountd will be destroyed
+  - resource "aws_security_group_rule" "udp-mountd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 300 -> null
+      - id                     = "sgrule-3690590784" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-07ede0dea707db767" -> null
+      - self                   = false -> null
+      - to_port                = 300 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-nfsmgmtd will be destroyed
+  - resource "aws_security_group_rule" "udp-nfsmgmtd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 306 -> null
+      - id                     = "sgrule-1853402718" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-02d5fd26a5247782e" -> null
+      - self                   = false -> null
+      - to_port                = 306 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-nfsquotad will be destroyed
+  - resource "aws_security_group_rule" "udp-nfsquotad" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 305 -> null
+      - id                     = "sgrule-884473937" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-08ae07fd6c8252fb9" -> null
+      - self                   = false -> null
+      - to_port                = 305 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-rpc-bind will be destroyed
+  - resource "aws_security_group_rule" "udp-rpc-bind" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 111 -> null
+      - id                     = "sgrule-4033785391" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-0a1606162e3ac4fb1" -> null
+      - self                   = false -> null
+      - to_port                = 111 -> null
+      - type                   = "ingress" -> null
+    }
+
+  # module.external_security_group.aws_security_group_rule.udp-statd will be destroyed
+  - resource "aws_security_group_rule" "udp-statd" {
+      - cidr_blocks            = [
+          - "0.0.0.0/0",
+        ] -> null
+      - from_port              = 302 -> null
+      - id                     = "sgrule-27903093" -> null
+      - ipv6_cidr_blocks       = [] -> null
+      - protocol               = "udp" -> null
+      - security_group_id      = "sg-09d9f335243fb9348" -> null
+      - security_group_rule_id = "sgr-07fb12c0fc292034a" -> null
+      - self                   = false -> null
+      - to_port                = 302 -> null
+      - type                   = "ingress" -> null
+    }
+
+Plan: 0 to add, 0 to change, 29 to destroy.
+
+Changes to Outputs:
+  - cluster_id     = "valid-bedbug" -> null
+  - external_sg_id = "sg-09d9f335243fb9348" -> null
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+module.external_security_group.aws_security_group_rule.tcp-dns: Destroying... [id=sgrule-545231872]
+module.external_security_group.aws_security_group_rule.ssh: Destroying... [id=sgrule-93316509]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Destroying... [id=sgrule-407875194]
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Destroying... [id=sgrule-567111099]
+module.external_security_group.aws_security_group_rule.microsoft-ds: Destroying... [id=sgrule-2336561405]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Destroying... [id=sgrule-280448198]
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Destroying... [id=sgrule-2911095552]
+module.external_security_group.aws_security_group_rule.papi: Destroying... [id=sgrule-1424577182]
+module.external_security_group.aws_security_group_rule.tcp-statd: Destroying... [id=sgrule-2137401069]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Destroying... [id=sgrule-3071914633]
+module.external_security_group.aws_security_group_rule.tcp-statd: Destruction complete after 1s
+module.external_security_group.aws_security_group_rule.tcp-mountd: Destroying... [id=sgrule-2771783896]
+module.external_security_group.aws_security_group_rule.icmp-echo-i4: Destruction complete after 1s
+module.external_security_group.aws_security_group_rule.udp-dns: Destroying... [id=sgrule-1588623000]
+module.external_security_group.aws_security_group_rule.nfsv3-rdma: Destruction complete after 1s
+module.external_security_group.aws_security_group_rule.dhcp: Destroying... [id=sgrule-839119679]
+module.external_security_group.aws_security_group_rule.tcp-dcerpc: Destruction complete after 2s
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Destroying... [id=sgrule-3386265617]
+module.external_security_group.aws_security_group_rule.ssh: Destruction complete after 2s
+module.external_security_group.aws_security_group_rule.s3-http: Destroying... [id=sgrule-929374606]
+module.external_security_group.aws_security_group_rule.papi: Destruction complete after 3s
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Destroying... [id=sgrule-884473937]
+module.external_security_group.aws_security_group_rule.microsoft-ds: Destruction complete after 3s
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Destroying... [id=sgrule-1249370825]
+module.external_security_group.aws_security_group_rule.icmp-frag-i4: Destruction complete after 3s
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Destroying... [id=sgrule-4033785391]
+module.external_security_group.aws_security_group_rule.tcp-dns: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.s3-https: Destroying... [id=sgrule-3578240397]
+module.external_security_group.aws_security_group_rule.tcp-nfsmgmtd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.tcp-lockd: Destroying... [id=sgrule-3404167923]
+module.external_security_group.aws_security_group_rule.tcp-mountd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Destroying... [id=sgrule-1853402718]
+module.external_security_group.aws_security_group_rule.udp-dns: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-lockd: Destroying... [id=sgrule-3022559339]
+module.external_security_group.aws_security_group_rule.dhcp: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Destroying... [id=sgrule-3220507377]
+module.external_security_group.aws_security_group_rule.udp-dcerpc: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Destroying... [id=sgrule-2392935607]
+module.external_security_group.aws_security_group_rule.s3-http: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.egress: Destroying... [id=sgrule-1852041312]
+module.external_security_group.aws_security_group_rule.udp-nfsquotad: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-statd: Destroying... [id=sgrule-27903093]
+module.external_security_group.aws_security_group_rule.tcp-nfsquotad: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-mountd: Destroying... [id=sgrule-3690590784]
+module.external_security_group.aws_security_group_rule.udp-rpc-bind: Destruction complete after 3s
+module.external_security_group.aws_security_group_rule.s3-https: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.tcp-lockd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-nfsmgmtd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-lockd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.icmp-ttl-i4: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.tcp-rpc-bind: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.egress: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-statd: Destruction complete after 4s
+module.external_security_group.aws_security_group_rule.udp-mountd: Destruction complete after 4s
+module.external_security_group.aws_security_group.external: Destroying... [id=sg-09d9f335243fb9348]
+module.external_security_group.aws_security_group.external: Destruction complete after 1s
+random_pet.cluster_id: Destroying... [id=valid-bedbug]
+random_pet.cluster_id: Destruction complete after 0s
+
+Destroy complete! Resources: 29 destroyed.
