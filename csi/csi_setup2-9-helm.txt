@@ -10,7 +10,7 @@
 
 echo 192.168.1.40    hdfs01.demo.local   hdfs01 >> /etc/hosts
 echo 192.168.1.41    hdfs02.demo.local   hdfs02 >> /etc/hosts
-echo 192.168.1.44    hdfs03.demo.local   hdfs03 >> /etc/hosts
+echo 192.168.1.42    hdfs03.demo.local   hdfs03 >> /etc/hosts
 
 
 hostnamectl set-hostname hdfs01.demo.local
