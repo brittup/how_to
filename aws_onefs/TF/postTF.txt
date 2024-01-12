@@ -11,15 +11,32 @@ aws ec2 describe-instances  --profile=$aws_sdk_profile  --instance-ids <instance
 
 terraform output --json
 
-
+###check cluster status
 isi status
 isi auth user list
 isi devices node list
 
 
-### to shut a node down!!!
+### to shut a node down use!!!
 isi cluster shutdown --node-lnn=<node-lnn>
 ###
+
+
+###need to add the internal and external IP's of the other provisioned nodes to the cluster at this time, from the tf output:
+Outputs:
+
+additional_nodes_external_ip_addresses = [
+  "10.15.2.206",
+  "10.15.2.101",
+  "10.15.2.165",
+]
+cluster_id = "workable-spider"
+first_node_external_ip_address = "10.15.2.191"
+first_node_instance_id = "i-0d59c166af39dd683"
+internal_network_high_ip = "10.15.3.8"
+internal_network_low_ip = "10.15.3.5"
+region = "us-east-1"
+
 
 ### modify the IP ranges as created
 Modify the cluster internal network IP range to the internal_ip_addresses as defined by tf deploy
@@ -38,7 +55,7 @@ isi network pools view groupnet0.subnet0.pool0
 
 #add ranges or IP's of nodes
 #isi network pools modify groupnet0.subnet0.pool0 --add-ranges X.X.X.B-X.X.X.D
-isi network pools modify groupnet0.subnet0.pool0 --add-ranges 10.0.32.5-10.0.32.8 
+isi network pools modify groupnet0.subnet0.pool0 --add-ranges 10.15.2.X-10.15.2.X
 
 
 
