@@ -345,6 +345,40 @@ Resources:
           FromPort: 9021
           ToPort: 9021
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 2097
+          ToPort: 2097
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 2098
+          ToPort: 2098
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3148
+          ToPort: 3148
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3149
+          ToPort: 3149
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5667
+          ToPort: 5667
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5668
+          ToPort: 5668
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8470
+          ToPort: 8470
+          CidrIp: 0.0.0.0/0
+###Add TCP additional ports if needed
+#       - IpProtocol: tcp
+#          FromPort: 
+#          ToPort: 
+#          CidrIp: 0.0.0.0/0          
+###Add TCP additional ports if needed
         - IpProtocol: icmp
           FromPort: -1
           ToPort: -1
