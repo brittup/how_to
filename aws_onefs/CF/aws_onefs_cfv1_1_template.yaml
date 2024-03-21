@@ -8,7 +8,7 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #template uses existing subnets in vpc
 #will deploy 4 + 5 ebs vol node cluster
 #use default root/admin password of a - can be reset in node1 creation acs
-
+#added default SIQ ports to external sg - remove if needed
 
 Transform: 'AWS::LanguageExtensions'
 
@@ -344,6 +344,7 @@ Resources:
           FromPort: 9021
           ToPort: 9021
           CidrIp: 0.0.0.0/0
+#SIQ ports
         - IpProtocol: tcp
           FromPort: 2097
           ToPort: 2097
@@ -372,6 +373,7 @@ Resources:
           FromPort: 8470
           ToPort: 8470
           CidrIp: 0.0.0.0/0
+#SIQ ports
 ###Add TCP additional ports if needed
 #       - IpProtocol: tcp
 #          FromPort: 
