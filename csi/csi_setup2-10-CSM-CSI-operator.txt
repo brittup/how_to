@@ -310,6 +310,9 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 kubectl create namespace isilon
 kubectl get ns
 
+
+
+############################################################################################
 ### review api auth on onefs - session or basic
 ### 2.8 fixed session based auth with 9.5.4.0
 isi_gconfig -t web-config
@@ -319,14 +322,14 @@ isi_gconfig -t web-config
 #session auth = 1 = true
 #basic auth  = 0 = false
 #https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
-###
+############################################################################################
 
 
 mkdir ~/git/csi-latest/isilon
 cd ~/git/csi-latest/isilon
-curl -fsSL -o secret-2-9.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.9.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-9.yaml  https://raw.github.com/dell/csi-powerscale/v2.9.0/samples/secret/empty-secret.yaml
-vi secret-2-9.yaml
+curl -fsSL -o secret-2-10.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.10.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-10.yaml  https://raw.github.com/dell/csi-powerscale/v2.10.0/samples/secret/empty-secret.yaml
+vi secret-2-10.yaml
 
 
 ###modify
@@ -345,11 +348,11 @@ vi secret-2-9.yaml
 
 
 ###create isilon-creds secret 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-9.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-10.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
-cat empty-secret-2-9.yaml
-kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-9.yaml
+cat empty-secret-2-10.yaml
+kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-10.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -362,11 +365,11 @@ kubectl get secret isilon-creds -o yaml -n isilon
 kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
-curl -fsSL -o my-isilon-settings-2-9.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v290.yaml
+curl -fsSL -o my-isilon-settings-2-10.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v290.yaml
 #or copy from the csm 
-cp  ~/git/csm-operator/samples/storage_csm_powerscale_v290.yaml my-isilon-settings-2-9.yaml
+cp  ~/git/csm-operator/samples/storage_csm_powerscale_v290.yaml my-isilon-settings-2-10.yaml
 
-vi my-isilon-settings-2-9.yaml
+vi my-isilon-settings-2-10.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
 
@@ -396,7 +399,7 @@ watch kubectl get pods -A
 docker login  (On all k8 nodes)
 
 
-kubectl create -f my-isilon-settings-2-9.yaml
+kubectl create -f my-isilon-settings-2-10.yaml
 
 ###Review installation
 
@@ -452,7 +455,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-9.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-10.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###################################################################################################################################################
@@ -462,8 +465,8 @@ USING the CSI Driver
 ###There are samples storage class yaml files available under helm/samples/storageclass
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-latest/samples/storageclass/isilon.yaml  ~/git/csi-latest/isilon/my-isilon-sc-2-9.yaml
-vi ~/git/csi-latest/isilon/my-isilon-sc-2-9.yaml
+cp ~/git/csi-latest/samples/storageclass/isilon.yaml  ~/git/csi-latest/isilon/my-isilon-sc-2-10.yaml
+vi ~/git/csi-latest/isilon/my-isilon-sc-2-10.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -484,8 +487,8 @@ mountOptions: [vers=3]
 
 ###Other options can be reviewed and tested as needed
 
-###copy and create a sample storageclass - sc-2-9  for driver version
-kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-9.yaml
+###copy and create a sample storageclass - sc-2-10  for driver version
+kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-10.yaml
 kubectl get sc
 kubectl describe sc isilon
 
