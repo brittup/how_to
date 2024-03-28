@@ -144,8 +144,8 @@ yum list kube* --showduplicates --disableexcludes=kubernetes | sort -r | grep -i
 #install a supported version
 ####yum install kubelet- kubeadm kubectl --disableexcludes=kubernetes
 
-###with 1.28
-yum install kubelet-1.28.0-0 kubeadm-1.28.0-0 kubectl-1.28.0-0 --disableexcludes=kubernetes
+###with 1.29
+yum install kubelet kubeadm kubectl --disableexcludes=kubernetes
 
 
 
@@ -212,16 +212,21 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
+
+
 ######################################################
 ###if reset of k8 cluster needed, run on master node
 kubeadm reset
 ######################################################
+
 
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
 
 # add autocomplete permanently to your bash shell.
 echo "source <(kubectl completion bash)" >> ~/.bashrc 
+
+
 
 ###################################################################################################################################################
 ###
@@ -260,17 +265,17 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation
 
 mkdir git
 cd ~/git
-git clone -b v2.9.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2-9
-ln -s /root/git/csi-powerscale-2-9 csi-latest
-touch csi-latest/2-9.txt
+git clone -b v2.10.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2-10
+ln -s /root/git/csi-powerscale-2-10 csi-latest
+touch csi-latest/2-10.txt
 
 ###################################################################################################################################################
 ###add the snapshot CRD required by csm operator
 cd ~/git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
-git checkout v6.2.3
+git checkout v7.0.2
 rm -f client/config/crd/kustomization.yaml
 rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
 kubectl create -f client/config/crd
@@ -283,7 +288,7 @@ kubectl get crd
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
-git clone -b v1.4.0 https://github.com/dell/csm-operator.git
+git clone -b v1.5.0 https://github.com/dell/csm-operator.git
 cd ~/git/csm-operator
 bash scripts/install.sh
 
