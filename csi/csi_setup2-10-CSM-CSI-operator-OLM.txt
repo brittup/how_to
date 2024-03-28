@@ -1,14 +1,15 @@
-###csi driver setup 2.10 ###
+###csi driver setup 10 ###
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
 -https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
 
-CSM & CSI Installation without OLM
+CSM & CSI Installation with OLM
 1.install Snapshot CRD
-2.install CSM Operator without OLM
-3.create secrets
-4.install CSI Operator
+2.install OLM 
+3.install CSM Operator with OLM
+4.create secrets
+5.install CSI Operator via CSM
 
 
 #ensure dns is setup for all hosts, do not skip this step
@@ -64,6 +65,7 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_QUOTA --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SNAPSHOT --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_IFS_RESTORE --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NS_IFS_ACCESS --zone=System
+isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
 isi auth roles modify k8-csi --add-user=k8 --zone=System
@@ -71,8 +73,6 @@ isi auth roles view k8-csi --zone=System
 isi auth users view --zone=System --user=k8
 mkdir /ifs/csi
 chmod 777 /ifs/csi
-
-isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 
 ### review api auth on onefs - session or basic
 isi_gconfig -t web-config
@@ -212,13 +212,10 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-
-
 ######################################################
 ###if reset of k8 cluster needed, run on master node
 kubeadm reset
 ######################################################
-
 
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
@@ -227,12 +224,11 @@ source <(kubectl completion bash)
 echo "source <(kubectl completion bash)" >> ~/.bashrc 
 
 
-
 ###################################################################################################################################################
 ###
 ###################################################################################################################################################
 
-###CSM & CSI Operators and driver install
+###OLM & CSM & CSI driver install
 ### On K8 linux:
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 ####https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/
@@ -257,7 +253,7 @@ systemctl daemon-reload
 systemctl restart docker
 
 ###################################################################################################################################################
-###Installing CSI Driver for PowerScale via Dell CSM Operator
+###Installing CSI Driver for PowerScale via Dell CSM Operator OLM
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation-on-a-cluster-without-olm
 ###mkdir for isilon csi configuration files
@@ -284,24 +280,29 @@ kubectl get pods -A
 kubectl get crd
 
 ###################################################################################################################################################
-###CSM Operator Installation on cluster without OLM
-###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
-###Clone and checkout the required csm-operator version using 
-cd ~/git
-git clone -b v1.5.0 https://github.com/dell/csm-operator.git
-cd ~/git/csm-operator
-bash scripts/install.sh
+###Install OLM - Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
 
-kubectl get pods -n dell-csm-operator
+curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.24.0/install.sh | bash -s v0.24.0
+kubectl get csv -n olm
+kubectl get all -n olm
 
-###if needed
-##bash scripts/uninstall.sh
-###
 
 ###################################################################################################################################################
+###Install Dell CSM Operator Installation on a cluster with OLM
+###https://operatorhub.io/operator/dell-csm-operator
+
+
+kubectl create -f https://operatorhub.io/install/dell-csm-operator.yaml
+
+
+kubectl get csv -n operators
+kubectl get all -n operators
+
+kubectl get all --all-namespaces
+
 
 ###################################################################################################################################################
-##Installing CSI Driver for PowerScale via Dell CSM Operator
+###Installing CSI Driver for PowerScale via Dell CSM Operator
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###setup for the csi driver
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
@@ -310,9 +311,6 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 kubectl create namespace isilon
 kubectl get ns
 
-
-
-############################################################################################
 ### review api auth on onefs - session or basic
 ### 2.8 fixed session based auth with 9.5.4.0
 isi_gconfig -t web-config
@@ -322,7 +320,7 @@ isi_gconfig -t web-config
 #session auth = 1 = true
 #basic auth  = 0 = false
 #https://x.x.x.x:8080/platform   -- can be used to test API access if basic = true
-############################################################################################
+###
 
 
 mkdir ~/git/csi-latest/isilon
@@ -340,7 +338,7 @@ vi secret-2-10.yaml
 
       password: "Password123!"
 
-      endpoint: "https://csi.demo.local"       < --- This is the System Zone IP or FQDN, for the driver to make API calls to
+      endpoint: "https://csi.demo.local"       < --- This is the System Zone, for the driver to make API cals to
 
       isDefault: true
 
@@ -366,8 +364,6 @@ kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
 curl -fsSL -o my-isilon-settings-2-10.yaml https://raw.githubusercontent.com/dell/csm-operator/main/samples/storage_csm_powerscale_v2100.yaml
-#or copy from the csm 
-cp  ~/git/csm-operator/samples/storage_csm_powerscale_v2100.yaml my-isilon-settings-2-10.yaml
 
 vi my-isilon-settings-2-10.yaml
 
@@ -386,7 +382,7 @@ controllerCount: 2    - if only 1 host, 2 is 2
 
 isiPath: /ifs/csi
 
-["--volume-name-prefix=k8s"]   'this is consistent, with the old csi drivers', optional
+volume-name-prefix=k8s   'this is consistent, with the old csi drivers'
 
 ###replication if using
 
@@ -412,10 +408,12 @@ kubectl edit csm/isilon -n isilon
 
 
 ###
-###uninstall csi driver with CSM
+###uninstall
 kubectl delete csm/isilon -n isilon         --- uninstall CSI driver
-cd ~git/git/csm-operator
-bash scripts/uninstall.sh                   --- uninstall CSM Operator
+kubectl get subscriptions -n <namespace>
+kubectl delete subscription <name> -n <namespace>
+kubectl get subscriptions -n <namespace>
+kubectl delete clusterserviceversion <name> -n <namespace>
 
 kubectl get csm/isilon -n isilon -o yaml
 kubectl get csm -A
@@ -458,11 +456,6 @@ https://k9scli.io/topics/commands/
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-10.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
-
-
-
-
-
 ###################################################################################################################################################
 USING the CSI Driver
 ###################################################################################################################################################
@@ -483,7 +476,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-2-10.yaml
  IsiPath /ifs/csi           < -- Path to directories in the AZ you create exports in
 
 
- AzServiceIP : csi.demo.local   < -- SCName or IP of the AZ you create nfs exports and access them, not System if using a different zone
+ AzServiceIP : SCFQDN or 192.168.1.1  < -- SCName or IP of the AZ you create nfs exports and access them, not system if using a different zone
 
 
 ###add mount options if needed
