@@ -1,5 +1,7 @@
 #####How to use the PowerScale OneFS tf 
-#
+
+https://registry.terraform.io/providers/dell/powerscale/latest
+
 #Files
 1. main.tf         - main code blocks
 2. variables.tf    - define cluster & variables
