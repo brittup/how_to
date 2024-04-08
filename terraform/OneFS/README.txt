@@ -23,7 +23,6 @@ terraform {
   }
 }
 
-
 provider "powerscale" {
   username = var.username
   password = var.password
@@ -31,13 +30,12 @@ provider "powerscale" {
   insecure = var.insecure
 }
 
-
 ##sample nfs export create block
 
 resource "powerscale_nfs_export" "example_export" {
   # Required path for creating
   paths = ["/ifs/data"]
-
+}
 
 
 #######################################
