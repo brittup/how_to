@@ -8,19 +8,19 @@ echo $AWS_ACCESS_KEY_ID
 echo $AWS_SECRET_ACCESS_KEY
 
 
-###int-security-group module
+###int-security-group module; 
 
-cd into <code>
-examples/int-security-group
 
-#create terraform.tfvars.json  -- define VPC, or tf will prompt for VPC id
-#create:  terraform.tfvars.json
+main.tf
 
-#example terraform.tfvars.json 
-
-{
-    "vpc_id": "vpc-777777777777"
+module "onefs_int-security-group" {
+  source  = "dell/onefs/aws//modules/int-security-group"
+  version = "1.0.0"
+  network_id = "vpc-77777777777777"
+  id = "tf1"
 }
+
+
 
 #setup and validate
 terraform init
@@ -31,7 +31,6 @@ terraform plan
 #create sg 
 terraform apply
 
-stever4@W102X0BFB3:~/git/terraform-aws-onefs/examples/int-security-group$ terraform apply
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create

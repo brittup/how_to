@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-resilent
+  labels:
+    app: nginx
+    podmon.dellemc.com/driver: csi-isilon
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      podmon.dellemc.com/driver: csi-isilon
+  template:
+    metadata:
+      labels:
+        app: nginx
+        podmon.dellemc.com/driver: csi-isilon
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: "/usr/share/nginx/html"
+            name: task-pv-storage-deployment
+      volumes:
+      - name: task-pv-storage-deployment
+        persistentVolumeClaim:
+          claimName: pvc-deployment-resilent 

@@ -1,6 +1,6 @@
 
 ###
-simple csi testing 2.4
+simple csi testing
 ###
 
 ###review driver config

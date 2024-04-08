@@ -12,10 +12,7 @@ echo $AWS_ACCESS_KEY_ID
 echo $AWS_SECRET_ACCESS_KEY
 
 
-### complete-onefs cluster build module
-
-cd into <code>
-examples/complete-onefs
+###cluster build module
 
 #Get VPC & Subnet Info
 
@@ -32,15 +29,55 @@ aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetI
 +------------------+---------------+--------------+----------------------------+-------------------------+
 
 
-
-###create terraform.tfvars.json
-
-###add variables - requires AMI, VPC, internal_subnet, external_subnet - define disk size/quantity/type - use default unhashed passowrd
-
-###additional input variables can be modified: see docs for Info
-terraform.tfvars.json
+###
+### Can create or use prexisting IAM resources, int-sg and ext-sg; if these resources were manually created via tf modules, include in main.tf
+###
 
 
+### !!!!!
+### to use existing security groups created via int-sg and ext-sg modules, include sg-id's 
+internal_sg_id = "sg-11111111111111"
+security_group_external_id = "sg-2222222222222"
+
+### !!!!!
+### to use an existing IAM instance profile created via iam module,:  "iam_instance_profile": "<profile name>"   
+"iam_instance_profile": "777777777777-powerscale-node-runtime-instance-profile" 
+
+
+
+
+example 1: use existing IAM profile, int-sg and ext-sg with hashed credentials
+
+
+main.tf 
+module "onefs" {
+  source  = "dell/onefs/aws"
+  version = "1.0.0"
+   availability_zone = "us-east-1b"
+   iam_instance_profile = "777777777777777-powerscale-node-runtime-instance-profile"
+   name = "vonefs-tf1"
+   id = "vonefs-tf1"
+   nodes = 4
+   instance_type = "m5dn.8xlarge"
+   data_disk_type = "gp3"
+   data_disk_size = 1024
+   data_disks_per_node = 5
+   internal_subnet_id = "subnet-11111111111111111"
+   external_subnet_id = "subnet-22222222222222222"
+   internal_sg_id = "sg-11111111111111"
+   security_group_external_id = "sg-2222222222222"
+   image_id = "ami-05b474855849ccfd7"
+   credentials_hashed = true
+   hashed_root_passphrase = "$5$9874f5d2c724b8ca$IFZZ5e9yfUVqNKVL82s.iFLIktr4WLavFhUVa8A"
+   hashed_admin_passphrase = "$5$9874f5d2c724b8ca$IFZZ5e9yfUVqNKVL82s.iFLIktr4WLavFhUVa8A"
+}
+
+
+
+
+example 2: will create IAM profile, int-sg and ext-sg 
+
+main.tf 
 {
     "nodes": 4,
     "image_id": "ami-11111111111111111",
@@ -56,10 +93,7 @@ terraform.tfvars.json
     "validate_nodes_count": false
 }
 
-### !!!!!
-### to use an existing IAM instance profile, must exist: add "iam_instance_profile": "<profile name>"   
-eg:
-"iam_instance_profile": "777777777777-powerscale-node-runtime-instance-profile" 
+
 
 
 
@@ -95,9 +129,8 @@ terraform destroy
 ###full output of apply
 ####################################################################################################################################
 
-terraform apply
 
-stever4@W102X0BFB3:~/git/terraform-aws-onefs_1-0-0/examples/complete-onefs$ terraform apply
+terraform apply
 data.aws_subnet.external_subnet: Reading...
 module.onefs.data.aws_subnet.internal_subnet: Reading...
 module.onefs.data.aws_subnet.external_subnet: Reading...

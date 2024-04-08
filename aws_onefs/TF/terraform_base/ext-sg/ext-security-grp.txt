@@ -7,9 +7,6 @@ export AWS_SECRET_ACCESS_KEY=<key>
 echo $AWS_ACCESS_KEY_ID
 echo $AWS_SECRET_ACCESS_KEY
 
-## ext-security-group module
-cd into <code>
-examples/ext-security-group
 
 #Get Subnet Info
 
@@ -26,22 +23,18 @@ aws ec2 --profile=$aws_sdk_profile describe-subnets --query "Subnets[*].{SubnetI
 +------------------+---------------+--------------+----------------------------+-------------------------+
 
 
-#For the minimal set of input parameters that needs to be passed to this Terraform module create the terraform.tfvars.json file and provide the following required input variables in that file:
-#create:  terraform.tfvars.json
-
-{
-    "vpc_id": "vpc-#################",
-    "external_subnet_id": "subnet-#################"
-}
-
-#create terraform.tfvars.json  -- to define VPC, or tf will prompt for VPC id, subnet
+###ext-security-group module; 
 
 
-Add terraform.tfvars.json
+main.tf
 
-{
-    "vpc_id": "vpc-777777777777",
-    "external_subnet_id": "subnet-22222222222222222 "
+module "onefs_ext-security-group" {
+  source  = "dell/onefs/aws//modules/ext-security-group"
+  version = "1.0.0"
+  vpc_id = "vpc-77777777777777777"
+  external_cidr_block = "X.X.X.X/24"
+  gateway_hostnum = "01"
+  cluster_id = "tf1"
 }
 
 

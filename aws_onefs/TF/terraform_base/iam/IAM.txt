@@ -8,25 +8,14 @@ echo $AWS_ACCESS_KEY_ID
 echo $AWS_SECRET_ACCESS_KEY
 
 
-#IAM module
-cd into <tf code>
-cd examples/iam-resources/
+#IAM module; 
 
-terraform init
+main.tf
 
-terraform validate
-
-terraform plan
-
-terraform apply
-
-terraform show
-
-terraform state list
-
-terraform destroy
-
-
+module "onefs_iam-resources" {
+  source  = "dell/onefs/aws//modules/iam-resources"
+  version = "1.0.0"
+}
 
 
 #setup and validate
@@ -37,8 +26,6 @@ terraform plan
 #create IAM resources
 terraform apply
 
-
-stever4@W102X0BFB3:~/git/terraform-aws-onefs/examples/iam-resources$ terraform apply
 module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Reading...
 module.onefs_iam_resources.data.aws_caller_identity.current: Reading...
 module.onefs_iam_resources.data.aws_iam_policy_document.powerscale_instance_assume_role_policy: Read complete after 0s [id=2851119427]
