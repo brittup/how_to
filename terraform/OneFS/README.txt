@@ -30,7 +30,7 @@ provider "powerscale" {
   insecure = var.insecure
 }
 
-##sample nfs export create block
+##sample nfs export create block - added to outputs.tf 
 
 resource "powerscale_nfs_export" "example_export" {
   # Required path for creating

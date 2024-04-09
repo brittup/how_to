@@ -14,11 +14,17 @@ provider "powerscale" {
   insecure = var.insecure
 }
 
+
+###create a sample nfs export
+
 resource "powerscale_nfs_export" "example_export" {
   # Required path for creating
   paths = ["/ifs/data"]
 }
 
+
+
+### include any additional configuration of export variables in resource block as needed
   # Computed identifier for export
   # id = 1
 
