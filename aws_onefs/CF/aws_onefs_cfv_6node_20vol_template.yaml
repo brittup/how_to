@@ -2,9 +2,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to deploy AWS vOneFS cluster
 #version1.2
-#base CF cluster deployment template
+#master base CF cluster deployment template
+
 #6 node cluster
-#5 - 20 ebs volumes modify all nodes block device mapping as needed
+#20 ebs volumes modify all nodes block device mapping as needed
+
+#this template is 6 node - 20 vols
+#remove nodes and volumes as needed; eg: 5 node - 12 vol - remove node 6 and then remove 8 volumes from al node 1-5 disk configurations
+
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
 #remove resources as need to create cluster configuration
