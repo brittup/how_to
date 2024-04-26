@@ -17,3 +17,6 @@ It is a distillation of the deployment guide to it's simplest form, use in conju
 
 * onefs-v2 -- contains the aws cli template scripts and required json mappings  
 
+<br>
+
+* TF -- contains sample tf modules and code to build a cluster
