@@ -5,7 +5,10 @@
     {
       "Effect": "Allow",
       "Action": [
-        "ec2:AssignPrivateIpAddresses"
+        "ec2:AssignPrivateIpAddresses",
+        "ec2:UnassignPrivateIpAddresses",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeInstanceTypes"
       ],
       "Resource": "arn:aws:ec2:*:<aws_id>:network-interface/*"
     }
