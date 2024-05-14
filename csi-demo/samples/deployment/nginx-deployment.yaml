@@ -29,4 +29,4 @@ spec:
       volumes:
       - name: task-pv-storage-deployment
         persistentVolumeClaim:
-          claimName: pvc-deployment1  
+          claimName: vc-deployment-non-resilent

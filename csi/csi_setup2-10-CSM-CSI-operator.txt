@@ -388,7 +388,20 @@ isiPath: /ifs/csi
 
 ["--volume-name-prefix=k8s"]   'this is consistent, with the old csi drivers', optional
 
-###replication if using
+
+###enable resiliency 
+- name: resiliency
+      # enabled: Enable/Disable Resiliency feature
+      # Allowed values:
+      #   true: enable Resiliency feature(deploy podmon sidecar)
+      #   false: disable Resiliency feature(do not deploy podmon sidecar)
+      # Default value: false
+      enabled: true
+      configVersion: v1.9.0
+
+
+###eanble replication if using
+
 
 
 ###install the csi driver operator
@@ -414,7 +427,7 @@ kubectl edit csm/isilon -n isilon
 ###
 ###uninstall csi driver with CSM
 kubectl delete csm/isilon -n isilon         --- uninstall CSI driver
-cd ~git/git/csm-operator
+cd ~git/csm-operator
 bash scripts/uninstall.sh                   --- uninstall CSM Operator
 
 kubectl get csm/isilon -n isilon -o yaml
