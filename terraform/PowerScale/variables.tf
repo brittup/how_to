@@ -5,12 +5,12 @@ variable "username" {
 
 variable "password" {
   type = string
-  default = "Test@1234"
+  default = "Password123!"
 }
 
 variable "endpoint" {
   type = string
-  default = "https://x.x.x.x:8080"
+  default = "https://192.168.1.21:8080"
 }
 
 variable "insecure" {

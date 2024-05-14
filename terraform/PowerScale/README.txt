@@ -12,7 +12,16 @@ https://registry.terraform.io/providers/dell/powerscale/latest
 https://github.com/dell/terraform-provider-powerscale/tree/main/examples/resources
 
 
-main.tf
+mkdir tf
+cd tf
+
+
+vi main.tf
+vi variables.tf
+vi outputs.tf
+
+
+###main.tf
 
 terraform {
   required_providers {
@@ -38,12 +47,27 @@ resource "powerscale_nfs_export" "example_export" {
 }
 
 
+
+
+
+
+
+
+#######################################
+install tf for democenter
+#######################################
+yum install -y yum-utils
+yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+yum -y install terraform
+
+
 #######################################
 #setup and validate
 #######################################
 terraform init
 terraform validate
 terraform plan
+terraform init -upgrade
 
 
 #create resources
@@ -56,9 +80,4 @@ terraform destroy
 
 
 
-#######################################
-install tf for democenter
-#######################################
-yum install -y yum-utils
-yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-yum -y install terraform
+
