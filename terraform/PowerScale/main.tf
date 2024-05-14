@@ -103,4 +103,3 @@ resource "powerscale_nfs_export" "example_export" {
   # write_transfer_size = 524288
   # write_unstable_action = "UNSTABLE"
   # write_unstable_reply = "UNSTABLE"
-}
