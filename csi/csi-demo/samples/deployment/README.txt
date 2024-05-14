@@ -4,6 +4,8 @@
 
 
 ###non-resilent deployment 
+
+
 kubectl apply -f pvc.yaml -n test
 
 kubectl apply -f nginx-deployment.yaml -n test
@@ -18,7 +20,10 @@ kubectl edit deployment ngix-deployment -n test
 
 
 
-###resilent deployment 
+
+###resilent deployment - asssumes CSM resilency is setup
+
+
 kubectl apply -f pvc-resilent.yaml -n test
 
 kubectl apply -f nginx-deployment-resilent.yaml -n test

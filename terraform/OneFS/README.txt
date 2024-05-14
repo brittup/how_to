@@ -17,7 +17,7 @@ main.tf
 terraform {
   required_providers {
     powerscale = { 
-      version = "1.2.0"
+      version = "1.3.0"
       source = "registry.terraform.io/dell/powerscale"
     }
   }
