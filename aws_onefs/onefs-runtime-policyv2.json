@@ -1,0 +1,25 @@
+{
+    "Version": "2012-10-17", 
+    "Statement": 
+    [ 
+        { 
+            "Sid": "APEXFileStorageSmartConnectIPFailover", 
+            "Effect": "Allow", 
+            "Action": [ 
+                "ec2:UnassignPrivateIpAddresses", 
+                "ec2:AssignPrivateIpAddresses" 
+                ], 
+        "Resource": "arn:aws:ec2:*:<aws_account_id>:network-interface/*" 
+        }, 
+        { 
+            "Sid": "APEXFileStorageSmartConnectValidation", 
+            "Effect": "Allow", 
+            "Action": 
+                [ 
+                    "ec2:DescribeNetworkInterfaces", 
+                    "ec2:DescribeInstanceTypes" 
+                ], 
+        "Resource": "*" 
+        } 
+    ] 
+} 
