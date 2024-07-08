@@ -42,7 +42,7 @@ isi devices node add SV200-930073-0003 --async
 
 
 
-###node 5 & 6 - may require chnages to the defined ip pools to accomodate all nodes, validate
+###node 5 & 6 - may require changes to the defined ip pools to accomodate all nodes, validate
 isi network groupnets view groupnet0
 isi network subnets view groupnet0.subnet0 
 isi network pools view groupnet0.subnet0.pool0 
