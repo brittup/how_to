@@ -154,7 +154,7 @@ Parameters:
 
 #dns servers
 # 169.254.169.253 
-# VPC + 2: vpc:10.15.0.0 - DNS = 10.15.0.2
+# VPC + 2: vpc:10.15.0.0/20 - DNS = 10.15.0.2
 # https://docs.aws.amazon.com/vpc/latest/userguide/AmazonDNS-concepts.html
   dnsServer:
     Type: String
