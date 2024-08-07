@@ -10,8 +10,12 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #this template is 6 node - 20 vols
 #remove nodes and volumes as needed; eg: 5 node - 12 vol - remove node 6 and then remove 8 volumes from al node 1-5 disk configurations
 
+
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
+#template will create security groups 
+
+
 #remove resources as need to create cluster configuration
 #added iops for ebs volumes
 #use default root/admin password of a - can be reset in node1 creation acs
@@ -153,10 +157,13 @@ Parameters:
     Default: #<dns search domain>#
 
 #dns servers
+# 169.254.169.253 
+# VPC + 2: vpc:10.15.0.0 - DNS = 10.15.0.2
+# https://docs.aws.amazon.com/vpc/latest/userguide/AmazonDNS-concepts.html
   dnsServer:
     Type: String
     Description: dns server
-    Default: #<dns server ip>#
+    Default: #<169.254.169.253> or #<vpc+2>
 
 #external gateway of external subnet
   externalGateway:

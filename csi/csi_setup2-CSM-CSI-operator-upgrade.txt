@@ -1,0 +1,18 @@
+Upgrade CSM-CSI Using Installation Script
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/
+
+Clone and checkout the required csm-operator version from https://github.com/dell/csm
+eg: 1.5.1 -- > 1.6.0
+
+mv csm-operator csm-operator-1.5.1
+git clone -b v1.6.0 https://github.com/dell/csm-operator.git
+
+cd csm-operator
+
+###Execute upgrade - This command will install the latest version of the operator.
+
+bash scripts/install.sh --upgrade 
+
+
+
+

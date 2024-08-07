@@ -5,8 +5,13 @@ Description: CloudFormation template to deploy AWS vOneFS cluster
 #base CF cluster deployment template
 #1 node test cluster
 #5 ebs volumes
+
+
 #template assumes all IAM resources created and exist
 #template uses existing subnets in vpc
+#template will create security groups 
+
+
 #base demo template
 #creates all interfaces for 4 node cluster; additional nodes can be added by adding node creation block and collecting output
 #use default root/admin password of a - can be reset in node1 creation acs
@@ -92,7 +97,7 @@ Parameters:
       - gp3
       - st1
 
-#instance profile name - pre-requisite, assume already complete for vpc per deployment doc
+#instance profile name - pre-requisite, ***assume already complete for vpc per deployment doc***
   onefsruntimeinstanceprofile:
     Type: String
     Description: onefs cluster instance profile
@@ -148,10 +153,13 @@ Parameters:
     Default: ec2.internal
 
 #dns servers
+# 169.254.169.253 
+# VPC + 2: vpc:10.15.0.0 - DNS = 10.15.0.2
+# https://docs.aws.amazon.com/vpc/latest/userguide/AmazonDNS-concepts.html
   dnsServer:
     Type: String
     Description: dns server
-    Default: #<dns IP>
+    Default: #<169.254.169.253> or #<vpc+2>
 
 #external gateway of external subnet
   externalGateway:
