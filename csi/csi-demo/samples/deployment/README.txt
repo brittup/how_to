@@ -41,3 +41,7 @@ kubectl edit deployment ngix-deployment -n test
 
 
 
+
+
+
+
