@@ -113,10 +113,6 @@ systemctl restart containerd
 systemctl status containerd
 
 
-
-
-
-
 ###################################################################################################################################################
 ###install Kubernetes
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
@@ -129,11 +125,12 @@ apt-get install -y apt-transport-https ca-certificates curl gpg
 # Download the Google Cloud public signing key
 # If the directory `/etc/apt/keyrings` does not exist, it should be created before the curl command.
 mkdir -p -m 755 /etc/apt/keyrings
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-# Add the Kubernetes apt repository
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
+# Add the Kubernetes apt repository - v 1.30 here!
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+chmod 644 /etc/apt/sources.list.d/kubernetes.list         # helps tools such as command-not-found to work correctly
 
 # Install kubelet, kubeadm & kubectl, and pin their versions
 
