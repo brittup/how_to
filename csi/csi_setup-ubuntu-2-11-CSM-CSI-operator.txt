@@ -73,15 +73,12 @@ https://x.x.x.x:8080/platform   -- can be used to test API access if basic = tru
 ###################################################################################################################################################
 ###################################################################################################################################################
 
-
-
 apt install nfs-common 
 swapoff -a
 
 
-
-
-
+# Install and configure prerequisites
+## load the necessary modules for Containerd
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -101,11 +98,14 @@ EOF
 # Apply sysctl params without reboot
 sysctl --system
 
-# Install containerd
+###################################################################################################################################################
+###install containerd Runtime
+
 apt-get update
 apt-get -y install containerd
 
 # Configure containerd with defaults and restart with this config
+
 mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
@@ -117,72 +117,42 @@ systemctl status containerd
 
 
 
-
-
-
-###################################################################################################################################################
-###install containerd Runtime
-### https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-rocky-linux-8
-
-
-dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-dnf makecache
-dnf install  --allowerasing containerd.io
-
-mv /etc/containerd/config.toml /etc/containerd/config.toml.orig
-containerd config default > /etc/containerd/config.toml
-
-vi /etc/containerd/config.toml
-
-###edit SystemdCgroup = true 
-
-
-###need to add docker hub logon info to allow imahe pulls after exceeding rate limits
-[plugins]
-
-[plugins."io.containerd.grpc.v1.cri".registry.configs."registry-1.docker.io".auth]
-    username = "<username>"
-    password = "<password>"
-
-
-systemctl enable --now containerd.service
-systemctl status containerd.service
-
-
 ###################################################################################################################################################
 ###install Kubernetes
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
-###install K8
-###https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
-cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/
-enabled=1
-gpgcheck=1
-gpgkey=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/repodata/repomd.xml.key
-EOF
+
+# Install packages needed to use the Kubernetes apt repository
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl gpg
+
+# Download the Google Cloud public signing key
+# If the directory `/etc/apt/keyrings` does not exist, it should be created before the curl command.
+mkdir -p -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+# Add the Kubernetes apt repository
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 
-###
-Note:
-To upgrade kubectl to another minor release, you'll need to bump the version in /etc/yum.repos.d/kubernetes.repo before running yum update. 
-This procedure is described in more detail in Changing The Kubernetes Package Repository.
+# Install kubelet, kubeadm & kubectl, and pin their versions
 
-###check supported versions of k8s with CSI
-cat /etc/yum.repos.d/kubernetes.repo
-dnf list kube* --showduplicates --disableexcludes=kubernetes | sort -r
-
-#install a supported version, see CSI powerscale docs
-#dnf install kubelet kubeadm kubectl --disableexcludes=kubernetes
+apt-get update
 
 
-###with K8 1.29 - see supported versions
-dnf makecache
-dnf install kubelet-1.29.* kubeadm-1.29.* kubectl-1.29.* --disableexcludes=kubernetes
+# check available kubeadm versions (when manually executing)
 
-systemctl enable --now kubelet.service
+apt-cache madison kubeadm
+
+
+# Install version 1.30.0 for all components
+
+apt-get install kubelet=1.30.0 kubeadm=1.30.0kubectl=1.30.0
+
+
+## apt-mark hold prevents package from being automatically upgraded or removed
+apt-mark hold kubelet kubeadm kubectl
+
 
 
 ###Complete up to here for all nodes going into cluster!!!!
