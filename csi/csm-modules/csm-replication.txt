@@ -1,16 +1,34 @@
-###CSM replication 1.3.1
-https://dell.github.io/csm-docs/docs/replication/
-https://dell.github.io/csm-docs/docs/replication/deployment/installation/
-https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/
+###CSM replication 
 
+
+https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/
 https://github.com/dell/csm-replication
 https://github.com/dell/csm-replication/releases
 
 
+
+1. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/configmap-secrets
+
+Container Storage Modules (CSM) for Replication Controller requires access to remote clusters for replicating various objects. There are two ways to set up this communication:
+Using Normal Kubernetes users
+Using ServiceAccount token
+You need to create secrets (using either of the two methods) in each cluster involved in replication and provide their references in ConfigMap objects which are used to configure the respective CSM Replication Controllers.
+
+2. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl
+
+
+3. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/powerscale/
+
+
+
+
+
+
+
 ###The installation process consists of three steps:
 
-1.install k8 and create clusters:  https://github.com/brittup/how_to/blob/master/csi/csi_setup2-4.txt
-2.Install repctl
+1.install k8 and create clusters:  
+2.Install repctl - https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl/
 3.Install Container Storage Modules (CSM) for Replication Controller
 
 ###isilon setup if not done, this is for two cluster setup
@@ -56,6 +74,8 @@ isi auth users create --zone=System --name=k82 --set-password --enabled=true --p
 
 (use Password123!)
 
+
+###on both cls1 & cls2
 isi auth roles create --name=k8-csi --description="K8-CSI role" --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_PAPI --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_NFS --zone=System
@@ -67,28 +87,30 @@ isi auth roles modify k8-csi --add-priv=ISI_PRIV_LOGIN_SSH --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ --zone=System
 isi auth roles modify k8-csi --add-priv=ISI_PRIV_SYNCIQ_POLICIES --zone=System
 
+###cls1
 isi auth roles modify k8-csi --add-user=k81 --zone=System
 isi auth roles view k8-csi --zone=System
-
+###cls1
 isi auth roles modify k8-csi --add-user=k82 --zone=System
 isi auth roles view k8-csi --zone=System
 
+###on both cls1 & cls2
 mkdir /ifs/csi
 chmod 777 /ifs/csi
 
 ###cls1
 isi auth users view --zone=System --user=k81
-###cls1
+###cls2
 isi auth users view --zone=System --user=k82
 
 
 
-###install repctl
+###install repctl - https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl/
 
 mkdir ~/git
 cd ~/git
 
-git clone -b v1.3.0 https://github.com/dell/csm-replication.git
+git clone -b v1.9.0 https://github.com/dell/csm-replication.git
 
 ###download the prebuilt repctl binary
 wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
@@ -114,8 +136,10 @@ cp /root/.kube/config /root/.kube/config-2
 2 -> 1
  scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
 
+
+
+
 ###on both clusters
-docker login
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
 ./repctl get cluster
 

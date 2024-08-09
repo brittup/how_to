@@ -415,6 +415,10 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
 
+cat empty-secret-2-10-1.yaml
+kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-10-1.yaml
+kubectl get secret -n isilon
+kubectl get secret isilon-creds -o yaml -n isilon
 
 
 
