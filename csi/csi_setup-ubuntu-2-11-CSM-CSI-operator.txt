@@ -28,10 +28,14 @@ apt upgrade
 echo 192.168.1.40    u01.demo.local  u01 >> /etc/hosts
 echo 192.168.1.41    u02demo.local   u02 >> /etc/hosts
 echo 192.168.1.42    u03.demo.local  u03 >> /etc/hosts
+cat /etc/hosts
 
 hostnamectl set-hostname u01.demo.local
-hostnamectl set-hostname u02.demo.localcat 
+
+hostnamectl set-hostname u02.demo.local
+
 hostnamectl set-hostname u03.demo.local
+
 hostnamectl
 
 
