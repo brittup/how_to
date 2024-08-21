@@ -137,8 +137,6 @@ cp /root/.kube/config /root/.kube/config-2
  scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
 
 
-
-
 ###on both clusters
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
 ./repctl get cluster
