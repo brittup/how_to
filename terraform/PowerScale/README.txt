@@ -26,7 +26,7 @@ vi outputs.tf
 terraform {
   required_providers {
     powerscale = { 
-      version = "1.3.0"
+      version = "1.4.0"
       source = "registry.terraform.io/dell/powerscale"
     }
   }
@@ -56,6 +56,21 @@ resource "powerscale_nfs_export" "example_export" {
 #######################################
 install tf for democenter
 #######################################
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+gpg --dearmor | \
+sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt-get install terraform
+terraform -help
+
+
+###old install
 yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 yum -y install terraform
