@@ -25,6 +25,24 @@ vi variables.tf
 vi outputs.tf
 
 
+##################################################
+#setup and validate; install below if needed
+##################################################
+terraform init
+terraform validate
+terraform plan
+terraform init -upgrade
+
+#create resources
+terraform apply
+
+
+#create all resources
+terraform destroy
+
+
+
+###initial sample
 ###main.tf
 
 terraform {
@@ -54,9 +72,6 @@ resource "powerscale_nfs_export" "example_export" {
 
 
 
-
-
-
 #######################################
 install tf for democenter
 #######################################
@@ -70,6 +85,7 @@ https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
 sudo tee /etc/apt/sources.list.d/hashicorp.list
 
 sudo apt update
+sudo apt upgrade
 sudo apt-get install terraform
 terraform -help
 
@@ -80,21 +96,6 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.
 yum -y install terraform
 
 
-#######################################
-#setup and validate
-#######################################
-terraform init
-terraform validate
-terraform plan
-terraform init -upgrade
-
-
-#create resources
-terraform apply
-
-
-#create all resources
-terraform destroy
 
 
 

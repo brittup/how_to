@@ -5,7 +5,7 @@ variable "username" {
 
 variable "password" {
   type = string
-  default = "Password123!"
+  default = "P@ssword123!"
 }
 
 variable "endpoint" {
