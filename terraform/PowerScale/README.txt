@@ -20,6 +20,8 @@ curl -fsSL -o outputs.tf https://raw.githubusercontent.com/brittup/how_to/master
 curl -fsSL -o variables.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/variables.tf
 
 
+#review files
+
 vi main.tf
 vi variables.tf
 vi outputs.tf
@@ -31,14 +33,17 @@ vi outputs.tf
 terraform init
 terraform validate
 terraform plan
-terraform init -upgrade
 
 #create resources
 terraform apply
 
 
-#create all resources
+#delete all resources
 terraform destroy
+
+
+#new version
+terraform init -upgrade
 
 
 
@@ -75,6 +80,10 @@ resource "powerscale_nfs_export" "example_export" {
 #######################################
 install tf for democenter
 #######################################
+Check supported versions: https://github.com/dell/terraform-provider-powerscale
+tf = 1.8 08/2024
+
+
 sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
 wget -O- https://apt.releases.hashicorp.com/gpg | \
 gpg --dearmor | \
@@ -86,7 +95,7 @@ sudo tee /etc/apt/sources.list.d/hashicorp.list
 
 sudo apt update
 sudo apt upgrade
-sudo apt-get install terraform
+sudo apt-get install terraform=1.8.*
 terraform -help
 
 
