@@ -15,9 +15,9 @@ https://github.com/dell/terraform-provider-powerscale/tree/main/examples/resourc
 mkdir tf
 cd tf
 
-curl -fsSL main.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/main.tf
-curl -fsSL outputs.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/outputs.tf
-curl -fsSL variables.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/variables.tf
+curl -fsSL -o main.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/main.tf
+curl -fsSL -o outputs.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/outputs.tf
+curl -fsSL -o variables.tf https://raw.githubusercontent.com/brittup/how_to/master/terraform/PowerScale/variables.tf
 
 
 vi main.tf
