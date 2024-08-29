@@ -41,7 +41,7 @@ security_group_external_id = "sg-2222222222222"
 
 
 
-example 1: use existing IAM profile, int-sg and ext-sg with hashed credentials
+example : use existing IAM profile, int-sg and ext-sg with hashed credentials
 
 
 main.tf 
@@ -66,29 +66,6 @@ module "onefs" {
    hashed_root_passphrase = "$5$9874f5d2c724b8ca$IFZZ5e9yfUVqNKVL82s.iFLIktr4WLavFhUVa8A"
    hashed_admin_passphrase = "$5$9874f5d2c724b8ca$IFZZ5e9yfUVqNKVL82s.iFLIktr4WLavFhUVa8A"
 }
-
-
-
-
-example 2: will create IAM profile, int-sg and ext-sg 
-
-main.tf 
-{
-    "nodes": 4,
-    "image_id": "ami-11111111111111111",
-    "vpc_id": "vpc-7777777777777777",
-    "internal_subnet_id": "subnet-33333333333333333",
-    "external_subnet_id": "subnet-22222222222222222",
-    "credentials_hashed": false,
-    "data_disk_type": "gp3",
-    "data_disks_per_node": "5",
-    "data_disk_size": "1024",
-    "instance_type": "m5dn.8xlarge",
-    "default_plain_text_password": "a",
-    "validate_nodes_count": false
-}
-
-
 
 
 
