@@ -1,3 +1,8 @@
+# uses existing IAM profile, int-sg and ext-sg that have been precreated
+# with hashed credentials 
+
+
+
 module "onefs" {
   source  = "dell/onefs/aws"
   version = "1.0.0"
