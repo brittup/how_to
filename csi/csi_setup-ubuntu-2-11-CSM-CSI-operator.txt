@@ -1,4 +1,6 @@
 ###csi driver setup 2.11.0 ### democenter lab
+
+
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
@@ -24,7 +26,7 @@ apt upgrade
 #Add IP - hostnames of k8 hosts, fqdn and shortname
 
 echo 192.168.1.40    u01.demo.local  u01 >> /etc/hosts
-echo 192.168.1.41    u02demo.local   u02 >> /etc/hosts
+echo 192.168.1.41    u02.demo.local   u02 >> /etc/hosts
 echo 192.168.1.42    u03.demo.local  u03 >> /etc/hosts
 cat /etc/hosts
 
@@ -74,6 +76,12 @@ https://x.x.x.x:8080/platform   -- can be used to test API access if basic = tru
 ###################################################################################################################################################
 
 apt install nfs-common 
+
+vi /etc/fstab
+
+#comment out the swap line
+
+
 swapoff -a
 
 
@@ -83,7 +91,6 @@ cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
 EOF
-
 modprobe overlay
 modprobe br_netfilter
 
@@ -131,7 +138,8 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --
 
 # Add the Kubernetes apt repository - v 1.30 here!
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-chmod 644 /etc/apt/sources.list.d/kubernetes.list         # helps tools such as command-not-found to work correctly
+chmod 644 /etc/apt/sources.list.d/kubernetes.list         
+
 
 # Install kubelet, kubeadm & kubectl, and pin their versions
 apt-get update
@@ -165,12 +173,11 @@ kubeadm init --pod-network-cidr=10.244.0.0/16
 
 
 #Check kubelet process running 
-    service kubelet status
-    systemctl status kubelet
+systemctl status kubelet
 
 
 #Check extended logs of kubelet service
-    journalctl -u kubelet
+journalctl -u kubelet
 
 
 ###
@@ -224,6 +231,7 @@ kubectl describe node | grep -i taint
 ### taints:             node-role.kubernetes.io/master:NoSchedule
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl taint nodes --all  node-role.kubernetes.io/control-plane-
 kubectl describe node | grep -i taint
 
 
@@ -282,36 +290,9 @@ chmod 700 get_helm.sh
 
 
 ###################################################################################################################################################
-###Installing CSI Driver for PowerScale via Dell CSM Operator
-https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
-https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation-on-a-cluster-without-olm
-###mkdir for isilon csi configuration files
-###create a link, makes upgrade easier
-
-mkdir git
-cd ~/git
-git clone -b v2.11.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2-11.0
-ln -s /root/git/csi-powerscale-2-11.0 csi-latest
-touch csi-latest/2-11.0.txt
-
-###################################################################################################################################################
-###add the snapshot CRD required by csm operator
-cd ~/git
-git clone https://github.com/kubernetes-csi/external-snapshotter/
-cd ./external-snapshotter
-git checkout v8.0.1
-rm -f client/config/crd/kustomization.yaml
-rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
-kubectl create -f client/config/crd
-kubectl create -f deploy/kubernetes/snapshot-controller
-kubectl get pods -A
-kubectl get crd
-
-
-
-###################################################################################################################################################
 ###CSM Operator Installation on cluster without OLM
+###################################################################################################################################################
+
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
@@ -329,6 +310,36 @@ kubectl get pods -n dell-csm-operator
 
 ###################################################################################################################################################
 ##Installing CSI Driver for PowerScale via Dell CSM Operator
+
+
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation-on-a-cluster-without-olm
+###mkdir for isilon csi configuration files
+###create a link, makes upgrade easier
+
+mkdir git
+cd ~/git
+git clone -b v2.11.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2-11.0
+ln -s /root/git/csi-powerscale-2-11.0 csi-latest
+touch csi-latest/2-11.0.txt
+
+
+
+###################################################################################################################################################
+###add the snapshot CRD required by csm operator
+cd ~/git
+git clone https://github.com/kubernetes-csi/external-snapshotter/
+cd ./external-snapshotter
+git checkout v8.0.1
+rm -f client/config/crd/kustomization.yaml
+rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
+kubectl create -f client/config/crd
+kubectl create -f deploy/kubernetes/snapshot-controller
+kubectl get pods -A
+kubectl get crd
+
+
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###setup for the csi driver
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
