@@ -1,4 +1,6 @@
-###csi driver setup 2-11 ###
+###csi driver setup 2-11 ###  old democenter install
+
+
 -https://dell.github.io/csm-docs/docs/csidriver/release/powerscale/
 -continue to use docker on democenter hosts based on CentOS version
 -https://dell.github.io/csm-docs/docs/
