@@ -5,9 +5,7 @@
 -csm-modules: csm modules installs
 
 
--csi_setup2-X-CSM-CSI-operator-OLM.txt: CSI install via CSM operator with OLM
--csi_setup2-X-CSM-CSI-operator.txt: CSI install via CSM operator without OLM < -- main install
--csi_setup2-10-helm.txt: CSI install via helm
--upgrade25-26.txt: sample upgrade
+-csi_setup-ubuntu-2-11-CSM-CSI-operator.txt: CSI install via CSM operator with OLM  < -- main install
+-csi_setup2-CSM-CSI-operator-upgrade.txt: CSI upgrade
 -demo.txt: simple tests
 -misc.txt: misc k8 and CSI code snips
