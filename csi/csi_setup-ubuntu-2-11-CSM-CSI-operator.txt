@@ -294,6 +294,22 @@ chmod 700 get_helm.sh
 ###################################################################################################################################################
 
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
+
+###add the snapshot CRD required by csm operator
+cd ~/git
+git clone https://github.com/kubernetes-csi/external-snapshotter/
+cd ./external-snapshotter
+git checkout v8.0.1
+rm -f client/config/crd/kustomization.yaml
+rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
+kubectl create -f client/config/crd
+kubectl create -f deploy/kubernetes/snapshot-controller
+kubectl get pods -A
+kubectl get crd
+
+
+
+
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
 git clone -b v1.6.0 https://github.com/dell/csm-operator.git
@@ -327,17 +343,7 @@ touch csi-latest/2-11.0.txt
 
 
 ###################################################################################################################################################
-###add the snapshot CRD required by csm operator
-cd ~/git
-git clone https://github.com/kubernetes-csi/external-snapshotter/
-cd ./external-snapshotter
-git checkout v8.0.1
-rm -f client/config/crd/kustomization.yaml
-rm -f deploy/kubernetes/snapshot-controller/kustomization.yaml
-kubectl create -f client/config/crd
-kubectl create -f deploy/kubernetes/snapshot-controller
-kubectl get pods -A
-kubectl get crd
+
 
 
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/

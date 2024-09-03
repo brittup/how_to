@@ -1,29 +1,12 @@
 ###CSM replication 
 
+using CSM Operator installation!!!!
 
-https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/
-https://github.com/dell/csm-replication
-https://github.com/dell/csm-replication/releases
+1. install CSM operator https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 
+2. install repctl https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
 
-
-1. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/configmap-secrets
-
-Container Storage Modules (CSM) for Replication Controller requires access to remote clusters for replicating various objects. There are two ways to set up this communication:
-Using Normal Kubernetes users
-Using ServiceAccount token
-You need to create secrets (using either of the two methods) in each cluster involved in replication and provide their references in ConfigMap objects which are used to configure the respective CSM Replication Controllers.
-
-2. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl
-
-
-3. https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/powerscale/
-
-
-
-
-
-
+3. 
 
 ###The installation process consists of three steps:
 
@@ -35,10 +18,16 @@ You need to create secrets (using either of the two methods) in each cluster inv
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
-isi license list
+or
+isi license add --evaluation=SNAPSHOTIQ,SYNCIQ
 
+
+isi license list
 isi sync setting mod --encryption-required=false
+isi services isi_migrate enable
+isi services -a
 isi sync setting view
+
 
 ###setup SmartConnect on Isilon
 ###cls1
@@ -105,7 +94,7 @@ isi auth users view --zone=System --user=k82
 
 
 
-###install repctl - https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl/
+###install repctl - https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
 
 mkdir ~/git
 cd ~/git
@@ -113,9 +102,11 @@ cd ~/git
 git clone -b v1.9.0 https://github.com/dell/csm-replication.git
 
 ###download the prebuilt repctl binary
-wget https://github.com/dell/csm-replication/releases/download/v1.3.0/repctl-linux-amd64
+wget https://github.com/dell/csm-replication/releases/download/v1.9.0/repctl-linux-amd64
 mv repctl-linux-amd64 repctl
-chmod a+x repctl
+chmod +x repctl
+
+
 ./repctl
 
 
