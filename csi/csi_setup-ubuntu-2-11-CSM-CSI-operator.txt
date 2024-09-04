@@ -153,22 +153,18 @@ apt-mark hold kubelet kubeadm kubectl
 ########################################################################################################
 ###deploy kubernetes cluster on master node only, use output to join other nodes later
 ########################################################################################################
-#kubeadm init --pod-network-cidr=X.X.X.X/X
 
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
 #Check kubelet process running 
 systemctl status kubelet
 
-
 #Check extended logs of kubelet service
 journalctl -u kubelet
-
 
 ###
 <see output for node info and joining nodes to cluster - DO NOT JOIN YET> copy the node join code for later
 ###
-
 
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -178,12 +174,11 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bash_profile
 cat /root/.bash_profile
 
-
 ###deploy a CNI pod network to the cluster.
 ###https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network
 ### Install pod network plugin
 
-##### Install CLI 
+##### Install CILIUM CLI 
 
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
 CLI_ARCH=amd64
@@ -203,8 +198,6 @@ cilium install
 cilium status
 kubectl -n kube-system exec cilium-2hq5z -- cilium-dbg status
 cilium connectivity test
-
-
 
 kubectl get pods --all-namespaces
 kubectl cluster-info
@@ -227,7 +220,6 @@ kubectl describe node | grep -i taint
 ###to obtain string
 kubeadm token create --print-join-command
 
-
 ##eg:
 kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
     --discovery-token-ca-cert-hash sha256:7fdc56687d8b1ab6a04eddebd4e741ee7ba4f1b751179fee48b83c6449d5d08a 
@@ -236,24 +228,15 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-
-
 ######################################################
 ###if reset of k8 cluster needed, run on master node
 kubeadm reset
 ######################################################
-
-
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
 
 # add autocomplete permanently to your bash shell.
 echo "source <(kubectl completion bash)" >> ~/.bashrc 
-
-
-
-
-
 
 
 ###################################################################################################################################################
