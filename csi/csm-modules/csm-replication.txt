@@ -1,20 +1,18 @@
 ###CSM replication 
 
 using CSM Operator installation!!!!
+build k8 cluster and install CSM operator https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 
-1. install CSM operator https://dell.github.io/csm-docs/docs/deployment/csmoperator/
-
-2. install repctl https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
-
-3. 
 
 ###The installation process consists of three steps:
 
-1.install k8 and create clusters:  
+1.install k8 and create clusters CSM operator:  
 2.Install repctl - https://dell.github.io/csm-docs/docs/deployment/helm/modules/installation/replication/install-repctl/
-3.Install Container Storage Modules (CSM) for Replication Controller
+3.configure replication https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
+4.Install Container Storage Modules (CSM) for Replication Controller
 
-###isilon setup if not done, this is for two cluster setup
+
+###onefs setup, this is for two cluster setup
 ###hit q and yes to accept eula
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
@@ -61,7 +59,7 @@ isi auth users create --zone=System --name=k81 --set-password --enabled=true --p
 isi auth groups create --zone=System --name=k82 --provider=local
 isi auth users create --zone=System --name=k82 --set-password --enabled=true --provider=local --primary-group=k82
 
-(use Password123!)
+(use P@ssword123!)
 
 
 ###on both cls1 & cls2
@@ -94,39 +92,43 @@ isi auth users view --zone=System --user=k82
 
 
 
+
+
 ###install repctl - https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
-
-mkdir ~/git
+###clone the replication repo
 cd ~/git
-
 git clone -b v1.9.0 https://github.com/dell/csm-replication.git
 
 ###download the prebuilt repctl binary
 wget https://github.com/dell/csm-replication/releases/download/v1.9.0/repctl-linux-amd64
 mv repctl-linux-amd64 repctl
 chmod +x repctl
-
-
 ./repctl
 
 
+
+###Configuration Steps - https://dell.github.io/csm-docs/docs/deployment/csmoperator/modules/replication/
+###To configure Replication perform the following steps:
 ###edit
 #cls1
 cat /root/.kube/config
 cp /root/.kube/config /root/.kube/config-1
+cat /root/.kube/config-1
 
 #cls2
 cat /root/.kube/config
 cp /root/.kube/config /root/.kube/config-2
+cat /root/.kube/config-2
 
 
  ###scp 1 - > 2 and 2 - > 1   
 1 -> 2
- scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
+scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
+ls -al /root/.kube/
 
 2 -> 1
- scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
-
+scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
+ls -al /root/.kube/
 
 ###on both clusters
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
@@ -135,6 +137,9 @@ cp /root/.kube/config /root/.kube/config-2
 ###on cls1 only
 ./repctl create -f ~/git/csm-replication/deploy/replicationcrds.all.yaml
 ./repctl create -f ~/git/csm-replication/deploy/controller.yaml
+
+
+
 
 ./repctl cluster inject --use-sa
 

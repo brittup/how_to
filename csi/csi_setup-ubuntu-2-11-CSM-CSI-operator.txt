@@ -41,6 +41,7 @@ hostnamectl
 
 ###################################################################################################################################################
 ###isilon setup 
+###if using replication csm use: https://github.com/brittup/how_to/blob/master/csi/csm-modules/csm-replication.txt
 ###create the csi onefs api user
 
 isi auth groups create --zone=System --name=k8 --provider=local
@@ -193,7 +194,6 @@ rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
 cilium install 
 
-
 ##### check cilium status
 cilium status
 kubectl -n kube-system exec cilium-2hq5z -- cilium-dbg status
@@ -203,7 +203,6 @@ kubectl get pods --all-namespaces
 kubectl cluster-info
 kubectl cluster-info dump
 
-
 ###if only deploying a single node cluster - cluster will not schedule Pods on the control plane node - remove this taint
 kubectl describe node | grep -i taint
 ### taints:             node-role.kubernetes.io/master:NoSchedule
@@ -211,7 +210,6 @@ kubectl describe node | grep -i taint
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl taint nodes --all  node-role.kubernetes.io/control-plane-
 kubectl describe node | grep -i taint
-
 
 ########################################################################################################
 ###build and setup containerd & K8 then join all other nodes to cluster here per the kubeadm init output###
@@ -228,16 +226,17 @@ kubeadm join 192.168.1.40:6443 --token 2bxzot.jiamo9pjlikgwmty \
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-######################################################
-###if reset of k8 cluster needed, run on master node
-kubeadm reset
-######################################################
 # setup autocomplete in bash into the current shell, bash-completion package should be installed first. on Master node
 source <(kubectl completion bash) 
 
 # add autocomplete permanently to your bash shell.
 echo "source <(kubectl completion bash)" >> ~/.bashrc 
 
+
+######################################################
+###if reset of k8 cluster needed, run on master node
+kubeadm reset
+######################################################
 
 ###################################################################################################################################################
 ###csm & csi install
@@ -264,6 +263,7 @@ chmod 700 get_helm.sh
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
 
 ###add the snapshot CRD required by csm operator
+mkdir git
 cd ~/git
 git clone https://github.com/kubernetes-csi/external-snapshotter/
 cd ./external-snapshotter
@@ -274,9 +274,6 @@ kubectl create -f client/config/crd
 kubectl create -f deploy/kubernetes/snapshot-controller
 kubectl get pods -A
 kubectl get crd
-
-
-
 
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
@@ -301,7 +298,7 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
-mkdir git
+
 cd ~/git
 git clone -b v2.11.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2-11.0
