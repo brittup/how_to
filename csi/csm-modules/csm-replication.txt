@@ -163,21 +163,20 @@ make sure that TARGET_CLUSTERS_IDS is set correctly on the Operator sample file.
 ### create replication enabled storage class
 ### https://github.com/dell/csm-replication/blob/main/repctl/examples/powerscale_example_values.yaml
 
-cp ~/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-isilon/isilon/powerscale_example_values.yaml
-mv ~/git/csi-isilon/isilon/powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
-
-vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
-
 cd ~/git
 ./repctl get clusters
 
+cp ~/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-latest/isilon/powerscale_example_values.yaml
+mv ~/git/csi-latest/isilon/powerscale_example_values.yaml ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
+
+vi ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
+
+
 ###edit
+vi ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
 
-vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
-
-
-sourceClusterID: "source"
-targetClusterID: "target"
+sourceClusterID: "cluster-1"
+targetClusterID: "cluster-2"
 name: "isilon-replication"
 driver: "isilon"
 reclaimPolicy: "Delete"
@@ -199,14 +198,15 @@ parameters:
   accessZone:
     source: "System"
     target: "System"
-  azServiceIP:
-    source: "192.168.1.1"
-    target: "192.168.1.2"
+  #azServiceIP:
+    #source: "192.168.1.1"
+    #target: "192.168.1.2"
 
 
+#create replication storage class
 
-
-./repctl create sc --from-config ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
+cd ~/git
+./repctl create sc --from-config ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
 ./repctl get sc
 
 
@@ -214,7 +214,7 @@ parameters:
 
 
 
-cd ~/git/csi-isilon/isilon/
+cd ~/git/csi-latest/isilon/
 wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
 vi pvc.yaml
 
