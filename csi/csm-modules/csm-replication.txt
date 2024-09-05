@@ -124,51 +124,44 @@ cat /root/.kube/config-2
  ###scp 1 - > 2 and 2 - > 1   
 1 -> 2
 scp /root/.kube/config-1 root@192.168.1.41:/root/.kube/config-1
-ls -al /root/.kube/
 
 2 -> 1
 scp /root/.kube/config-2 root@192.168.1.40:/root/.kube/config-2
-ls -al /root/.kube/
+
 
 ###on both clusters
+ls -al /root/.kube/
+cd ~/git
 ./repctl cluster add -f "/root/.kube/config-1","/root/.kube/config-2" -n "cluster-1","cluster-2"
 ./repctl get cluster
 
-###on cls1 only
+###on cls1 only 
 ./repctl create -f ~/git/csm-replication/deploy/replicationcrds.all.yaml
-./repctl create -f ~/git/csm-replication/deploy/controller.yaml
+###./repctl create -f ~/git/csm-replication/deploy/controller.yaml
+
+###./repctl cluster inject --use-sa
+./repctl cluster inject
 
 
 
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/#pre-requisites-for-installation-of-the-csi-drivers
+After setting the driver prerequisites on all clusters
 
-./repctl cluster inject --use-sa
-
-
-######
-Check controller pods - Check that controller config map is properly populated
-kubectl get pods -n dell-replication-controller
-kubectl get cm -n dell-replication-controller dell-replication-controller-config -o yaml
+-install snapshot crd
+-create ns
+-create both secrets - identical files on both k8 clusters
 
 
-###Install CSI driver after enabling replication; setup and configure values and secret as needed
+https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
+use CSM Operator to install driver with replication enabled (replicator sidecar & replication module) 
+make sure that TARGET_CLUSTERS_IDS is set correctly on the Operator sample file.
 
-###need to specify both source and target Isilon in secret.yaml
-vi ~/git/csi-isilon/isilon/secret.yaml
+###Install CSI driver after enabling replication via CSM Operator; setup and configure values and secret as needed
+###this will install CSI pods and replication controller on both k8 clusters
 
-###enable replication by setting helm parameter controller.replication.enabled in values.yaml
-vi ~/git/csi-isilon/isilon/my-isilon-settings.yaml
-
-replication:
-    enabled: true
-    image: dellemc/dell-csi-replicator:v1.3.0
-    replicationContextPrefix: "powerscale"
-    replicationPrefix: "replication.storage.dell.com"
-
- ###deploy CSI driver  --- >
-
- kubectl get pods -A   
 
 ### create replication enabled storage class
+### https://github.com/dell/csm-replication/blob/main/repctl/examples/powerscale_example_values.yaml
 
 cp ~/git/csm-replication/repctl/examples/powerscale_example_values.yaml  ~/git/csi-isilon/isilon/powerscale_example_values.yaml
 mv ~/git/csi-isilon/isilon/powerscale_example_values.yaml ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
@@ -179,29 +172,37 @@ cd ~/git
 ./repctl get clusters
 
 ###edit
-https://dell.github.io/csm-docs/docs/replication/deployment/powerscale/#creating-storage-classes
-https://github.com/dell/csm-replication/blob/v1.3.0/repctl/examples/powerscale_example_values.yaml
+
+vi ~/git/csi-isilon/isilon/my-isilon-sc-replication.yaml
 
 
-sourceClusterID: "cluster-1"
-targetClusterID: "cluster-2"
+sourceClusterID: "source"
+targetClusterID: "target"
 name: "isilon-replication"
 driver: "isilon"
 reclaimPolicy: "Delete"
 replicationPrefix: "replication.storage.dell.com"
 remoteRetentionPolicy:
-  RG: "Retain"
-  PV: "Retain"
+  RG: "Delete"
+  PV: "Delete"
 parameters:
   rpo: "Five_Minutes"
   ignoreNamespaces: "false"
   volumeGroupPrefix: "csi"
-  accessZone: "System"
   isiPath: "/ifs/csi"
-  rootClientEnabled: "false"
   clusterName:
     source: "cluster-1"
     target: "cluster-2"
+  rootClientEnabled:
+    source: "false"
+    target: "false"
+  accessZone:
+    source: "System"
+    target: "System"
+  azServiceIP:
+    source: "192.168.1.1"
+    target: "192.168.1.2"
+
 
 
 
