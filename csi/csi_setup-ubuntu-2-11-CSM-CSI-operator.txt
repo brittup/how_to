@@ -298,18 +298,13 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
-
 cd ~/git
 git clone -b v2.11.0 https://github.com/dell/csi-powerscale.git
 mv csi-powerscale csi-powerscale-2-11.0
 ln -s /root/git/csi-powerscale-2-11.0 csi-latest
 touch csi-latest/2-11.0.txt
 
-
-
 ###################################################################################################################################################
-
-
 
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 ###setup for the csi driver
@@ -318,8 +313,6 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
 
 kubectl create namespace isilon
 kubectl get ns
-
-
 
 ############################################################################################
 ### review api auth on onefs - session or basic
@@ -353,7 +346,7 @@ vi secret-2-11.0.yaml
 
       isDefault: true
 
- ###delete/comment out the cluster2 controllerCount
+ ###delete/comment out the cluster2 controllerCount unless using replication
 
 
 ###create isilon-creds secret 
@@ -367,8 +360,6 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-11.0.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
-
-
 
 
 ###https://dell.github.io/csm-docs/docs/deployment/csmoperator/
@@ -426,18 +417,12 @@ kind: ContainerStorageModule
       enabled: true
       configVersion: v1.9.0
 
-
-###eanble replication if using
-
+###enable replication if using and all replication work done!!
 
 
-###install the csi driver operator
+###install the csi driver via csm operator
 ###add another session, to watch pod deployments during install or use k9s
 watch kubectl get pods -A  
-
-
-
-###install csi driver via csm 
 
 kubectl create -f my-isilon-settings-2-11.0.yaml
 

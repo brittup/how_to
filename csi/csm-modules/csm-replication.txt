@@ -17,7 +17,7 @@ build k8 cluster and install CSM operator https://dell.github.io/csm-docs/docs/d
 
 isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
 or
-isi license add --evaluation=SNAPSHOTIQ,SYNCIQ
+isi license add --evaluation=ONEFS,SNAPSHOTIQ,SYNCIQ
 
 
 isi license list
@@ -25,6 +25,8 @@ isi sync setting mod --encryption-required=false
 isi services isi_migrate enable
 isi services -a
 isi sync setting view
+
+enable nfs service
 
 
 ###setup SmartConnect on Isilon
@@ -175,7 +177,7 @@ vi ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
 ###edit
 vi ~/git/csi-latest/isilon/my-isilon-sc-replication.yaml
 
-sourceClusterID: "cluster-1"
+sourceClusterID: "cluster-1"     
 targetClusterID: "cluster-2"
 name: "isilon-replication"
 driver: "isilon"
@@ -215,10 +217,11 @@ cd ~/git
 
 
 cd ~/git/csi-latest/isilon/
-wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm/pvc.yaml
+wget https://raw.githubusercontent.com/brittup/how_to/master/csi/csm-modules/pvc.yaml
 vi pvc.yaml
 
-###create a testing namespace on both k8 clusters
+###create a testing namespace on both k8 clusters!!!
+
 kubectl create namespace test
 
 ###create a pvc on cluster-1
