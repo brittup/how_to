@@ -21,9 +21,9 @@ resource "powerscale_synciq_policy" "policy" {
   # Required
   name             = "policy-tftest1"
   action           = "sync"
-  source_root_path = "/ifs/data/azure-fs"
-  target_host      = "10.0.7.11"
-  target_path      = "/ifs/data/azure-fs"
+  source_root_path = "/ifs/ps1"
+  target_host      = "192.168.1.200"
+  target_path      = "/ifs/ps1"
  
 
   source_network = {
@@ -32,7 +32,12 @@ resource "powerscale_synciq_policy" "policy" {
   }
 }
 
+
+
+
+
 /*
+is SIQ setup and running
 isi services -a | grep isi_migrate enable
 isi services -a isi_migrate enable
 isi_for_array -s /usr/bin/isi_migr_sched
