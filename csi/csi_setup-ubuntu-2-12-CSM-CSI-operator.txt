@@ -143,8 +143,8 @@ apt-get update
 # check available kubeadm versions (when manually executing)
 apt-cache madison kubeadm
 
-# Install version 1.31.0 for all components
-apt-get install kubelet=1.31.3-1.1 kubeadm=1.31.3-1.1 kubectl=1.31.3-1.1
+# Install version 1.31.0 for all components - update minor version if needed
+apt-get install kubelet=1.31.0-1.1 kubeadm=1.31.0-1.1 kubectl=1.31.0-1.1
 
 
 ## apt-mark hold prevents package from being automatically upgraded or removed
@@ -165,7 +165,11 @@ systemctl status kubelet
 journalctl -u kubelet
 
 ###
-<see output for node info and joining nodes to cluster - DO NOT JOIN YET> copy the node join code for later
+see output for node info and joining nodes to cluster
+
+<DO NOT JOIN YET!> 
+
+copy the node join code for later
 ###
 
 mkdir -p $HOME/.kube
@@ -261,7 +265,9 @@ chmod 700 get_helm.sh
 ###CSM Operator Installation on cluster without OLM
 ###################################################################################################################################################
 
-###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
+###
+Install volume snapshot CRDs. For detailed snapshot setup procedure, https://dell.github.io/csm-docs/docs/snapshots/#volume-snapshot-feature
+###
 
 ###add the snapshot CRD required by csm operator
 mkdir git
@@ -279,14 +285,14 @@ kubectl get crd
 
 
 ###################################################################################################################################################
-
+###https://dell.github.io/csm-docs/docs/deployment/csmoperator/#installation
 ###################################################################################################################################################
 
 ### manual installation of CSM operator
 ### https://dell.github.io/csm-docs/docs/deployment/csmoperator/
 ###Clone and checkout the required csm-operator version using 
 cd ~/git
-git clone -b v1.6.0 https://github.com/dell/csm-operator.git
+git clone -b v1.7.0 https://github.com/dell/csm-operator.git
 cd ~/git/csm-operator
 bash scripts/install.sh
 
@@ -297,12 +303,9 @@ kubectl get pods -n dell-csm-operator
 ###
 
 
-
-
 ###################################################################################################################################################
-
+Installing CSI Driver for PowerScale via Dell CSM Operator
 ###################################################################################################################################################
-##Installing CSI Driver for PowerScale via Dell CSM Operator
 
 
 https://dell.github.io/csm-docs/docs/deployment/csmoperator/drivers/powerscale/
@@ -310,11 +313,13 @@ https://dell.github.io/csm-docs/docs/deployment/csmoperator/#manual-installation
 ###mkdir for isilon csi configuration files
 ###create a link, makes upgrade easier
 
+kubectl get csm --all-namespaces
+
 cd ~/git
-git clone -b v2.11.0 https://github.com/dell/csi-powerscale.git
-mv csi-powerscale csi-powerscale-2-11.0
-ln -s /root/git/csi-powerscale-2-11.0 csi-latest
-touch csi-latest/2-11.0.txt
+git clone -b v2.12.0 https://github.com/dell/csi-powerscale.git
+mv csi-powerscale csi-powerscale-2-12.0
+ln -s /root/git/csi-powerscale-2-12.0 csi-latest
+touch csi-latest/2-12.0.txt
 
 ###################################################################################################################################################
 
@@ -341,9 +346,9 @@ isi_gconfig -t web-config
 
 mkdir ~/git/csi-latest/isilon
 cd ~/git/csi-latest/isilon
-curl -fsSL -o secret-2-11.0.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.11.0/samples/secret/secret.yaml
-curl -fsSL -o empty-secret-2-11.0.yaml  https://raw.github.com/dell/csi-powerscale/v2.11.0/samples/secret/empty-secret.yaml
-vi secret-2-11.0.yaml
+curl -fsSL -o secret-2-12.0.yaml https://raw.githubusercontent.com/dell/csi-powerscale/v2.12.0/samples/secret/secret.yaml
+curl -fsSL -o empty-secret-2-12.0.yaml  https://raw.github.com/dell/csi-powerscale/v2.12.0/samples/secret/empty-secret.yaml
+vi secret-2-12.0.yaml
 
 
 ###modify
@@ -363,13 +368,13 @@ vi secret-2-11.0.yaml
 
 ###create isilon-creds secret 
 
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-11.0.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-latest/isilon/secret-2-12.0.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 ###since we are using isiInsecure = 'true"  in my-isilon-setting.yaml, need an empty secret
 
 
-kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-11.0.yaml
+kubectl create -f ~/git/csi-latest/isilon/empty-secret-2-12.0.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
 
@@ -383,12 +388,12 @@ kubectl get csm --all-namespaces
 
 cd ~/git/csi-latest/isilon
 
-#curl -fsSL -o my-isilon-settings-2-11.0.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v2110.yaml
+#curl -fsSL -o my-isilon-settings-2-12.0.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v2110.yaml
 #or copy from the csm 
 
-cp  ~/git/csm-operator/samples/storage_csm_powerscale_v2110.yaml my-isilon-settings-2-11.0.yaml
+cp  ~/git/csm-operator/samples/storage_csm_powerscale_v2110.yaml my-isilon-settings-2-12.0.yaml
 
-vi my-isilon-settings-2-11.0.yaml
+vi my-isilon-settings-2-12.0.yaml
 
 ###edit my-isilon-settings-2-x.yaml: modify any values as needed
 ###replicas: 2    - if only 1 host, 2 is 2
@@ -400,8 +405,8 @@ kind: ContainerStorageModule
   namespace: isilon
 
 
-  # Config version for CSI PowerScale v2.11.0 driver
-    configVersion: v2.11.0
+  # Config version for CSI PowerScale v2.12.0 driver
+    configVersion: v2.12.0
     authSecret: isilon-creds
     replicas: 2
     dnsPolicy: ClusterFirstWithHostNet
@@ -436,7 +441,7 @@ kind: ContainerStorageModule
 ###add another session, to watch pod deployments during install or use k9s
 watch kubectl get pods -A  
 
-kubectl create -f my-isilon-settings-2-11.0.yaml
+kubectl create -f my-isilon-settings-2-12.0.yaml
 
 ###Review installation
 
@@ -492,7 +497,7 @@ https://k9scli.io/topics/commands/
 -review the secrets.yaml
 -review the my-settings.yaml
 ###update secrets
-kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-11.0.yaml -o yaml --dry-run=client | kubectl apply -f -
+kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-12.0.yaml -o yaml --dry-run=client | kubectl apply -f -
 
 
 
@@ -507,8 +512,8 @@ USING the CSI Driver
 ###There are samples storage class yaml files available under helm/samples/storageclass
 ###Sample storage classes:  samples/storageclass
 
-cp ~/git/csi-latest/samples/storageclass/isilon.yaml  ~/git/csi-latest/isilon/my-isilon-sc-2-11.0.yaml
-vi ~/git/csi-latest/isilon/my-isilon-sc-2-11.0.yaml
+cp ~/git/csi-latest/samples/storageclass/isilon.yaml  ~/git/csi-latest/isilon/my-isilon-sc-2-12.0.yaml
+vi ~/git/csi-latest/isilon/my-isilon-sc-2-12.0.yaml
 
 ###modify the following as needed, otherwise csi & sc will use defaults from my-isilon-settings.yaml
 ###defines where the exports/dir/quota of the volumeis created; defaults to System Zone
@@ -529,8 +534,8 @@ mountOptions: [vers=3]
 
 ###Other options can be reviewed and tested as needed
 
-###copy and create a sample storageclass - sc-2-11.0  for driver version
-kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-11.0.yaml
+###copy and create a sample storageclass - sc-2-12.0  for driver version
+kubectl create -f ~/git/csi-latest/isilon/my-isilon-sc-2-12.0.yaml
 kubectl get sc
 kubectl describe sc isilon
 
