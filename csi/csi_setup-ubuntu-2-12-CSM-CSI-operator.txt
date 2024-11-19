@@ -43,6 +43,11 @@ hostnamectl
 ###################################################################################################################################################
 ###isilon setup 
 ###if using replication csm use: https://github.com/brittup/how_to/blob/master/csi/csm-modules/csm-replication.txt
+
+isi license add --evaluation=ONEFS,SMARTCONNECT_ADVANCED,SMARTQUOTAS,SNAPSHOTIQ,SYNCIQ
+
+isi license list
+
 ###create the csi onefs api user
 
 isi auth groups create --zone=System --name=k8 --provider=local
@@ -82,7 +87,7 @@ isi license add --evaluation=SMARTCONNECT_ADVANCED
 ###hit q and yes to accept eula
 
 isi network subnets modify groupnet0.subnet0 --sc-service-addr=192.168.1.250 --sc-service-name=ssip-isilon.demo.local
-isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-3:ext-1 --sc-subnet=subnet0  --sc-dns-zone=mp.demo.local    --description=mp_pool
+isi network pools create --id=groupnet0:subnet0:pool1 --ranges=192.168.1.60-192.168.1.80  --access-zone=System  --alloc-method=dynamic  --ifaces=1-6:ext-1 --sc-subnet=subnet0  --sc-dns-zone=csi.demo.local  --description=csi_pool
 
 
 ###Setup DNS, via powershell
@@ -379,7 +384,7 @@ vi secret-2-12.0.yaml
       
       username: "k8"
 
-      password: "Password123!"
+      password: "P@ssword123!"
 
       endpoint: "https://csi.demo.local"       < --- This is the System Zone IP or FQDN, for the driver to make API calls to
 
@@ -413,7 +418,7 @@ cd ~/git/csi-latest/isilon
 #curl -fsSL -o my-isilon-settings-2-12.0.yaml https://github.com/dell/csm-operator/blob/main/samples/storage_csm_powerscale_v2110.yaml
 #or copy from the csm 
 
-cp  ~/git/csm-operator/samples/storage_csm_powerscale_v2110.yaml my-isilon-settings-2-12.0.yaml
+cp  ~/git/csm-operator/samples/storage_csm_powerscale_v2120.yaml my-isilon-settings-2-12.0.yaml
 
 vi my-isilon-settings-2-12.0.yaml
 
@@ -454,7 +459,7 @@ kind: ContainerStorageModule
       #   false: disable Resiliency feature(do not deploy podmon sidecar)
       # Default value: false
       enabled: true
-      configVersion: v1.9.0
+      configVersion: v1.11.0
 
 ###enable replication if using and all replication work done!!
 
@@ -463,9 +468,18 @@ kind: ContainerStorageModule
 ###add another session, to watch pod deployments during install or use k9s
 watch kubectl get pods -A  
 
+###################################################################################################################################################
+###install CSI via csm operator
+###################################################################################################################################################
+
+
 kubectl create -f my-isilon-settings-2-12.0.yaml
 
+
+
+###################################################################################################################################################
 ###Review installation
+###################################################################################################################################################
 
 
 kubectl get csm/isilon -n isilon -o yaml
@@ -476,10 +490,12 @@ kubectl edit csm/isilon -n isilon
 
 
 ###
-###uninstall csi driver with CSM
-kubectl delete csm/isilon -n isilon         --- uninstall CSI driver
-cd ~git/csm-operator
-bash scripts/uninstall.sh                   --- uninstall CSM Operator
+###uninstall csi driver with CSM  --- uninstall CSI driver
+kubectl delete csm/isilon -n isilon  
+
+###--- uninstall CSM Operator
+cd ~/git/csm-operator
+bash scripts/uninstall.sh                  
 
 kubectl get csm/isilon -n isilon -o yaml
 kubectl get csm -A
@@ -490,10 +506,10 @@ kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
 ###################################################################################################################################################
-###if you hit rate limit issue - logon to dockerhub if you have not
-docker login
-username
-password
+###if you hit rate limit issue - logon to dockerhub if you have not - N/A without docker install
+###docker login
+###username
+###password
 
 
 ###review the csi pods
