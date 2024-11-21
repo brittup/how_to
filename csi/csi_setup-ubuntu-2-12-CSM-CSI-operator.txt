@@ -11,7 +11,7 @@ CSM & CSI Installation without OLM
 1.install Snapshot CRD
 2.install CSM Operator without OLM - manually
 3.create secrets
-4.install CSI Operator
+4.install CSI driver via CSM Operator
 
 
 ##https://orcacore.com/upgrade-rockylinux9-kernel-latest-version/
@@ -21,6 +21,8 @@ sudo su -
 
 apt update
 apt upgrade
+
+reboot
 
 
 #ensure dns is setup for all hosts, do not skip this step
@@ -183,7 +185,8 @@ apt-mark hold kubelet kubeadm kubectl
 ###deploy kubernetes cluster on master node only, use output to join other nodes later
 ########################################################################################################
 
-kubeadm init --pod-network-cidr=10.244.0.0/16
+kubeadm init 
+#kubeadm init --pod-network-cidr=10.0.0.0/16
 
 #Check kubelet process running 
 systemctl status kubelet
@@ -480,7 +483,7 @@ kubectl create -f my-isilon-settings-2-12.0.yaml
 ###################################################################################################################################################
 ###Review installation
 ###################################################################################################################################################
-
+### use k9s!
 
 kubectl get csm/isilon -n isilon -o yaml
 kubectl describe csm isilon -n isilon
@@ -505,6 +508,11 @@ kubectl get csm -A
 kubectl logs <csm-operator-controller-podname> -n <namespace>
 ###
 
+
+
+
+###################################################################################################################################################
+###Misc. and monitoring
 ###################################################################################################################################################
 ###if you hit rate limit issue - logon to dockerhub if you have not - N/A without docker install
 ###docker login
@@ -536,10 +544,6 @@ https://k9scli.io/topics/commands/
 -review the my-settings.yaml
 ###update secrets
 kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/git/csi-isilon/isilon/secret-2-12.0.yaml -o yaml --dry-run=client | kubectl apply -f -
-
-
-
-
 
 
 
@@ -580,6 +584,7 @@ kubectl describe sc isilon
 
 ###################################################################################################################################################
 ###Testing CSI with samples
+###################################################################################################################################################
 ###sample test files:  ~/git/csi-latest/samples
 ###create a testing namespace
 
@@ -734,3 +739,9 @@ kubectl create secret generic isilon-creds -n isilon --from-file=config=/root/gi
 kubectl create -f ~/git/csi-isilon/isilon/empty-secret-2-x.yaml
 kubectl get secret -n isilon
 kubectl get secret isilon-creds -o yaml -n isilon
+
+
+###useful
+https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+
+kubectl apply -f https://k8s.io/examples/admin/dns/dnsutils.yaml
