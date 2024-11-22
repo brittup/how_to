@@ -28,7 +28,7 @@ touch pvc-deployment-resilent.yaml
 touch nginx-deployment-resilent.yaml
 
 
-kubectl apply -f pvc-resilent.yaml -n test
+kubectl apply -f pvc-deployment-resilent -n test
 
 kubectl apply -f nginx-deployment-resilent.yaml -n test
 
