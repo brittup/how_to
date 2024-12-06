@@ -1,5 +1,0 @@
-###
-
-hide searchbar
-unpin firefox
-add ubuntu host to putty
