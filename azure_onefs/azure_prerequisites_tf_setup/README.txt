@@ -1,9 +1,10 @@
-### TF build to create Azure base requirements
+### TF build to create Azure base requirements, simple tf code to create the base rerquirements
 
 -resource group 
 -internal sg 
 -external sg
 -managed identity
+
 Assumes deploy host is configured and setup for tf deployment of resources in Azure
 
 customize main.tf as needed and modify for specific subscript id and role

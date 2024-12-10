@@ -44,8 +44,8 @@ resource "azurerm_user_assigned_identity" "azurerm_user_assigned_identity_azure_
 
 
 resource "azurerm_role_assignment" "azurerm_role_assignment_azure_ga1_role" {
-  scope              = "/subscriptions/9549873d-89kl-4f6b-4829-ac3c6d976cad"
-  role_definition_id = "/subscriptions/9549873d-89kl-4f6b-4829-ac3c6d976cad/providers/Microsoft.Authorization/roleDefinitions/978e6f6a-p09l-496pl-ae96-600d218f4b0a"   
+  scope              = "/subscriptions/8547234x-dhh6-4f6b-802d-ac3c6d976fgt"
+  role_definition_id = "/subscriptions/8547234x-dhh6-4f6b-802d-ac3c6d976fgt/providers/Microsoft.Authorization/roleDefinitions/978e6f6a-p09l-496pl-ae96-600d218f4b0a"   
   principal_id       = azurerm_user_assigned_identity.azurerm_user_assigned_identity_azure_ga1_identity1.principal_id
 }
 
